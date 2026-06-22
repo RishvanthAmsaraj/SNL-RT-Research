@@ -115,15 +115,45 @@ The pipeline expects Kinarm data in the following structure:
 - Trial outcomes (correct/incorrect)
 - Participant identifiers
 
-## Version History
+## Version History & Evolution
 
-- **Current Pipeline** - Active development branch with refined methodologies
-- **Deprecated Ver 2** - Previous lab pipeline with expanded DDM implementations
-- **Deprecated Ver 1** - Initial PyDDM-based approach with synthetic data validation
+This repository contains three major versions of the analysis pipeline, each
+representing a significant methodological advancement. Detailed migration notes
+explain why certain approaches were abandoned and what replaced them.
 
-## Contributing
+| Version | Status | Key Advancement |
+|---------|--------|-----------------|
+| **Current Pipeline** | ✅ Active | Hierarchical Bayesian framework; participant-level SRT t₀; full credible intervals |
+| **Deprecated Ver 2** | ⚠️ Superseded | Native scipy MLE fitting; contamination mixture; per-participant fitting |
+| **Deprecated Ver 1** | ⚠️ Archived | PyDDM proof-of-concept; synthetic data validation; basic visualization |
 
-This is an active research project. For questions about the analysis pipeline or to report issues, please open a GitHub issue.
+### Why Versions Were Deprecated
+
+**Ver 1 → Ver 2:** PyDDM was too inflexible for custom likelihoods; switched to
+native scipy optimization with single-boundary Wald model appropriate for
+interception tasks. See [`Deprecated Ver 1/MIGRATION_NOTES.md`](Deprecated%20Ver%201/MIGRATION_NOTES.md).
+
+**Ver 2 → Current:** Per-cell maximum likelihood cannot identify SRT non-decision
+time (floor-piling artifact); hierarchical Bayesian estimation resolves this
+through partial pooling. See [`Deprecated Ver 2/MIGRATION_NOTES.md`](Deprecated%20Ver%202/MIGRATION_NOTES.md).
+
+### Documentation
+
+- **[CHANGELOG.md](CHANGELOG.md)** — Complete version history with technical details
+- **[Current Pipeline/ISSUES_AND_IMPROVEMENTS.md](Current%20Pipeline/ISSUES_AND_IMPROVEMENTS.md)** — Known issues and planned enhancements
+- **[Current Pipeline/RUN_GUIDE.md](Current%20Pipeline/RUN_GUIDE.md)** — Step-by-step execution instructions
+
+## Contributing & Development
+
+This is an active research project. See [`ISSUES_AND_IMPROVEMENTS.md`](Current%20Pipeline/ISSUES_AND_IMPROVEMENTS.md)
+for the development roadmap, known bugs, and planned features.
+
+To contribute:
+1. Check the issues list for open items
+2. Create a feature branch
+3. Add tests if applicable
+4. Update CHANGELOG.md
+5. Submit a pull request
 
 ## Citation
 
