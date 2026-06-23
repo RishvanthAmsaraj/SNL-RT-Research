@@ -20,7 +20,10 @@ THE MODEL. A hierarchical Bayesian model that adds the information the per-cell 
     WIDE credible intervals (honest about the residual uncertainty) instead of piling at a
     hard floor. Individual differences are retained, not erased.
   * A 5% uniform CONTAMINATION term (as in the frequentist DDM) -- this is essential: without
-    it, a handful of stray fast trials drag t0 to the floor even for informative cells.
+    it, a handful of stray fast trials drag t0 to the floor even for informative cells. The
+    uniform-mixture scheme is introduced by Ratcliff & Tuerlinckx (2002); the specific 5%
+    figure is an implementation choice (convention). If quoting a specific percentage, also
+    cite Vandekerckhove & Tuerlinckx (2007) for the concrete contamination implementation.
   * Drift v and boundary a are estimated per cell (participant x speed), weakly-informative
     and not pooled (pooling them across the heterogeneous cells corrupts t0).
 
@@ -42,6 +45,7 @@ Run: python Bayesian_SRT_ndt.py   (compute-intensive; ~10-15 min. Detach for lon
 
 CITATIONS: Ratcliff & Tuerlinckx (2002) [contamination]; Wiecki, Sofer & Frank (2013)
 [hierarchical Bayesian DDM]; Gelman et al., Bayesian Data Analysis [partial pooling].
+R-hat attributed primarily to Gelman & Rubin (1992) Statist. Sci. 7:457-472.
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")
@@ -82,6 +86,15 @@ LO, HI = 0.080, 0.600
 CONTAM = 0.05; CDENS = CONTAM/(HI-LO)
 FLOOR = 0.035                       # hard validity floor only (well below any plausible NDT)
 T0_PRIOR_MEAN, T0_PRIOR_SD = 0.070, 0.030   # weakly-informative physiological prior
+                                          # 70 ms is a permissive saccadic conduction-limit
+                                          # value (monkey-anchored: Dorris, Paré & Munoz
+                                          # 1997; Hall & Colby 2016). Sits below the
+                                          # human empirical minimum of ~80 ms. The
+                                          # per-participant estimates are data-driven;
+                                          # the prior-sensitivity check (estimates move
+                                          # <=7 ms across prior centres 50-90 ms)
+                                          # largely neutralises the species concern for
+                                          # well-constrained participants.
 DRAWS, TUNE, CHAINS, TARGET = 1000, 1500, 4, 0.95
 
 def load(dfi, pid, spd):

@@ -17,15 +17,24 @@ MODEL (one "unit" = participant x speed; partial pooling across units):
   log v ~ Normal(mu_lv, s_lv);  mu_lv ~ Normal(log 10, 0.5);  s_lv ~ HalfNormal(0.5)
   log a ~ Normal(mu_la, s_la);  mu_la ~ Normal(log 1.0, 0.5); s_la ~ HalfNormal(0.5)
   t0 = FLOOR + (min_RT - FLOOR)*sigmoid(z);  z hierarchical;  FLOOR = 100 ms
-       (the floor enforces the minimum manual sensorimotor delay and keeps t0 valid;
-        a non-centered parametrization is used for sampling efficiency)
+       (FLOOR is a permissive manual non-decision floor on the fitted t0 PARAMETER;
+        sub-100 ms responses are treated as anticipations / fast guesses
+        [Whelan 2008; Luce 1986]; 100 ms is a data-cleaning threshold justified by
+        summed irreducible delays, NOT a measured physiological constant.
+        This is a model parameter floor; the raw-RT data cutoff of 150 ms is a
+        separate, stricter anticipation filter applied before fitting -- see
+        METHODOLOGICAL_JUSTIFICATION.md §5.3.
+        A non-centered parametrization is used for sampling efficiency.)
 
 Priors are weakly informative (data dominate). Boundary centered at a~1 matches the
 rescaled Ratcliff & Tuerlinckx (2002) range under s=1 (their 0.08-0.16 at s=0.1).
 
 CITATIONS: Wiecki, Sofer & Frank (2013) Front. Neuroinform. 7:14 (HDDM precedent);
   Ratcliff & Tuerlinckx (2002) Psychon. Bull. Rev. 9:438-481; Gelman et al., Bayesian
-  Data Analysis (non-centered parametrization, partial pooling, r-hat).
+  Data Analysis (non-centered parametrization, partial pooling, r-hat). R-hat is
+  attributed primarily to Gelman & Rubin (1992) Statist. Sci. 7:457-472; BDA3 is the
+  textbook treatment. If the rank-normalized split R-hat is used, also cite
+  Vehtari et al. (2021) Bayesian Analysis 16:667-718.
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")

@@ -31,6 +31,10 @@ PRIORS (weakly informative; data dominate) -- see Bayesian_Methods.md
   log v ~ Normal(log 10, 0.5);  log a ~ Normal(log 1.0, 0.5)  (a centered ~1 matches the
   rescaled Ratcliff & Tuerlinckx 2002 range under s=1);  t0 fraction logit hierarchical.
 
+R-hat (convergence diagnostic): attributed primarily to Gelman & Rubin (1992) Statist.
+  Sci. 7:457-472; BDA3 (Gelman et al. 2013) is the textbook treatment. If rank-normalized
+  split R-hat is used, also cite Vehtari et al. (2021) Bayesian Analysis 16:667-718.
+
 USAGE
   python Bayesian_SRT_fit.py            # all speeds
   python Bayesian_SRT_fit.py 150        # one speed only (optional)
@@ -75,8 +79,17 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA  = os.path.join(SCRIPT_DIR, "pooled_data.csv")
 SELECT = os.path.join(SCRIPT_DIR, "DDM_srt_fits.csv")   # which cells are mixture
 OUT   = os.path.join(SCRIPT_DIR, "Bayesian_srt_fits.csv")
-FLOOR = 0.040            # validity floor for the mixture shift (s)
-FLOOR_PHYS = 0.070       # physiological saccadic non-decision floor (70 ms) for the single-Wald t0
+FLOOR = 0.040            # validity floor for the mixture shift (s) -- mathematical, not physiological
+FLOOR_PHYS = 0.070       # permissive saccadic conduction-limit floor on the t0 parameter.
+                         # The 70 ms value is anchored in MONKEY superior-colliculus
+                         # neurophysiology (Dorris, Paré & Munoz 1997; Hall & Colby 2016)
+                         # as a conduction-delay limit. It sits BELOW the human empirical
+                         # minimum of ~80 ms (Fischer & Weber 1993; Knox & Wolohan 2015;
+                         # van Heusden et al. 2017) and is deliberately permissive: it will
+                         # essentially never clip a genuine human saccade. Do NOT present
+                         # 70 ms as a measured human value. This is a model parameter floor
+                         # on the fitted t0; the raw-RT data cutoff of 80 ms is a separate,
+                         # stricter anticipation filter -- see METHODOLOGICAL_JUSTIFICATION.md §5.3.
 LO, HI = 80, 600         # SRT physiological filter (ms)
 SPEEDS = [int(sys.argv[1])] if len(sys.argv) > 1 else [0, 75, 150]
 

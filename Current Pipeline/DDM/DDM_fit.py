@@ -18,15 +18,45 @@ MODEL.  Single-boundary diffusion = shifted Wald density (unit diffusion noise, 
   parameters: drift v, boundary a, non-decision time t0. A 5% uniform contamination
   term (Ratcliff & Tuerlinckx, 2002) adds robustness to stray trials.
 
-BOUNDS (literature-grounded; see DDM_methods doc for full justification):
+BOUNDS (literature-grounded; see METHODOLOGICAL_JUSTIFICATION.md for full justification):
   a in [0.05, 2.5]   -- Ratcliff & Tuerlinckx (2002) report a~0.08-0.16 at s=0.1;
                         rescaled to s=1 that is ~0.8-1.6; cap 2.5 allows cautious
                         responders while excluding the implausible a~3 degeneracy.
+                        Note: code uses s=1 (unit noise) throughout; rescaling matches.
   v in [0.1, 40]     -- generous; NOT tightly capped (no defensible universal v range,
                         and a tight cap would mis-fit genuine fast responders).
-  t0 floor: HRT 100 ms (manual sensorimotor minimum); SRT 70 ms (saccadic afferent+
-                        efferent conduction ~60 ms, sensory+premotor ~80 ms).
+  t0 floor (model parameter, NOT a data cutoff -- see DATA FILTERS below):
+    HRT 100 ms: permissive manual non-decision floor. Sub-100 ms responses are treated
+      as anticipations / fast guesses (Whelan 2008; Luce 1986); 100 ms is a data-cleaning
+      threshold justified by summed irreducible delays (afferent + encoding + efferent
+      + electromechanical; Botwinick & Thompson 1966; Franklin & Wolpert 2011), NOT a
+      measured physiological constant.
+    SRT 70 ms: permissive saccadic conduction-limit floor. The 70 ms value is anchored in
+      monkey superior-colliculus neurophysiology (Dorris, Paré & Munoz 1997 [MONKEY];
+      Hall & Colby 2016 [MONKEY]; Fischer & Boch 1983 [MONKEY]) as a conduction-delay
+      limit. It sits BELOW the human empirical minimum of ~80 ms (Knox & Wolohan 2015;
+      Fischer & Weber 1993) and is therefore deliberately permissive -- it will essentially
+      never clip a genuine human saccade, but provides a defensible lower bound on the
+      fitted t0 parameter. Do not present 70 ms as a measured human value.
+    The ~60 ms afferent+efferent conduction figure is animal-derived; soften to ~50-70 ms.
   t0 ceiling: 3rd percentile of the cell's RTs - 2 ms.
+
+DATA FILTERS (anticipation/outlier cutoffs applied to raw RTs -- these are
+  DIFFERENT from the t0 parameter floors above; they remove non-genuine trials before
+  fitting, while t0 floors constrain a model parameter during fitting):
+    HRT 150-800 ms: 150 ms is a common visual-manual anticipation cutoff (Whelan 2008).
+    SRT 80-600 ms:  80 ms is the human saccadic anticipation cutoff (Fischer & Weber 1993;
+                    Knox & Wolohan 2015; van Heusden et al. 2017). Sub-80 ms saccades
+                    are at chance accuracy and treated as anticipatory, not stimulus-driven.
+  The fitted-t0 floors (100/70 ms) are PERMISSIVE minima; the data filters (150/80 ms)
+  are STRICT cutoffs. These two are not the same quantity and must not be conflated.
+
+CONTAMINATION (P_CONTAM = 0.05): The 5% uniform contamination term is a
+  principled robust-likelihood add-on. The uniform-mixture scheme is introduced by
+  Ratcliff & Tuerlinckx (2002); the specific 5% figure is a convention (it is the
+  implementation choice here). If quoting a specific percentage, also cite
+  Vandekerckhove & Tuerlinckx (2007) for the concrete contamination implementation,
+  or soften to "a small (~5%) uniform contaminant mixture."
 
 SRT MIXTURE (express + regular saccades).  Saccadic distributions are often bimodal.
   Selection rule (fit-driven + structural validation; avoids BIC over-detection and
@@ -43,7 +73,7 @@ SRT MIXTURE (express + regular saccades).  Saccadic distributions are often bimo
 
 CITATIONS: Ratcliff & Tuerlinckx (2002) Psychon. Bull. Rev. 9:438-481; Anders, Alario &
   Van Maanen (2016) Psychol. Methods 21:309-327; Knox & Wolohan (2015) PLoS ONE
-  10:e0133595; Hartigan & Hartigan (1985) Ann. Statist. 13:70-84.
+  10:e0120437; Hartigan & Hartigan (1985) Ann. Statist. 13:70-84.
 """
 import os, numpy as np, pandas as pd, warnings
 from scipy import stats
