@@ -84,7 +84,7 @@ the figure steps can run in any order. The vincentile figures need only `pooled_
 
 ---
 
-## ⚠️ Note on the CSVs / figures included in this package
+##  Note on the CSVs / figures included in this package
 
 The `Bayesian_*.csv` tables and the rendered figures here were produced with **reduced MCMC
 sampling (600 draws / 2 chains)** so they could be generated quickly as a preview. The point

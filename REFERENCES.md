@@ -54,7 +54,7 @@ A human-readable companion to [`REFERENCES.bib`](REFERENCES.bib). This document 
 
 | Citation | Role | Notes |
 |---|---|---|
-| **Knox, P. C., & Wolohan, F. D. A. (2015).** Express saccades: A review of the literature and a revised definition. *Vision Research*, 107, 61–72. **DOI: 10.1016/j.visres.2014.12.010** | Express saccade definition | ⚠️ **DOI correction applied:** code originally had `e0133595` (unrelated HIV-vaccine paper); corrected to `e0120437`. |
+| **Knox, P. C., & Wolohan, F. D. A. (2015).** Express saccades: A review of the literature and a revised definition. *Vision Research*, 107, 61–72. **DOI: 10.1016/j.visres.2014.12.010** | Express saccade definition |  **DOI correction applied:** code originally had `e0133595` (unrelated HIV-vaccine paper); corrected to `e0120437`. |
 
 ### Mixture Detection
 

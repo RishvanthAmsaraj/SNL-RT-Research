@@ -72,7 +72,6 @@ No explicit comparison to HDDM/HSSM architecture or PyDDM for historical referen
 - **HRT filter 150–800 ms** — kept
 - **Express-dominant participants kept and modelled with mixtures** — kept
 - **Same Bayesian model for all participants** — kept
-- **PRESENTATION_GUIDE.md** — kept and updated for Phase 2 changes
 - **RUN_GUIDE.md** — kept and updated for new scripts
 - **Headline dissociation** — unchanged (values shifted slightly from floor changes but survived all checks)
 
@@ -84,4 +83,4 @@ No explicit comparison to HDDM/HSSM architecture or PyDDM for historical referen
 - `Bayesian/` — Bayesian_HRT_fit.py, SRT_fit.py, SRT_ndt.py, Bayesian_figures.py, conceptual.py, SRT_identifiability_check.py, SRT_fixed_t0_analysis.py
 - `NDT/` — NDT_barchart.py, NDT_barchart_bayesian.py
 - `Vincentile/` — vincentile_figures.py
-- `RUN_GUIDE.md`, `PRESENTATION_GUIDE.md`
+- `RUN_GUIDE.md`

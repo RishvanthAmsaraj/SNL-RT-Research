@@ -26,7 +26,7 @@ The Bayesian scripts require a separate conda environment due to PyMC's compilat
 
 ### 4. DDM diagnostic consistency
 
-The DDM figures are labeled as "comparison/diagnostic" but some viewers may mistake them for primary results. The `PRESENTATION_GUIDE.md` addresses this narrative framing explicitly, but it requires reader discipline.
+The DDM figures are labeled as "comparison/diagnostic" but some viewers may mistake them for primary results. The narrative framing addresses this explicitly, but it requires reader discipline.
 
 ### 5. No cross-validation
 

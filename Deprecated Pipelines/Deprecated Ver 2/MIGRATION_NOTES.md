@@ -201,9 +201,9 @@ The following files were carried forward essentially unchanged:
 
 | File | Status | Notes |
 |------|--------|-------|
-| `DDM_fit.py` | ✅ Unchanged | Already mature in Ver 2 |
-| `DDM_figures.py` | ✅ Minor updates | Added Bayesian comparison panels |
-| `vincentile_figures.py` | ✅ Unchanged | Model-free, no methodology change |
+| `DDM_fit.py` | Unchanged | Already mature in Ver 2 |
+| `DDM_figures.py` | Minor updates | Added Bayesian comparison panels |
+| `vincentile_figures.py` | Unchanged | Model-free, no methodology change |
 
 ---
 

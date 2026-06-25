@@ -44,11 +44,11 @@ Like Ver 2, scripts were run individually with no defined workflow or output cha
 
 *Severity: Operational. Fixed in Ver 3 with ordered pipeline and RUN_GUIDE.*
 
-### 6. No presentation guide
+### 6. No narrative framework for results
 
 The results existed but had no narrative framework for presentation — no way to explain the three-category figure split (Bayesian vs. DDM vs. vincentile) to readers.
 
-*Severity: Communication. Fixed in Ver 3 with PRESENTATION_GUIDE.md.*
+*Severity: Communication. Fixed in Ver 3.*
 
 ---
 

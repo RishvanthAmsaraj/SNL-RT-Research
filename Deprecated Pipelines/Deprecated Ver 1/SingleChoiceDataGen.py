@@ -18,7 +18,7 @@ noise_sd = 1.0  # Standard deviation of diffusion noise
 # Boundary hit = detection/response (accuracy=1)
 # Timeout = no detection/miss (accuracy=0)
 
-print("🚀 GENERATING SINGLE-CHOICE DDM DATA")
+print(" GENERATING SINGLE-CHOICE DDM DATA")
 print("=" * 40)
 print(f"Parameters:")
 print(f"  Drift rate: {drift_rate}")
@@ -92,6 +92,6 @@ with open(extended_filename, 'w', newline='') as csvfile:
         evidence_time = decision_times[i]  # Time spent accumulating evidence
         writer.writerow([trials[i], response_times[i], accuracies[i], decision_times[i], evidence_time])
 
-print(f"✅ Extended CSV file '{extended_filename}' generated.")
+print(f" Extended CSV file '{extended_filename}' generated.")
 print()
-print("📋 File ready for single-choice DDM analysis!")
+print(" File ready for single-choice DDM analysis!")

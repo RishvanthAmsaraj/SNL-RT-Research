@@ -30,18 +30,18 @@ try:
         ROBUST_LOSS_AVAILABLE = False
     
     PYDDM_AVAILABLE = True
-    print("✓ PyDDM successfully imported and ready to use")
+    print(" PyDDM successfully imported and ready to use")
     
 except ImportError as e:
     PYDDM_AVAILABLE = False
     ROBUST_LOSS_AVAILABLE = False
-    print(f"✗ PyDDM not available: {e}")
+    print(f" PyDDM not available: {e}")
     print("Will use built-in DDM analysis instead")
     print("To install PyDDM, try: pip install pyddm")
 except Exception as e:
     PYDDM_AVAILABLE = False
     ROBUST_LOSS_AVAILABLE = False
-    print(f"✗ Error importing PyDDM: {e}")
+    print(f" Error importing PyDDM: {e}")
     print("Will use built-in DDM analysis instead")
 
 def load_and_validate_csv_data(file_path):
@@ -122,7 +122,7 @@ def prepare_pyddm_sample(df):
             choice_names=("incorrect", "correct"),
             condition_column_names=["condition"]
         )
-        print(f"  ✓ PyDDM Sample created (method 1): {len(sample)} trials")
+        print(f"   PyDDM Sample created (method 1): {len(sample)} trials")
         return sample
     except TypeError as e:
         print(f"  Method 1 failed: {e}")
@@ -136,7 +136,7 @@ def prepare_pyddm_sample(df):
             choice_names=("incorrect", "correct"),
             conditions=["condition"]
         )
-        print(f"  ✓ PyDDM Sample created (method 2): {len(sample)} trials")
+        print(f"   PyDDM Sample created (method 2): {len(sample)} trials")
         return sample
     except TypeError as e:
         print(f"  Method 2 failed: {e}")
@@ -150,7 +150,7 @@ def prepare_pyddm_sample(df):
             ("incorrect", "correct"),
             "condition"
         )
-        print(f"  ✓ PyDDM Sample created (method 3): {len(sample)} trials")
+        print(f"   PyDDM Sample created (method 3): {len(sample)} trials")
         return sample
     except TypeError as e:
         print(f"  Method 3 failed: {e}")
@@ -163,13 +163,13 @@ def prepare_pyddm_sample(df):
             "choice", 
             ("incorrect", "correct")
         )
-        print(f"  ✓ PyDDM Sample created (method 4, no conditions): {len(sample)} trials")
+        print(f"   PyDDM Sample created (method 4, no conditions): {len(sample)} trials")
         return sample
     except Exception as e:
         print(f"  Method 4 failed: {e}")
         
     # If all methods fail, return None
-    print(f"  ✗ All methods failed to create PyDDM Sample")
+    print(f"   All methods failed to create PyDDM Sample")
     return None
 
 def create_pyddm_model():
@@ -209,26 +209,26 @@ def fit_pyddm_model(sample):
         try:
             # Try robust BIC first
             model.fit(sample, lossfunction=LossRobustBIC, verbose=False)
-            print(f"  ✓ Model fitted successfully (Robust BIC)")
+            print(f"   Model fitted successfully (Robust BIC)")
             fitting_successful = True
         except Exception as e:
-            print(f"  ✗ Robust BIC failed: {e}")
+            print(f"   Robust BIC failed: {e}")
             try:
                 # Fall back to robust likelihood
                 model.fit(sample, lossfunction=LossRobustLikelihood, verbose=False)
-                print(f"  ✓ Model fitted successfully (Robust Likelihood)")
+                print(f"   Model fitted successfully (Robust Likelihood)")
                 fitting_successful = True
             except Exception as e:
-                print(f"  ✗ Robust Likelihood failed: {e}")
+                print(f"   Robust Likelihood failed: {e}")
     
     if not fitting_successful:
         try:
             # Fall back to default
             model.fit(sample, verbose=False)
-            print(f"  ✓ Model fitted successfully (Default method)")
+            print(f"   Model fitted successfully (Default method)")
             fitting_successful = True
         except Exception as e:
-            print(f"  ✗ All fitting methods failed: {e}")
+            print(f"   All fitting methods failed: {e}")
             print(f"  This might be due to data issues or PyDDM version compatibility")
     
     if not fitting_successful:

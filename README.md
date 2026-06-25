@@ -54,10 +54,10 @@ SNL-RT-Research/
 │   └── ISSUES_AND_IMPROVEMENTS.md    #   Known issues & roadmap
 │
 ├── Deprecated Pipelines/             # Archived historical versions
-│   ├── Deprecated Ver 1/             #   PyDDM prototypes (2022–2023)
-│   ├── Deprecated Ver 2/             #   Native scipy MLE pipeline (2023–2024)
-│   ├── Deprecated Ver 2.5/           #   Early Bayesian refinement (early 2024)
-│   └── Deprecated Ver 3/             #   Pre-literature-anchored pipeline (mid 2024)
+│   ├── Deprecated Ver 1/             #   PyDDM prototypes
+│   ├── Deprecated Ver 2/             #   Native scipy MLE pipeline
+│   ├── Deprecated Ver 2.5/           #   Early Bayesian refinement
+│   └── Deprecated Ver 3/             #   Pre-literature-anchored pipeline
 │
 └── pooled_data.csv                   # Canonical input (7,676 trials, 16 participants)
 ```
@@ -174,7 +174,7 @@ These decisions were deliberately made and held throughout the project's evoluti
 If you use this pipeline in your research, please cite:
 
 ```
-Amsaraj, R. (2024). SNL RT Research Pipeline v3.0 — Hierarchical Bayesian
+Amsaraj, R. (2025). SNL RT Research Pipeline — Hierarchical Bayesian
 Drift-Diffusion Models for KINARM Interception Tasks.
 Sensorimotor Neuroscience Laboratory.
 GitHub: https://github.com/RishvanthAmsaraj/SNL-RT-Research
@@ -198,5 +198,4 @@ This project is licensed under the MIT License — see [`LICENSE`](LICENSE).
 ---
 
 **Maintainer:** Rishvanth Amsaraj  
-**Last Updated:** June 2026  
 **Status:** Active Research

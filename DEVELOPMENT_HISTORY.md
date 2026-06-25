@@ -15,7 +15,7 @@ This project fits a **single-boundary shifted-Wald drift-diffusion model** to ha
 | Phase | What Happened | Repo Folder | End State |
 |---|---|---|---|
 | **0 — Foundations** | PyDDM toy → real data; two-choice → shift-Wald; SRT filter fix; contamination mixture | Ver 1 → Ver 2 | Working DDM on real data; express saccades identified; first Bayesian seed |
-| **1 — Bayesian Pipeline** | Hierarchical Bayesian; flooring investigation; dissociation result; ordered pipeline | Ver 2.5 → Ver 3 | Headline dissociation; 3-category figure suite; RUN_GUIDE; PRESENTATION_GUIDE |
+| **1 — Bayesian Pipeline** | Hierarchical Bayesian; flooring investigation; dissociation result; ordered pipeline | Ver 2.5 → Ver 3 | Headline dissociation; 3-category figure suite; RUN_GUIDE |
 | **1.5 — Citation Audit** | Every citation verified against published record; DOI fix; monkey vs. human species tagging | Ver 3 | Methodological References document; clean citation chain |
 | **2 — Literature Anchoring** | Bounds from systematic review; *why* saccadic t₀ floors; LATER alternative; NDT chart refinement | Ver 3 → Current | Literature-anchored bounds; mechanism diagnosis; LATER figures; fixed-70 ms reporting |
 
@@ -26,7 +26,7 @@ Two structural shifts define the entire journey:
 
 ---
 
-## Phase 0 — Foundations (2022–2024)
+## Phase 0 — Foundations
 
 *Repo folders: Deprecated Ver 1 → Deprecated Ver 2*
 
@@ -90,7 +90,7 @@ PyMC does not install cleanly via pip on Windows. A **conda-based installation w
 
 ---
 
-## Phase 1 — The Bayesian Refinement and the Headline Result (Early–Mid 2024)
+## Phase 1 — The Bayesian Refinement and the Headline Result
 
 *Repo folders: Deprecated Ver 2.5 → Deprecated Ver 3*
 
@@ -152,11 +152,11 @@ Phase 1 turned scripts into a **pipeline**:
 - **7 figure scripts** with DDM/Bayesian pairs
 - **3-category figure split**: Bayesian (results), DDM (comparison/diagnostic), vincentile (raw data)
 - **RUN_GUIDE.md** — installation + run order
-- **PRESENTATION_GUIDE.md** — how to present each panel without overclaiming
+- Guidelines for how to present each panel without overclaiming
 
 ---
 
-## Phase 1.5 — Citations and the Methodology Document (Mid 2024)
+## Phase 1.5 — Citations and the Methodology Document
 
 *Repo folder: Deprecated Ver 3*
 
@@ -176,7 +176,7 @@ A `Methodological_References` document was produced capturing all of this. None 
 
 ---
 
-## Phase 2 — Literature-Anchored Bounds, Flooring Diagnosis, and Alternatives (2024–2026)
+## Phase 2 — Literature-Anchored Bounds, Flooring Diagnosis, and Alternatives
 
 *Repo folder: Current Pipeline*
 
@@ -310,7 +310,6 @@ Equally important for the repository record: things we considered and chose to k
 **Data & docs:**
 - `pooled_data.csv` — canonical input (7,676 trials)
 - `RUN_GUIDE.md` — installation and run order
-- `PRESENTATION_GUIDE.md` — figure-by-figure explanation
 
 **Run order:** fits → figures → diagnostics
 

@@ -20,7 +20,7 @@ noise_sd = 1.0  # Standard deviation of diffusion noise
 # Lower boundary hit = Choice B (accuracy depends on true answer)
 # Timeout = no decision made (accuracy=0)
 
-print("🚀 GENERATING DUAL-CHOICE DDM DATA")
+print(" GENERATING DUAL-CHOICE DDM DATA")
 print("=" * 40)
 print(f"Parameters:")
 print(f"  Drift rate: {drift_rate}")
@@ -135,9 +135,9 @@ with open(extended_filename, 'w', newline='') as csvfile:
             evidence_trajectories[i]
         ])
 
-print(f"✅ Extended CSV file '{extended_filename}' generated.")
+print(f" Extended CSV file '{extended_filename}' generated.")
 print()
-print("📋 File ready for dual-choice DDM analysis!")
+print(" File ready for dual-choice DDM analysis!")
 print()
 print("Choice Encoding:")
 print("  1 = Upper boundary hit (Choice A)")

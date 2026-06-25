@@ -80,8 +80,6 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
   vincentile (model-free raw RTs), with paired DDM/Bayesian versions.
 - `SRT_identifiability_check.py` and `SRT_fixed_t0_analysis.py` — diagnostics establishing that
   saccadic t₀ is not identifiable and that drift-by-speed is robust to the fixed t₀ value.
-- `PRESENTATION_GUIDE.md` — figure-by-figure explanation and narrative guidance.
-
 ### Changed
 
 - **Headline HRT result now from Bayesian fits, not DDM.** The DDM hand speed effect (p = 0.047)
@@ -104,11 +102,11 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 - `DDM/DDM_fit.py`, `DDM_figures.py`, `DDM_conceptual.py`
 - `NDT/NDT_barchart.py`, `NDT_barchart_bayesian.py`
 - `Vincentile/vincentile_figures.py`
-- `RUN_GUIDE.md`, `PRESENTATION_GUIDE.md`
+- `RUN_GUIDE.md` — installation and run order
 
 ---
 
-## [0.2.0] — 2024-06 — Express saccades + first Bayesian models
+## [0.2.0] — 2025-08 — Express saccades + first Bayesian models
 **Repo folder:** [`Deprecated Pipelines/Deprecated Ver 2.5/`](/Deprecated%20Pipelines/Deprecated%20Ver%202.5/)
 
 ### Added
@@ -154,7 +152,7 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
-## [0.1.0] — 2023–2024 — Native MLE pipeline with real data
+## [0.1.0] — 2025-08 — Native MLE pipeline with real data
 **Repo folder:** [`Deprecated Pipelines/Deprecated Ver 2/`](/Deprecated%20Pipelines/Deprecated%20Ver%202/)
 
 ### Added
@@ -200,7 +198,7 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
-## [0.0.1]–[0.0.x] — 2022–2023 — PyDDM prototypes
+## [0.0.1]–[0.0.x] — 2025-08 — PyDDM prototypes
 **Repo folder:** [`Deprecated Pipelines/Deprecated Ver 1/`](/Deprecated%20Pipelines/Deprecated%20Ver%201/)
 
 ### Added
@@ -249,7 +247,7 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 2. Replace MLE with full Bayesian posterior (credible intervals)
 3. Add convergence diagnostics (R-hat, divergences)
 4. Build structured pipeline (fits → figures → diagnostics)
-5. Create PRESENTATION_GUIDE and three-category figure system
+5. Create three-category figure system
 
 ### From Ver 3 → Current (v3.0 Final)
 1. Anchor all bounds to systematic literature review (Tran 2020; Haith 2016)
@@ -269,7 +267,7 @@ If you use this pipeline, please cite the version appropriate to your analysis:
 
 **Current Pipeline (Bayesian):**
 ```
-Amsaraj, R. (2024). SNL RT Research Pipeline v3.0 — Hierarchical Bayesian
+Amsaraj, R. (2025). SNL RT Research Pipeline — Hierarchical Bayesian
 Drift-Diffusion Models for KINARM Interception Tasks.
 Sensorimotor Neuroscience Laboratory.
 ```
