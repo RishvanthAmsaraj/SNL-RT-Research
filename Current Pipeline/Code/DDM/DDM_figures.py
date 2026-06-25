@@ -1,3 +1,10 @@
+"""DDM_figures.py  --  DDM method comparison and diagnostic figures.
+
+Produces summary figure panels from DDM fits.
+Reads DDM_hrt_fits.csv, DDM_srt_fits.csv. Output: DDM_summary.pdf/.png.
+
+Run: python DDM_figures.py  (needs DDM_fit.py outputs first)
+"""
 import os, sys, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm

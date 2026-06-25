@@ -1,51 +1,15 @@
 """
-Bayesian_SRT_ndt.py  --  hierarchical estimation of saccadic non-decision time (t0)
-====================================================================================
-This is the recommended treatment of saccadic non-decision time. It ESTIMATES t0 (it does
-not fix it), preserves individual differences across participants, and replaces the
-floor-piling artifact of per-cell fitting with honest, data-driven regularization.
+Bayesian_SRT_ndt.py  --  Hierarchical Bayesian: saccadic NDT per participant
 
-THE PROBLEM IT SOLVES. Fitting each participant x speed cell in isolation cannot identify
-t0 for fast, low-variance saccades: the estimate slides to whatever floor is imposed
-(verified in SRT_identifiability_check.py). Fixing t0 at one constant removes the artifact
-but erases real individual differences in non-decision time, which is also wrong.
+Estimates participant-level saccadic t0 (shared across speeds) via PyMC/NUTS.
+Replaces per-cell flooring with partial pooling: t0 is shared across speeds per
+participant, regularized toward the group mean.
 
-THE MODEL. A hierarchical Bayesian model that adds the information the per-cell fits lack:
-  * t0 is a PARTICIPANT-level parameter, SHARED ACROSS TARGET SPEED -- because non-decision
-    time is a property of the oculomotor system, not of the stimulus. This triples the
-    trials informing each participant's t0 and forces cross-speed consistency.
-  * t0 is PARTIALLY POOLED across participants: t0_p ~ Normal(mu_t0, sigma_t0) truncated to
-    a valid range. Participants whose saccades carry information get data-driven estimates;
-    participants whose saccades are too fast are regularized toward the population mean with
-    WIDE credible intervals (honest about the residual uncertainty) instead of piling at a
-    hard floor. Individual differences are retained, not erased.
-  * A 5% uniform CONTAMINATION term (as in the frequentist DDM) -- this is essential: without
-    it, a handful of stray fast trials drag t0 to the floor even for informative cells.
-  * Drift v and boundary a are estimated per cell (participant x speed), weakly-informative
-    and not pooled (pooling them across the heterogeneous cells corrupts t0).
+Outputs: Bayesian_srt_ndt.csv (t0, 95% CI, trial count), Bayesian_srt_ndt.pdf/.png
 
-WHAT IS AND ISN'T SOLVED (honest). Participants with enough saccadic spread get t0 estimates
-that are DATA-DRIVEN and robust to the prior (verified: changing the prior centre over
-50-90 ms moves these estimates by <=7 ms). Participants with uniformly fast saccades cannot
-have t0 identified from their data alone; their estimate is regularized toward the
-population and carries a wide interval, and the absolute population LEVEL remains mildly
-prior-dependent. This residual is a genuine limit of the data (fast saccades do not encode
-the non-decision/decision split) and is reported transparently rather than hidden.
+For model details, see CODE_REFERENCE.md.
 
-Reads DDM_srt_fits.csv (single/mixture split) + pooled_data.csv. This model treats the
-single (unimodal) cells, where the non-decision-time identifiability problem lives.
-Outputs:
-  Bayesian_srt_ndt.csv      -- per participant: t0 (ms) + 95% CI; per cell: v, a
-  Bayesian_srt_ndt.pdf/.png -- forest plot of per-participant t0 with CIs (individual
-                               differences), flagged by how well-constrained each is
-Run: python Bayesian_SRT_ndt.py   (compute-intensive; ~10-15 min. Detach for long runs.)
-
-CITATIONS: Ratcliff & Tuerlinckx (2002) [contamination]; Wiecki, Sofer & Frank (2013) &
-  Vandekerckhove, Tuerlinckx & Lee (2011) [hierarchical Bayesian DDM]; Bompas et al. (2017,
-  2024) & Ludwig et al. (2007) [saccadic dead time / non-decision-time cautions]; Tran et
-  al. (2020) [parameter envelopes]; Gelman et al. (2013) & Gelman & Rubin (1992) [partial
-  pooling, r-hat]. The 70 ms floor is harmonized with the per-cell SRT fit and the saccadic
-  dead-time literature, so per-participant t0 is not allowed below the physiological minimum.
+Run: python Bayesian_SRT_ndt.py  (needs DDM_srt_fits.csv first)
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")
@@ -56,21 +20,11 @@ except ModuleNotFoundError:
         "\n" + "=" * 72 + "\n"
         "  This Bayesian script needs PyMC, which is not installed.\n"
         + "=" * 72 + "\n"
-        "PyMC's sampler uses a compiled backend, so on Windows the reliable way to\n"
-        "install it is with conda (plain `pip install pymc` typically fails on the\n"
-        "Windows Store Python because it has no C/C++ compiler). One-time setup:\n\n"
-        "  1. Install Miniconda (no admin rights needed):\n"
-        "       https://docs.conda.io/en/latest/miniconda.html\n"
-        "  2. Open 'Anaconda Prompt' and run:\n"
-        "       conda create -n snl python=3.11\n"
-        "       conda activate snl\n"
-        "       conda install -c conda-forge pymc arviz numpy scipy pandas matplotlib\n"
-        "  3. Run this script from that environment:\n"
-        "       conda activate snl\n"
-        "       python \"" + os.path.basename(__file__) + "\"\n\n"
-        "You are NOT blocked in the meantime: the validated outputs of this script\n"
-        "(Bayesian_srt_ndt.csv and the .pdf/.png figures) are already saved in this\n"
-        "folder, so the analysis is complete even without re-running it.\n"
+        "Install via conda: conda create -n snl python=3.11 && conda activate snl\n"
+        "&& conda install -c conda-forge pymc arviz numpy scipy pandas matplotlib\n"
+        "\n"
+        "Pre-validated outputs are already saved, so results are complete\n"
+        "even without re-running.\n"
         + "=" * 72 + "\n")
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm

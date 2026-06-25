@@ -1,22 +1,12 @@
 """
-DDM_conceptual.py  --  conceptual single-boundary diffusion schematics (match original suite)
-==============================================================================================
-Produces six annotated DDM schematics -- one per measure x speed -- matching the original look:
-a noisy evidence-accumulation path rising from the starting point (z) at the baseline to the
-response threshold (a), the predicted RT distribution sitting ABOVE the threshold, and the
-non-decision (t0) / decision-time decomposition along a time axis.
+DDM_conceptual.py  --  Conceptual single-boundary diffusion schematics
 
-  ddm_hrt_0_degs.pdf  ddm_hrt_75_degs.pdf  ddm_hrt_150_degs.pdf
-  ddm_srt_0_degs.pdf  ddm_srt_75_degs.pdf  ddm_srt_150_degs.pdf   (+ .png each)
+Produces six annotated DDM schematics (per measure x speed) from group-mean DDM
+fits. For SRT mixture cells, uses the regular-saccade component.
 
-Group-mean parameters are read from the DDM fits; for SRT mixture cells the regular-saccade
-component (t0r, vr, ar) is used so the schematic reflects the ordinary, non-express process.
-The RT distribution drawn is the shifted-Wald density at those group-mean parameters. NOTE:
-the saccadic t0 shown is the per-cell fit value and is at the physiological floor / not
-separately identifiable (see SRT_identifiability_check.py and Bayesian_SRT_ndt.py); these
-schematics illustrate the *process*, not a t0 measurement.
+Outputs: ddm_{measure}_{speed}_degs.pdf/.png
 
-Reads DDM_hrt_fits.csv, DDM_srt_fits.csv, pooled_data.csv.  Run: python DDM_conceptual.py
+Run: python DDM_conceptual.py
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")

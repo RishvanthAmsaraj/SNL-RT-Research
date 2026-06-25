@@ -1,51 +1,15 @@
 """
-Bayesian_SRT_fit.py  --  Hierarchical Bayesian model: saccadic RT (SRT)
-=======================================================================================
-Produces the Bayesian model fits for saccadic RT (SRT), at the highest accuracy,
-mirroring the DDM (Method A) per-cell model selection so the two methods are comparable:
+Bayesian_SRT_fit.py  --  Hierarchical Bayesian: saccadic RT (Method B)
 
-  * UNIMODAL participant x speed cells  -> hierarchical single-boundary Wald with partial
-    pooling across participants WITHIN each speed. Pooling + literature-centered priors
-    resolve the non-decision-time degeneracy (no hard drift cap needed).
-  * EXPRESS / BIMODAL cells             -> Bayesian two-component (express + regular)
-    shifted-Wald mixture, fit per cell, with post-hoc relabeling by component mean
-    (the standard fix for mixture label-switching).
+Fits the single-boundary shifted-Wald per saccadic RT cell (PyMC/NUTS), with mixture
+handling for bimodal express/regular cells flagged by DDM_fit.py. Per-speed hierarchical
+models; resumable (completed cells saved immediately).
 
-Which cells are which is read from the DDM selection (DDM_srt_fits.csv, the
-`model` column). If that file is absent, the script falls back to Hartigan's dip test.
+Outputs: Bayesian_srt_fits.csv, Bayesian_srt_posterior_<speed>_unimodal.nc
 
-DESIGN FOR RELIABILITY (so it can run to completion despite long runtimes)
-  * Per-speed hierarchical models (each ~10-13 units) sample far faster and cleaner than
-    one pooled 48-unit model, and per-speed pooling is statistically cleaner (it avoids
-    the non-independence of the same participant appearing at three speeds).
-  * RESUMABLE: every completed cell is appended to the output CSV immediately. On restart
-    the script skips cells already present, so no work is ever lost. A per-speed
-    hierarchical model is atomic (fit, then all its cells are written together).
-  * Thorough sampling settings (high target_accept, long tuning) for accuracy.
+For model details, priors, and bounds, see CODE_REFERENCE.md.
 
-MODEL (identical likelihood to the DDM; s = 1 single-boundary Wald)
-  shifted-Wald logpdf(tau; v, a) = log a - 0.5*log(2*pi) - 1.5*log(tau) - (a - v*tau)^2/(2 tau)
-  t0 parametrized as a fraction of each cell's fastest RT (always valid; smooth for NUTS).
-
-PRIORS (weakly informative; data dominate) -- see Bayesian_Methods.md
-  log v ~ Normal(log 10, 0.5);  log a ~ Normal(log 1.0, 0.5)  (a centered ~1 sits inside
-  the Tran et al. 2020 systematic-review envelope at s=1, a ~0.11-7.47; absolute values are
-  scaling/model-dependent, Ratcliff et al. 2016);  t0 fraction logit hierarchical, floored
-  at the 70 ms saccadic dead time (Bompas et al. 2017; Ludwig et al. 2007).
-
-USAGE
-  python Bayesian_SRT_fit.py            # all speeds
-  python Bayesian_SRT_fit.py 150        # one speed only (optional)
-
-OUTPUT
-  Bayesian_srt_fits.csv  -- one row per participant x speed:
-     pid, spd, n, model, conv_div, conv_rhat,
-     single: v, a, t0(ms), t0_lo95, t0_hi95
-     mixture: pi, pi_lo95, pi_hi95, express_mode(ms), express_mode_lo95, express_mode_hi95,
-              reg_mode(ms), reg_mode_lo95, reg_mode_hi95
-  Bayesian_srt_posterior_<speed>_unimodal.nc  -- full posterior per speed (for audit)
-
-Requires: pymc, arviz, pytensor, numpy, pandas (sklearn/diptest only for the fallback).
+Run: python Bayesian_SRT_fit.py  (needs DDM_srt_fits.csv from DDM_fit.py)
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")
@@ -56,21 +20,11 @@ except ModuleNotFoundError:
         "\n" + "=" * 72 + "\n"
         "  This Bayesian script needs PyMC, which is not installed.\n"
         + "=" * 72 + "\n"
-        "PyMC's sampler uses a compiled backend, so on Windows the reliable way to\n"
-        "install it is with conda (plain `pip install pymc` typically fails on the\n"
-        "Windows Store Python because it has no C/C++ compiler). One-time setup:\n\n"
-        "  1. Install Miniconda (no admin rights needed):\n"
-        "       https://docs.conda.io/en/latest/miniconda.html\n"
-        "  2. Open 'Anaconda Prompt' and run:\n"
-        "       conda create -n snl python=3.11\n"
-        "       conda activate snl\n"
-        "       conda install -c conda-forge pymc arviz numpy scipy pandas matplotlib\n"
-        "  3. Run this script from that environment:\n"
-        "       conda activate snl\n"
-        "       python \"" + os.path.basename(__file__) + "\"\n\n"
-        "You are NOT blocked in the meantime: the validated outputs of this script\n"
-        "(the .csv fit tables and the .pdf/.png figures) are already saved in this\n"
-        "folder, so the analysis is complete even without re-running it.\n"
+        "Install via conda: conda create -n snl python=3.11 && conda activate snl\n"
+        "&& conda install -c conda-forge pymc arviz numpy scipy pandas matplotlib\n"
+        "\n"
+        "Pre-validated outputs are already saved, so results are complete\n"
+        "even without re-running.\n"
         + "=" * 72 + "\n")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

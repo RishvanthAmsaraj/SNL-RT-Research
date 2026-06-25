@@ -1,0 +1,9 @@
+# Generated data and figures (archive artifacts)
+*.csv
+*.pdf
+*.png
+*.npz
+*.nc
+__pycache__/
+*.py[cod]
+.DS_Store

@@ -139,20 +139,15 @@ python Bayesian/LATER_analysis.py
 
 ## Pipeline Version History
 
-The repository traces the full evolution from initial prototypes to the current production pipeline:
-
-| Version | Repo Folder | Key Method | Key Advancements |
+| Version | Folder | Key Method | Key Advancements |
 |---|---|---|---|
-| **Ver 1** | `Deprecated Pipelines/Deprecated Ver 1/` | PyDDM (two-choice) | Proof-of-concept on synthetic data |
-| **Ver 2** | `Deprecated Pipelines/Deprecated Ver 2/` | Native scipy MLE | Real data loading; single-boundary Wald; contamination mixture |
-| **Ver 2.5** | `Deprecated Pipelines/Deprecated Ver 2.5/` | Per-cell Bayesian (PyMC) | First Bayesian fix; express saccade handling; bimodal detection |
-| **Ver 3** | `Deprecated Pipelines/Deprecated Ver 3/` | Hierarchical Bayesian | Participant-level SRT t₀; dissociation result; full credible intervals |
-| **Current** | `Current Pipeline/` | Literature-anchored hierarchical Bayesian | Systematic-review bounds; flooring diagnosis; LATER model |
+| **Ver 1** | `Deprecated Ver 1/` | PyDDM (two-choice) | Proof-of-concept on synthetic data |
+| **Ver 2** | `Deprecated Ver 2/` | Native scipy MLE | Real data; single-boundary Wald; contamination mixture |
+| **Ver 2.5** | `Deprecated Ver 2.5/` | Per-cell Bayesian (PyMC) | Express saccade handling; bimodal detection |
+| **Ver 3** | `Deprecated Ver 3/` | Hierarchical Bayesian | Participant-level SRT t₀; dissociation result |
+| **Current** | `Current Pipeline/` | Literature-anchored hierarchical Bayesian | Systematic-review bounds; flooring diagnosis |
 
-Detailed change logs, migration notes, and the rationale for each deprecation are available in:
-- **[CHANGELOG.md](CHANGELOG.md)** — Version-by-version technical changelog
-- **[DEVELOPMENT_HISTORY.md](DEVELOPMENT_HISTORY.md)** — Full narrative of every major decision
-- **[Per-pipeline issues documents](#)** (in each deprecated pipeline folder)
+Detailed change logs are in [`CHANGELOG.md`](CHANGELOG.md) and [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 

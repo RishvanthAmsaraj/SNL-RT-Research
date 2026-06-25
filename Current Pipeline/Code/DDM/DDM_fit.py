@@ -1,68 +1,13 @@
 """
-DDM_fit.py  --  Drift-Diffusion Model (frequentist / maximum-likelihood) fitting
-=================================================================================
-Method A of the KINARM interception RT analysis. Fits the single-boundary diffusion
-model (shifted Wald, s = 1) by maximum likelihood to hand RT (HRT) and saccadic RT
-(SRT), for every participant x target-speed cell, with literature-grounded bounds and
-an automatic express/regular mixture for SRT where the data require it.
+DDM_fit.py  --  Frequentist MLE (Method A) for hand & saccadic RT
 
-This single script reproduces both output tables:
-    DDM_hrt_fits.csv   -- HRT, one row per cell
-    DDM_srt_fits.csv   -- SRT, one row per cell (single OR express/regular mixture)
+Fits the single-boundary shifted-Wald (contamination mixture) per participant x speed
+cell via scipy.optimize differential evolution. Outputs DDM_hrt_fits.csv and
+DDM_srt_fits.csv (resumable: completed cells are skipped on re-run).
 
-Run:  python DDM_fit.py        (resumable; re-running skips finished cells)
+For model details, parameters, and bounds, see CODE_REFERENCE.md (same folder).
 
---------------------------------------------------------------------------------
-MODEL.  Single-boundary diffusion = shifted Wald density (unit diffusion noise, s=1):
-    f(t) = a / sqrt(2*pi*t^3) * exp( -(a - v*t)^2 / (2t) ),   t = RT - t0 > 0
-  parameters: drift v, boundary a, non-decision time t0. A 5% uniform contamination
-  term (Ratcliff & Tuerlinckx, 2002) adds robustness to stray trials.
-
-BOUNDS (literature-grounded; s = 1 scaling convention, stated explicitly):
-  a in [0.05, 2.5]   -- boundary separation is a policy/caution parameter, NOT a
-                        physiological bound (Heitz & Schall 2012; Ratcliff & McKoon 2008).
-                        Range follows the systematic DDM review of Tran et al. (2020): at
-                        s=1 the empirical envelope is ~0.11-7.47 (practical mass 0.2-3), so
-                        the 2.5 cap sits well inside it. Absolute a is scaling/model-
-                        dependent (Ratcliff et al. 2016).
-  v in [0.1, 20]     -- drift is a latent evidence-quality parameter, not a biological
-                        speed limit (Ratcliff & McKoon 2008; Ratcliff et al. 2016). Cap 20
-                        follows the Tran et al. (2020) s=1 envelope (|v| <~ 18.5). NB this
-                        is a single-boundary Wald, whose v/a geometry differs from the
-                        two-choice DDM that review pooled, so the envelope is a plausibility
-                        bound, not an exact prior.
-  t0 floor: HRT 130 ms -- reach-preparation floor (Haith et al. 2016: preparation ~130 ms);
-                        a fitted hand non-decision time below this is hard to defend.
-            SRT 70 ms  -- saccadic dead-time floor (Bompas et al. 2017; Ludwig et al. 2007).
-  t0 ceiling: 3rd percentile of the cell's RTs - 2 ms.
-  NB t0 is the model non-decision PARAMETER; in moving-target interception it can absorb
-     decision-action overlap and urgency (Barany et al. 2020; Bompas et al. 2024; Weindel
-     et al. 2020), so moving-target t0 should be interpreted cautiously, not as a pure
-     sensorimotor delay.
-
-SRT MIXTURE (express + regular saccades).  Saccadic distributions are often bimodal.
-  Selection rule (fit-driven + structural validation; avoids BIC over-detection and
-  dip-test under-detection):
-    1. fit single Wald; only if it is inadequate (KS > 0.10) consider a mixture;
-    2. adopt the 2-component mixture only if it (i) achieves KS < 0.10,
-       (ii) gives two substantial components (0.10 <= pi <= 0.90), and
-       (iii) recovers well-separated modes (>= 30 ms apart).
-  Component number is judged on the CORE densities (no contamination), because the
-  contamination term otherwise lets a single Wald absorb the express mode. The mixture
-  is optimized robustly (Gaussian-mixture seeding + multi-start + differential-evolution
-  backstop) so a genuine two-mode cell is never collapsed to one mode by a local optimum.
-  Hartigan's dip-test p-value is reported per cell as corroboration.
-
-CITATIONS: Tran et al. (2020) Front. Psychol. 11:608287 (v/a envelopes at s=1);
-  Ratcliff et al. (2016) Trends Cogn. Sci. 20:260-281 (scaling & interpretation cautions);
-  Ratcliff & McKoon (2008) Neural Comput. 20:873-922 (parameter definitions);
-  Ratcliff & Tuerlinckx (2002) Psychon. Bull. Rev. 9:438-481 (contamination handling);
-  Anders, Alario & Van Maanen (2016) Psychol. Methods 21:309-327 (shifted Wald);
-  Haith et al. (2016) J. Neurosci. 36:3007-3015 (hand non-decision floor ~130 ms);
-  Bompas et al. (2017) Cogn. Psychol. 94:26-52 & Ludwig et al. (2007) J. Neurophysiol.
-  97:795-805 (saccadic dead time); Barany et al. (2020) J. Neurophysiol. (interception
-  caution); Knox & Wolohan (2015) PLoS ONE 10:e0120437; Hartigan & Hartigan (1985)
-  Ann. Statist. 13:70-84.
+Run: python DDM_fit.py
 """
 import os, numpy as np, pandas as pd, warnings
 from scipy import stats

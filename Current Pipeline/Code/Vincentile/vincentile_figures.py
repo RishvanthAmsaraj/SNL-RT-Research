@@ -1,19 +1,12 @@
 """
-vincentile_figures.py  --  RT-distribution & Vincentile figures (match the original suite)
-==========================================================================================
-Regenerates the four distribution figures from the earlier figure suite, with current data:
-  vincentile_results_fig1_kde_overlay.pdf       SRT vs HRT kernel-density overlay, per speed
-  vincentile_results_fig2_histograms.pdf        SRT (top) & HRT (bottom) histograms, per speed
-  vincentile_results_fig3_vincentile_by_speed.pdf  HRT-SRT Vincentile difference, 3 panels +/-1 SD
-  vincentile_results_fig4_combined_vincentile.pdf   HRT-SRT Vincentile difference, all speeds overlaid
+vincentile_figures.py  --  RT-distribution & Vincentile figures
 
-Vincentiles: for each participant x speed, RTs are sorted and split into 20 equal-count bins;
-the mean RT of each bin is that participant's vincentile. The HRT-SRT difference is taken per
-bin per participant, then averaged across participants (+/-1 SD). This is the standard
-Vincentizing used to compare two RT distributions' shapes (Ratcliff, 1979).
+Produces four distributional figures: KDE overlay, histograms, Vincentile
+differences (HRT-SRT) per speed and combined. Standard Vincentizing (Ratcliff 1979):
+20 equal-count bins per participant x speed, averaged across participants.
 
-Reads pooled_data.csv (raw trials). Filters: interception trials (BlockType=='I'),
-HRT in [150,800] ms, SRT in [80,600] ms.
+Reads pooled_data.csv only. Outputs: vincentile_results_fig{1-4}_*.pdf/.png
+
 Run: python vincentile_figures.py
 """
 import os, sys, numpy as np, pandas as pd, warnings

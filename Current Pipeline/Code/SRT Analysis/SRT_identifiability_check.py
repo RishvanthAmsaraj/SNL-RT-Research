@@ -1,15 +1,13 @@
 """
-SRT_identifiability_check.py  --  diagnostic for saccadic non-decision-time identifiability
-===========================================================================================
-Tests whether the single-Wald non-decision time (t0) for saccadic RT is actually
-determined by the data, or merely sits at whatever lower floor is imposed. For every
-single-component SRT cell it refits the model at a range of floors (40-90 ms) and records
-the resulting t0. A cell whose t0 TRACKS the floor (moves up as the floor rises, with no
-loss of fit) is NOT identified -- the floor, not the saccades, sets the number. A cell
-whose t0 stays put regardless of the floor is genuinely identified.
+SRT_identifiability_check.py  --  Diagnostic for saccadic t0 identifiability
 
-Reads DDM_srt_fits.csv + pooled_data.csv. Output: SRT_identifiability.pdf/.png and a
-printed summary. See Modeling_Explained_DDM_vs_Bayesian.md for interpretation.
+Refits each single-component SRT cell at multiple floors (40-90 ms). Cells whose
+t0 tracks the floor are not identified by the data. Cells whose t0 stays put
+regardless of the floor are genuinely identified.
+
+Reads DDM_srt_fits.csv + pooled_data.csv. Output: SRT_identifiability.pdf/.png
+
+Run: python SRT_identifiability_check.py  (needs DDM_srt_fits.csv first)
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")

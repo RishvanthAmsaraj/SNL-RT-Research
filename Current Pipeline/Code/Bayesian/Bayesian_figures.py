@@ -1,5 +1,7 @@
-"""Bayesian_figures.py -- figures for the Bayesian model (HRT + SRT).
-Reads Bayesian_hrt_fits.csv, DDM_hrt_fits.csv, Bayesian_srt_fits.csv, DDM_srt_fits.csv, and (optionally) Bayesian_srt_ndt.csv for Panel C.
+"""Bayesian_figures.py  --  Main result figures from Bayesian fits
+
+Reads Bayesian_hrt_fits.csv, DDM_hrt_fits.csv, Bayesian_srt_fits.csv,
+DDM_srt_fits.csv, and optionally Bayesian_srt_ndt.csv for Panel C.
 Produces Bayesian_summary.pdf/.png."""
 import os, sys, pandas as pd, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt

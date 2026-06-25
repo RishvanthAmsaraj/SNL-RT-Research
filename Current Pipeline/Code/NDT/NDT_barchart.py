@@ -1,22 +1,13 @@
 """
-NDT_barchart.py  --  Non-decision time (t0) by target speed  (matches the original figure)
-==========================================================================================
-Two panels (HRT, SRT): group mean +/- 1 SD bars per target speed, with EVERY participant shown
-as a jittered dot so the distribution -- and any floor-piling -- is directly visible. This is
-the original layout, kept deliberately because the dots are how we check whether saccadic t0 is
-piling at its lower bound again.
+NDT_barchart.py  --  NDT bar charts (DDM fits)
 
-Reading guide:
-  * HRT t0 is well-identified -> interpret normally.
-  * SRT t0 is at / near the physiological floor and is NOT separately identifiable per cell
-    (~20/33 cells track the floor; see SRT_identifiability_check.py). The dots clustering near
-    the floor here are exactly that artifact; the trustworthy saccadic t0 estimate (per
-    participant, with individual differences) is Bayesian_srt_ndt.pdf. Read this SRT panel as a
-    diagnostic, not a measurement.
+Two panels (HRT, SRT): group mean +/- 1 SD bars per target speed with per-participant
+dots (floor-piling visible). HRT t0 is well-identified; SRT panel is a diagnostic
+(many cells track the 70 ms floor; not a measurement).
 
-SRT per-cell t0 uses the single-cell t0, or the regular-component t0r for express/regular
-mixture cells. Floors: HRT 130 ms (reach-prep, Haith 2016), SRT 70 ms (afferent+efferent saccadic conduction).
-Reads DDM_hrt_fits.csv, DDM_srt_fits.csv. Output: NDT_barchart.pdf / .png.
+Reads DDM_hrt_fits.csv, DDM_srt_fits.csv. Output: NDT_barchart.pdf/.png
+
+Run: python NDT_barchart.py  (needs DDM_fit.py outputs first)
 """
 import os, sys, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt

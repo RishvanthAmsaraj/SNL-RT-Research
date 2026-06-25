@@ -1,20 +1,13 @@
 """
-LATER_analysis.py  --  the saccade-native alternative to the shifted-Wald.
+LATER_analysis.py  --  Saccade-native LATER model (complementary analysis)
 
-The LATER model (Linear Approach to Threshold with Ergodic Rate; Carpenter & Williams 1995)
-treats a saccade as a decision signal rising LINEARLY at a rate r from baseline to a threshold;
-r varies across trials as a Gaussian, so the RECIPROCAL of latency (1/T, the "rate") is normally
-distributed. On a reciprobit plot (probit of cumulative probability vs reciprocal latency) the
-latencies fall on a STRAIGHT LINE, and express saccades appear as a second, shallower "early" line.
+Fits the LATER model (Carpenter & Williams 1995) to saccadic RTs. LATER has no
+separate non-decision-time parameter (the t0 identifiability problem does not exist).
+Results are not directly comparable to the Wald hand model (different parameter space).
 
-Why this matters for the project: LATER has NO separate non-decision-time parameter. It models the
-whole latency as rise-to-threshold, so the t0 identifiability problem that floors the saccadic Wald
-fit simply does not exist here. The cost is that LATER's parameters (rate, threshold) do not map onto
-the DDM's drift / boundary / non-decision, so saccadic LATER results are not directly comparable to
-the Wald hand results.
+Outputs: LATER_reciprobit.pdf/.png, LATER_fits.csv
 
-Outputs: LATER_reciprobit.pdf/.png  (3-panel: regular participant, express participant, rate by speed)
-         LATER_fits.csv             (per cell: mu_rate, sd_rate, median latency, reciprobit r2, KS)
+Run: python LATER_analysis.py  (needs pooled_data.csv)
 """
 import os, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt

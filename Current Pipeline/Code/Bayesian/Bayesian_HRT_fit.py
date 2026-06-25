@@ -1,38 +1,13 @@
 """
-Bayesian_HRT_fit.py  --  Hierarchical Bayesian model: hand RT (HRT)
-====================================================================
-Method B (Bayesian) for hand RT. Fits the single-boundary diffusion model
-(shifted Wald, s = 1) as a hierarchical Bayesian model with partial pooling across
-participants and weakly-informative, literature-centered priors. This resolves the
-non-decision-time degeneracy on principled grounds (no hard drift cap needed) and
-returns full posterior credible intervals.
+Bayesian_HRT_fit.py  --  Hierarchical Bayesian: hand RT (Method B)
 
-Run:  python Bayesian_HRT_fit.py
-Outputs: Bayesian_hrt_fits.csv (pid, spd, v, a, t0, t0_lo95, t0_hi95, conv_div, conv_rhat)
-         Bayesian_hrt_ndt.csv  (focused NDT view: pid, spd, t0_ms, 95% CI, ci_width_ms, floored, diagnostics)
-        Bayesian_hrt_posterior.nc  (full posterior, for audit)
+Fits single-boundary shifted-Wald as a hierarchical Bayesian model (PyMC/NUTS) with
+partial pooling across participants. Outputs Bayesian_hrt_fits.csv (v, a, t0, 95% CI,
+convergence diagnostics), Bayesian_hrt_ndt.csv, and Bayesian_hrt_posterior.nc.
 
-MODEL (one "unit" = participant x speed; partial pooling across units):
-  log f(tau) = log a - 0.5*log(2*pi) - 1.5*log(tau) - (a - v*tau)^2/(2 tau),  tau = RT - t0
-  log v ~ Normal(mu_lv, s_lv);  mu_lv ~ Normal(log 10, 0.5);  s_lv ~ HalfNormal(0.5)
-  log a ~ Normal(mu_la, s_la);  mu_la ~ Normal(log 1.0, 0.5); s_la ~ HalfNormal(0.5)
-  t0 = FLOOR + (min_RT - FLOOR)*sigmoid(z);  z hierarchical;  FLOOR = 130 ms
-       (reach-preparation floor: movement preparation completes ~130 ms in visually-guided
-        reaching, Haith et al. 2016, so a fitted hand non-decision time below this is hard
-        to defend; a non-centered parametrization is used for sampling efficiency)
+For model details, priors, and bounds, see CODE_REFERENCE.md.
 
-Priors are weakly informative (data dominate). Boundary centered at a~1 and drift priors
-sit inside the Tran et al. (2020) systematic-review envelope at s=1 (a ~0.11-7.47, |v| <~
-18.5); absolute values are scaling/model-dependent (Ratcliff et al. 2016). NB single-
-boundary Wald geometry differs from the two-choice DDM that review pooled.
-
-CITATIONS: Wiecki, Sofer & Frank (2013) Front. Neuroinform. 7:14 (HDDM precedent);
-  Vandekerckhove, Tuerlinckx & Lee (2011) Psychol. Methods 16:44-62 (hierarchical DDM);
-  Tran et al. (2020) Front. Psychol. 11:608287 & Ratcliff et al. (2016) Trends Cogn. Sci.
-  20:260-281 (v/a envelopes + scaling); Haith et al. (2016) J. Neurosci. 36:3007-3015
-  (130 ms reach-preparation floor); Ratcliff & Tuerlinckx (2002) Psychon. Bull. Rev.
-  9:438-481; Gelman et al. (2013) Bayesian Data Analysis 3rd ed. & Gelman & Rubin (1992)
-  Stat. Sci. 7:457-472 (partial pooling, non-centered parametrization, r-hat).
+Run: python Bayesian_HRT_fit.py
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")
@@ -43,21 +18,11 @@ except ModuleNotFoundError:
         "\n" + "=" * 72 + "\n"
         "  This Bayesian script needs PyMC, which is not installed.\n"
         + "=" * 72 + "\n"
-        "PyMC's sampler uses a compiled backend, so on Windows the reliable way to\n"
-        "install it is with conda (plain `pip install pymc` typically fails on the\n"
-        "Windows Store Python because it has no C/C++ compiler). One-time setup:\n\n"
-        "  1. Install Miniconda (no admin rights needed):\n"
-        "       https://docs.conda.io/en/latest/miniconda.html\n"
-        "  2. Open 'Anaconda Prompt' and run:\n"
-        "       conda create -n snl python=3.11\n"
-        "       conda activate snl\n"
-        "       conda install -c conda-forge pymc arviz numpy scipy pandas matplotlib\n"
-        "  3. Run this script from that environment:\n"
-        "       conda activate snl\n"
-        "       python \"" + os.path.basename(__file__) + "\"\n\n"
-        "You are NOT blocked in the meantime: the validated outputs of this script\n"
-        "(the .csv fit tables and the .pdf/.png figures) are already saved in this\n"
-        "folder, so the analysis is complete even without re-running it.\n"
+        "Install via conda: conda create -n snl python=3.11 && conda activate snl\n"
+        "&& conda install -c conda-forge pymc arviz numpy scipy pandas matplotlib\n"
+        "\n"
+        "Pre-validated outputs are already saved, so results are complete\n"
+        "even without re-running.\n"
         + "=" * 72 + "\n")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

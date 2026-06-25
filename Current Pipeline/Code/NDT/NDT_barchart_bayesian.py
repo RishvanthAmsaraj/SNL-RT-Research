@@ -1,24 +1,13 @@
 """
-NDT_barchart_bayesian.py  --  Non-decision time (t0), HIERARCHICAL BAYESIAN estimates
-======================================================================================
-Replaces the DDM/MLE NDT bar chart with the Bayesian (Method B) estimates, which are the
-ones to report: the hierarchical model floors no cells and returns full credible intervals.
+NDT_barchart_bayesian.py  --  NDT bar charts (Bayesian fits)
 
-Because the two effectors differ in what is identifiable, the panels differ HONESTLY:
+Two panels: HRT (t0 is identified per participant x speed, group means with dots)
+and SRT (per-participant forest plot; t0 not identifiable per cell). Bayesian
+model floors 0/48 HRT cells.
 
-  LEFT  (HRT)  -- non-decision time IS identified per participant x speed, so it is shown
-                 by target speed (group mean +/- 1 SD, every participant as a dot).
-                 The Bayesian fit floors 0/48 cells (the DDM floored 3 at 150 deg/s), and
-                 the speed effect is strong: Friedman p = 0.002 on the Bayesian t0.
+Reads Bayesian_hrt_ndt.csv, Bayesian_srt_ndt.csv. Output: NDT_barchart_bayesian.pdf/.png
 
-  RIGHT (SRT)  -- saccadic non-decision time is NOT identifiable per cell (fast saccades
-                 cannot separate non-decision from decision time). The Bayesian model
-                 therefore estimates ONE t0 per participant, SHARED across target speed,
-                 with wide CIs where the data are uninformative. There is no per-speed SRT
-                 t0 to plot; the honest result is the per-participant forest below.
-
-Reads Bayesian_hrt_ndt.csv, Bayesian_srt_ndt.csv (next to this script).
-Output: NDT_barchart_bayesian.pdf / .png
+Run: python NDT_barchart_bayesian.py  (needs Bayesian fit outputs first)
 """
 import os, sys, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt

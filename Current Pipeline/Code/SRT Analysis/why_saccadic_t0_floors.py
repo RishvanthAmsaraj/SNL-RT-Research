@@ -1,22 +1,14 @@
 """
-why_saccadic_t0_floors.py  --  diagnostic figure explaining the saccadic t0 floor.
+why_saccadic_t0_floors.py  --  Diagnostic: mechanism of saccadic t0 flooring
 
-The shifted-Wald / single-boundary DDM ties a distribution's SKEWNESS to its SPREAD:
-for a pure Wald,  skewness = 3 x (SD / mean_decision_time).  Re-arranged, the model is
-forced to set
-        implied t0  =  mean_RT  -  3 * SD / skewness .
-This quantity does NOT depend on the floor -- it is dictated by the *shape* of the RT
-distribution. If a distribution is too symmetric for its spread (low skew), the model
-attributes almost all of the RT to the decision process and pushes t0 below the
-physiological floor.
+Shows that a shifted Wald forces implied t0 = mean_RT - 3*SD/skewness. Hand RT is
+strongly right-skewed (implied t0 ~191 ms, above the 130 ms floor); saccadic RT is
+near-symmetric (implied t0 ~20-30 ms, below the 70 ms floor). This is a property of
+saccadic data, not a coding error.
 
-Hand RT distributions are strongly right-skewed -> implied t0 sits ABOVE the 130 ms
-floor -> identified. Saccadic RT distributions are nearly symmetric for their spread
-(closer to the reciprocal-normal / LATER form) -> implied t0 falls BELOW the 70 ms
-floor -> floors. This is a property of saccadic data, not a coding error, and it is why
-the saccade literature fixes the non-decision (dead) time instead of estimating it.
+Output: why_saccadic_t0_floors.pdf/.png
 
-Output: why_saccadic_t0_floors.pdf / .png
+Run: python why_saccadic_t0_floors.py
 """
 import os, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt

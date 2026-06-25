@@ -1,33 +1,14 @@
 """
-SRT_fixed_t0_analysis.py  --  principled treatment of saccadic non-decision time
-=================================================================================
-WHY THIS EXISTS.  Saccadic non-decision time (t0) is NOT identifiable from saccadic
-latency distributions: fast, low-variance saccades do not let a diffusion model separate
-"non-decision time" from "mean decision time", so a freely-estimated t0 simply slides to
-whatever lower bound is imposed (the floor-piling artifact). This was verified directly
-(SRT_identifiability_check.py): ~20/33 single cells have a t0 that tracks the floor, and
-different reasonable model choices give 40, 70, or ~88 ms for the SAME cell. No amount of
-bounding or hierarchical pooling fixes this, because the information is absent from the
-data (this is a known limitation of accumulator models for saccades; cf. the LATER model).
+SRT_fixed_t0_analysis.py  --  Saccadic t0 fixed at physiological constant
 
-THE PRINCIPLED FIX (what this script does).  Rather than estimate an unidentifiable
-parameter, we FIX saccadic t0 at a physiologically-justified constant -- held CONSTANT
-across target speed, because non-decision time is a property of the oculomotor system, not
-of the stimulus -- and estimate the drift v and boundary a conditional on it. This removes
-the floor-piling artifact (t0 is now a stated assumption, not a floor-seeking estimate),
-and we show the scientific conclusions are ROBUST to the assumed value (drift pattern and
-fit quality are essentially unchanged whether t0 = 50, 70, or 90 ms).
+Fixes saccadic t0 at a physiologically-justified constant (70 ms by default) and
+estimates drift/boundary conditional on it. Includes sensitivity analysis over
+{50, 70, 90} ms to show conclusions are robust.
 
-Default fixed value: 70 ms -- the saccadic afferent+efferent conduction floor (~60-80 ms;
-also within the range recovered for the few participants whose t0 IS identifiable, ~82-88
-ms, and below every cell's fastest saccade). A sensitivity analysis over {50, 70, 90} ms
-is produced alongside, so the reader can see the conclusions do not depend on this choice.
+Reads DDM_srt_fits.csv + pooled_data.csv.
+Outputs: SRT_fixedt0_fits.csv, SRT_fixedt0_sensitivity.pdf
 
-Reads DDM_srt_fits.csv (for the single/mixture split) + pooled_data.csv.
-Outputs:
-  SRT_fixedt0_fits.csv          -- per single cell: t0_fixed, v, a, ks (primary, t0=70 ms)
-  SRT_fixedt0_sensitivity.pdf   -- drift-by-speed and fit quality at t0 in {50,70,90} ms
-Run: python SRT_fixed_t0_analysis.py
+Run: python SRT_fixed_t0_analysis.py  (needs DDM_srt_fits.csv first)
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")
