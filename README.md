@@ -1,181 +1,202 @@
 # SNL RT Research
 
-**Sensorimotor Neuroscience Laboratory - Reaction Time Analysis Pipeline**
+**KINARM Interception Reaction-Time Pipeline** — Hierarchical Bayesian Drift-Diffusion Analysis of Hand and Saccadic Reaction Times
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Research](https://img.shields.io/badge/Research-Active-red)](https://github.com/RishvanthAmsaraj)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Research](https://img.shields.io/badge/Research-Active-red)](https://github.com/RishvanthAmsaraj/SNL-RT-Research)
+
+---
 
 ## Overview
 
-This repository contains the analysis pipeline for reaction time (RT) research conducted at the Sensorimotor Neuroscience Laboratory (SNL). The project focuses on analyzing kinematic data from the Kinarm robotic platform to understand human motor control and decision-making processes.
+This repository contains the analysis pipeline for reaction-time research conducted at the **Sensorimotor Neuroscience Laboratory (SNL)**. The project applies a **single-boundary shifted-Wald drift-diffusion model** (hierarchical Bayesian and frequentist MLE) to hand and saccadic reaction times from a KINARM interception task — **16 participants × 3 target speeds** (0°, 75°, 150° deg/s).
 
-### Research Focus
+### Headline Result
 
-- **Hard Reaction Time (HRT)** - Analyzing rapid motor responses
-- **Simple Reaction Time (SRT)** - Studying basic stimulus-response paradigms
-- **Drift Diffusion Models (DDM)** - Modeling decision-making processes
-- **Bayesian Analysis** - Probabilistic modeling of reaction time distributions
-- **Non-Decision Time (NDT)** - Quantifying perceptual and motor execution components
+**Hand non-decision time (t₀) decreases with target speed, saccadic non-decision time does not.**  
+HRT t₀: 170 → 158 → 148 ms (Friedman *p* = 0.003, 0/48 cells floored). Saccadic t₀ is fixed at the 70 ms physiological floor (not identifiable above it). See [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md) for the full investigative arc that produced this dissociation.
 
-## Repository Structure
+---
+
+## The Model
+
+The interception task is a **go-type response** (no binary correct/incorrect choice), so the standard two-choice diffusion model does not apply. The correct descriptive model is the **single-boundary diffusion**, whose first-passage-time density is the **shifted Wald** (inverse Gaussian with a temporal shift).
+
+| Parameter | Meaning | Justification |
+|---|---|---|
+| **Drift rate `v`** | Rate of evidence accumulation toward action threshold | Tran et al. (2020) envelope (`\|v\| ≲ 18.5` at s = 1) |
+| **Boundary `a`** | Evidence required to initiate response | Tran et al. (2020); policy parameter, not physiological |
+| **Non-decision time `t₀`** | Sensory + motor time outside the decision process | Hand: Haith et al. (2016); Saccade: fixed at 70 ms (Bompas et al. 2017; Ludwig et al. 2007) |
+
+The likelihood is a **contamination mixture**: 95% shifted Wald + 5% uniform (Ratcliff & Tuerlinckx, 2002), which downweights outlier trials *without excluding any data*.
+
+---
+
+## Repository Layout
 
 ```
 SNL-RT-Research/
-├── Current Pipeline/          # Active analysis pipeline
-│   ├── Bayesian/             # Bayesian hierarchical models
-│   ├── DDM/                  # Drift Diffusion Model fits
-│   ├── NDT/                  # Non-Decision Time analysis
-│   ├── Vincentile/           # Vincentile binning analysis
-│   ├── figures/              # Generated figures and plots
-│   └── RUN_GUIDE.md          # Pipeline execution guide
+├── README.md                         # This file
+├── CHANGELOG.md                      # Version-by-version change log
+├── DEVELOPMENT_HISTORY.md            # Full development narrative & decisions
+├── REFERENCES.bib                    # LaTeX bibliography
+├── REFERENCES.md                     # Human-readable reference list
+├── LICENSE                           # MIT license
 │
-├── Deprecated Ver 1/          # Initial PyDDM implementations
-│   ├── DualChoice*.py        # Dual choice task models
-│   ├── SingleChoice*.py      # Single choice task models
-│   └── *DataGen.py           # Synthetic data generators
+├── Current Pipeline/                 # Active production pipeline (v3.0)
+│   ├── Bayesian/                     #   Hierarchical Bayesian models (Method B — the reported results)
+│   ├── DDM/                          #   Frequentist MLE fits (Method A — comparison/diagnostic)
+│   ├── NDT/                          #   Non-decision time analysis scripts
+│   ├── Vincentile/                   #   Model-free RT distribution analysis
+│   ├── figures/                      #   Generated publication figures
+│   ├── RUN_GUIDE.md                  #   Step-by-step execution instructions
+│   └── ISSUES_AND_IMPROVEMENTS.md    #   Known issues & roadmap
 │
-└── Deprecated Ver 2/          # Previous lab pipeline version
-    ├── Bayesian Model/       # Earlier Bayesian implementations
-    ├── DDM Model/            # Previous DDM analysis code
-    ├── NDT Code/             # Earlier NDT calculations
-    ├── Vincentile Code/      # Previous vincentile methods
-    └── Deprecated Figures/   # Legacy visualizations
+├── Deprecated Pipelines/             # Archived historical versions
+│   ├── Deprecated Ver 1/             #   PyDDM prototypes (2022–2023)
+│   ├── Deprecated Ver 2/             #   Native scipy MLE pipeline (2023–2024)
+│   ├── Deprecated Ver 2.5/           #   Early Bayesian refinement (early 2024)
+│   └── Deprecated Ver 3/             #   Pre-literature-anchored pipeline (mid 2024)
+│
+└── pooled_data.csv                   # Canonical input (7,676 trials, 16 participants)
 ```
 
-## Current Pipeline
+---
 
-The active analysis pipeline (`Current Pipeline/`) implements a comprehensive workflow for RT data analysis:
+## Two Estimation Methods
 
-### Components
+| Method | Framework | Implementation | Status |
+|---|---|---|---|
+| **Method A — Frequentist MLE** | `scipy.optimize.differential_evolution` | `DDM/DDM_fit.py` | Comparison/diagnostic; exposes the floor-piling |
+| **Method B — Hierarchical Bayesian** | PyMC / NUTS, partial pooling | `Bayesian/*.py` | **The reported results** — full credible intervals |
 
-1. **Bayesian Models** (`Bayesian/`)
-   - Hierarchical Bayesian modeling of RT distributions
-   - Separate models for HRT and SRT conditions
-   - NDT extraction and analysis
-   - Model comparison and validation
+**The DDM exists only as a comparison tool** — it shows the non-decision-time floor-piling that the Bayesian model resolves. The Bayesian figures are the results; DDM figures are the diagnostic that validates the Bayesian improvement; vincentile figures are model-free raw data.
 
-2. **Drift Diffusion Models** (`DDM/`)
-   - Evidence accumulation modeling
-   - Parameter estimation (drift rate, boundary separation, non-decision time)
-   - Condition-specific fits (0°, 75°, 150° target angles)
-
-3. **Non-Decision Time** (`NDT/`)
-   - Perceptual processing time estimation
-   - Motor execution time quantification
-   - Comparative bar chart visualizations
-
-4. **Vincentile Analysis** (`Vincentile/`)
-   - Distribution binning for RT quantiles
-   - Speed-accuracy trade-off visualization
-   - Group-level summary statistics
+---
 
 ## Quick Start
 
 ### Prerequisites
 
+**Method A (DDM)** — works with pip:
 ```bash
-pip install numpy pandas matplotlib seaborn scipy
-pip install pymc arviz  # For Bayesian models
-pip install hddm        # For DDM analysis
+pip install numpy scipy pandas matplotlib scikit-learn diptest
+```
+
+**Method B (Bayesian)** — requires conda (PyMC needs a compiler):
+```bash
+conda create -n snl python=3.11
+conda activate snl
+conda install -c conda-forge pymc arviz numpy scipy pandas matplotlib scikit-learn diptest
 ```
 
 ### Running the Pipeline
 
-See [`Current Pipeline/RUN_GUIDE.md`](Current%20Pipeline/RUN_GUIDE.md) for detailed execution instructions.
-
-Basic workflow:
+See [`Current Pipeline/RUN_GUIDE.md`](Current%20Pipeline/RUN_GUIDE.md) for detailed instructions.  
+Basic workflow: **fits → figures → diagnostics** (each stage consumes CSV outputs from the previous).
 
 ```bash
 cd "Current Pipeline"
 
-# 1. Run Bayesian models
+# 1. Fits (DDM must run first — Bayesian SRT reads its single/mixture split)
+python DDM/DDM_fit.py
 python Bayesian/Bayesian_HRT_fit.py
 python Bayesian/Bayesian_SRT_fit.py
+python Bayesian/Bayesian_SRT_ndt.py
 
-# 2. Run DDM fits
-python DDM/DDM_fit.py
-
-# 3. Generate NDT analysis
-python NDT/NDT_barchart.py
-
-# 4. Create vincentile plots
-python Vincentile/vincentile_figures.py
-
-# 5. Generate publication figures
-python Bayesian/Bayesian_figures.py
+# 2. Figures (seven scripts producing all publication figures)
 python DDM/DDM_figures.py
+python Bayesian/Bayesian_figures.py
+python NDT/NDT_barchart.py
+python NDT/NDT_barchart_bayesian.py
+python Vincentile/vincentile_figures.py
+# ... see RUN_GUIDE.md for full list
+
+# 3. Diagnostics
+python Bayesian/SRT_identifiability_check.py
+python Bayesian/SRT_fixed_t0_analysis.py
+python Bayesian/why_saccadic_t0_floors.py
+python Bayesian/LATER_analysis.py
 ```
 
-## Data Format
+---
 
-The pipeline expects Kinarm data in the following structure:
-- Trial-level reaction times (ms)
-- Target angle conditions (0°, 75°, 150°)
-- Trial outcomes (correct/incorrect)
-- Participant identifiers
+## Data
 
-## Version History & Evolution
+`pooled_data.csv` is the exact concatenation of the 16 per-participant `CMT*_MASTER_Summary.csv` files — **7,676 trials**, participants `CMT001`–`CMT010`, `CMT0011`, `CMT0012`, `CMT0014`–`CMT0017` (the set skips `CMT0013`). Three target speeds (0 / 75 / 150 deg/s); hand and saccadic RT per trial.
 
-This repository contains three major versions of the analysis pipeline, each
-representing a significant methodological advancement. Detailed migration notes
-explain why certain approaches were abandoned and what replaced them.
+**Data filters** (these are *data-cleaning cutoffs* on raw RTs, distinct from fitted-parameter floors):
 
-| Version | Status | Key Advancement |
-|---------|--------|-----------------|
-| **Current Pipeline** | ✅ Active | Hierarchical Bayesian framework; participant-level SRT t₀; full credible intervals |
-| **Deprecated Ver 2** | ⚠️ Superseded | Native scipy MLE fitting; contamination mixture; per-participant fitting |
-| **Deprecated Ver 1** | ⚠️ Archived | PyDDM proof-of-concept; synthetic data validation; basic visualization |
+| Stream | Lower Bound | Upper Bound | Justification |
+|---|---|---|---|
+| Hand RT | 150 ms | 800 ms | Anticipation / lapse removal (Whelan 2008; Luce 1986) |
+| Saccadic RT | 80 ms | 600 ms | Human anticipation threshold (Fischer & Weber 1993; Knox & Wolohan 2015) |
 
-### Why Versions Were Deprecated
+**No participant data is dropped.** Express-saccade-dominant participants (`CMT0012`, `CMT002`, `CMT003`, `CMT004`) are handled with mixture models.
 
-**Ver 1 → Ver 2:** PyDDM was too inflexible for custom likelihoods; switched to
-native scipy optimization with single-boundary Wald model appropriate for
-interception tasks. See [`Deprecated Ver 1/MIGRATION_NOTES.md`](Deprecated%20Ver%201/MIGRATION_NOTES.md).
+---
 
-**Ver 2 → Current:** Per-cell maximum likelihood cannot identify SRT non-decision
-time (floor-piling artifact); hierarchical Bayesian estimation resolves this
-through partial pooling. See [`Deprecated Ver 2/MIGRATION_NOTES.md`](Deprecated%20Ver%202/MIGRATION_NOTES.md).
+## Pipeline Version History
 
-### Documentation
+The repository traces the full evolution from initial prototypes to the current production pipeline:
 
-- **[CHANGELOG.md](CHANGELOG.md)** — Complete version history with technical details
-- **[Current Pipeline/ISSUES_AND_IMPROVEMENTS.md](Current%20Pipeline/ISSUES_AND_IMPROVEMENTS.md)** — Known issues and planned enhancements
-- **[Current Pipeline/RUN_GUIDE.md](Current%20Pipeline/RUN_GUIDE.md)** — Step-by-step execution instructions
+| Version | Repo Folder | Key Method | Key Advancements |
+|---|---|---|---|
+| **Ver 1** | `Deprecated Pipelines/Deprecated Ver 1/` | PyDDM (two-choice) | Proof-of-concept on synthetic data |
+| **Ver 2** | `Deprecated Pipelines/Deprecated Ver 2/` | Native scipy MLE | Real data loading; single-boundary Wald; contamination mixture |
+| **Ver 2.5** | `Deprecated Pipelines/Deprecated Ver 2.5/` | Per-cell Bayesian (PyMC) | First Bayesian fix; express saccade handling; bimodal detection |
+| **Ver 3** | `Deprecated Pipelines/Deprecated Ver 3/` | Hierarchical Bayesian | Participant-level SRT t₀; dissociation result; full credible intervals |
+| **Current** | `Current Pipeline/` | Literature-anchored hierarchical Bayesian | Systematic-review bounds; flooring diagnosis; LATER model |
 
-## Contributing & Development
+Detailed change logs, migration notes, and the rationale for each deprecation are available in:
+- **[CHANGELOG.md](CHANGELOG.md)** — Version-by-version technical changelog
+- **[DEVELOPMENT_HISTORY.md](DEVELOPMENT_HISTORY.md)** — Full narrative of every major decision
+- **[Per-pipeline issues documents](#)** (in each deprecated pipeline folder)
 
-This is an active research project. See [`ISSUES_AND_IMPROVEMENTS.md`](Current%20Pipeline/ISSUES_AND_IMPROVEMENTS.md)
-for the development roadmap, known bugs, and planned features.
+---
 
-To contribute:
-1. Check the issues list for open items
-2. Create a feature branch
-3. Add tests if applicable
-4. Update CHANGELOG.md
-5. Submit a pull request
+## Key Methodological Decisions
+
+These decisions were deliberately made and held throughout the project's evolution:
+
+1. **Single-boundary shifted Wald (not two-choice DDM).** The interception task is go-type; a two-choice model is the wrong object.
+2. **Contamination mixture (not excluding outliers).** Down-weights outliers mathematically; no data is excluded.
+3. **Same Bayesian model for all participants.** No participant is "handed back" to the DDM — the ones you'd be tempted are the ones that floor hardest.
+4. **Express-dominant participants kept (not excluded).** Bimodality handled with mixtures.
+5. **No across-trial variability parameters (sv, sz, st₀).** Conservative choice given trial counts.
+6. **Saccadic t₀ reported as fixed at 70 ms (not estimated).** Non-identifiability demonstrated; LATER provided as complement.
+
+---
 
 ## Citation
 
 If you use this pipeline in your research, please cite:
 
 ```
-Amsaraj, R. (2024). SNL RT Research Pipeline. 
+Amsaraj, R. (2024). SNL RT Research Pipeline v3.0 — Hierarchical Bayesian
+Drift-Diffusion Models for KINARM Interception Tasks.
 Sensorimotor Neuroscience Laboratory.
+GitHub: https://github.com/RishvanthAmsaraj/SNL-RT-Research
 ```
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see [`LICENSE`](LICENSE).
+
+---
 
 ## Acknowledgments
 
 - Sensorimotor Neuroscience Laboratory
-- Kinarm robotic platform by BKIN Technologies
+- KINARM robotic platform by BKIN Technologies
 - PyMC and ArviZ development teams for Bayesian modeling tools
+- HDDM / HSSM teams for the hierarchical-Bayesian precedent
 
 ---
 
-**Last Updated:** June 2024  
 **Maintainer:** Rishvanth Amsaraj  
+**Last Updated:** June 2026  
 **Status:** Active Research
