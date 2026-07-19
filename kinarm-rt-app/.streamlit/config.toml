@@ -1,10 +1,24 @@
+# Dual theme: bright white light mode and OLED-black dark mode, blue accents.
+# Switch via the ☰ menu -> Settings -> Theme (Light / Dark / Auto follows your OS).
+
 [theme]
 base = "light"
-primaryColor = "#5b5bd6"
+font = "sans-serif"
+primaryColor = "#2f6bff"
+
+[theme.light]
+primaryColor = "#2f6bff"
 backgroundColor = "#ffffff"
-secondaryBackgroundColor = "#f5f6fb"
-textColor = "#1e2233"
-font = "sans serif"
+secondaryBackgroundColor = "#eef3ff"
+textColor = "#0f1729"
+borderColor = "#e3e9f5"
+
+[theme.dark]
+primaryColor = "#4d8bff"
+backgroundColor = "#000000"
+secondaryBackgroundColor = "#0c1018"
+textColor = "#e7ecf5"
+borderColor = "#1c2230"
 
 [server]
 maxUploadSize = 500
