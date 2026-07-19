@@ -56,18 +56,17 @@ Compared to Deprecated Ver 3:
 
 ## Planned Improvements (Not Yet Implemented)
 
-### High priority
+### ✅ Resolved — kinarm-rt-app (v1.0, added 2026-07-18)
 
-- [ ] Full-draw MCMC run with 1500/1500/4 chains for final publication figures
-- [ ] Dockerfile for reproducible environment (eliminate conda/pip split)
+The new [`kinarm-rt-app/`](../kinarm-rt-app/) addresses several roadmap items:
 
-### Medium priority
+- **[High] Dockerfile** — `kinarm-rt-app/Dockerfile` provides a reproducible container
+- **[High] Full-draw** — "Thorough" preset uses 1500/1500/4; `config.example.yaml` sets it
+- **[Medium] LOO-CV / WAIC** — model comparison tab uses `arviz.compare`
+- **[Medium] Bootstrap/permutation** — dissociation battery in Advanced analyses tab
+- **[Medium] Sensitivity analysis** — dip-test threshold sweep in Advanced analyses tab
 
-- [ ] LOO-CV or WAIC for cross-validation
-- [ ] Bootstrap or permutation tests for the dissociation result (supplementing Friedman)
-- [ ] Sensitivity analysis on the express-saccade mixture threshold
-
-### Low priority / future work
+### Remaining (low priority / future work)
 
 - [ ] Trial-level covariate modelling (trial order, inter-trial interval)
 - [ ] Re-analysis with a dedicated saccade model (LATER) as primary for saccades

@@ -1,0 +1,24 @@
+# Conda environment for the KINARM RT app.
+# Recommended on Windows and macOS because PyMC installs cleanly from conda-forge.
+#
+#   conda env create -f environment.yml
+#   conda activate kinarm-rt
+#   streamlit run app.py
+name: kinarm-rt
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pymc>=5.10
+  - arviz>=0.17
+  - numpy>=1.24
+  - scipy>=1.10
+  - pandas>=2.0
+  - matplotlib>=3.7
+  - scikit-learn>=1.0
+  - pip
+  - pip:
+      - streamlit>=1.30
+      - diptest>=0.7
+      - pyyaml>=6.0
+      - pytest>=7.0

@@ -1,0 +1,20 @@
+# Example config for run_pipeline.py.  Run:  python run_pipeline.py --config config.example.yaml
+data: null                 # path to your trial CSV; null uses the built-in example
+mapping:
+  participant_col: Participant
+  hand_rt_col: HandRT_ms
+  eye_rt_col: GazeSRT_ms
+  speed_col: Speed_deg_per_s
+  blocktype_col: BlockType
+  blocktype_keep: I
+  rt_units: auto
+windows:                   # inclusion windows in milliseconds
+  hand: [150, 800]
+  eye:  [80, 600]
+effectors: [hand, eye]
+mode: bayesian             # bayesian | preview
+sampler: {draws: 1000, tune: 1000, chains: 4}
+use_mixture: true
+contamination: 0.0         # 0.0 matches the repository's Bayesian fit
+analyses: [fixed_t0, identifiability, mixture_sensitivity, vincentiles, dissociation, parameter_recovery]
+out: kinarm_out

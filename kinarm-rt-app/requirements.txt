@@ -1,0 +1,20 @@
+# Core scientific stack
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+matplotlib>=3.7
+
+# Bayesian inference (conda install recommended, especially on Windows)
+pymc>=5.10
+arviz>=0.17
+
+# Bimodality detection for express/regular saccade cells (recommended)
+diptest>=0.7
+scikit-learn>=1.0
+
+# App
+pyyaml>=6.0
+streamlit>=1.30
+
+# Tests (optional)
+pytest>=7.0

@@ -30,3 +30,10 @@ Thumbs.db
 Current Pipeline/Code/*.csv
 Current Pipeline/Code/*.pdf
 Current Pipeline/Code/*.png
+
+# kinarm-rt-app generated outputs
+kinarm-rt-app/*.html
+kinarm-rt-app/output/
+kinarm-rt-app/*.zip
+kinarm-rt-app/__pycache__/
+kinarm-rt-app/.venv/

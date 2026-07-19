@@ -15,6 +15,55 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.1.0] — 2026-07-18 — kinarm-rt-app: Streamlit GUI + headless CLI pipeline
+**New folder:** [`kinarm-rt-app/`](kinarm-rt-app/)
+
+### Added
+
+- **`kinarm-rt-app/`** — A point-and-click Streamlit app and headless CLI (`run_pipeline.py`) that reproduces the full SNL RT pipeline. Fits the same models (shifted-Wald Bayesian, MLE contamination, express/regular mixtures, LATER reciprobit) with a GUI, config-driven CLI, and Docker container.
+- **Dockerfile** (`kinarm-rt-app/Dockerfile`) — fully reproducible environment on conda-forge PyMC, eliminating the conda/pip split documented in earlier issues.
+- **Cross-validation** — PSIS-LOO comparison (estimated vs fixed t₀) using `arviz.compare`, addressing limitation #5.
+- **Dissociation test battery** — participant-resampling bootstrap + within-participant permutation test supplementing the Friedman, implemented in `kinarm_rt/stats_tests.py`.
+- **Parameter-recovery study** — simulates from known parameters and refits, demonstrating hand t₀ is recovered while saccadic t₀ is not.
+- **Sensitivity sweeps** — dip-test mixture-threshold sweep and fixed-t₀ sensitivity (`Advanced analyses` tab).
+- **Frequentist Method A fit** with contamination — available alongside the Bayesian in the `Model comparison` tab.
+- **`run_pipeline.py`** — headless CLI for batch/cluster use, configured via `config.example.yaml`.
+- **Repo-format CSV export** — Writes `Bayesian_hrt_fits.csv` / `Bayesian_srt_fits.csv` compatible with the existing pipeline's downstream scripts.
+- **Graceful degradation** — if PyMC is missing, only the Bayesian fit is disabled; preview, LATER, figures, and export still work.
+
+### Changed
+
+- Updated top-level `README.md` with `kinarm-rt-app/` section and repository layout.
+- Updated `Current Pipeline/ISSUES_AND_IMPROVEMENTS.md` — Docker, LOO-CV, bootstrap, and sensitivity items marked resolved.
+- Updated `.gitignore` to cover app-generated outputs (`*.html`, `output/`, `*.zip`).
+
+### Files added
+
+```
+kinarm-rt-app/
+├── app.py
+├── run_pipeline.py
+├── Dockerfile
+├── environment.yml
+├── requirements.txt
+├── config.example.yaml
+├── run_app.sh / run_app.bat
+├── kinarm_rt/
+│   ├── __init__.py, _speeds.py
+│   ├── data.py, filters.py
+│   ├── models/wald.py, later.py
+│   ├── analysis.py, compare.py
+│   ├── figures.py, diagnostics.py
+│   ├── exports.py, report.py
+│   └── frequentist.py, stats_tests.py
+├── sample_data/example_pooled_data.csv
+├── tests/test_smoke.py, test_features.py
+├── README.md
+└── RESEARCH_AND_ROADMAP.md
+```
+
+---
+
 ## [2.0.0] — 2026-06-24 — Literature-anchored bounds, flooring diagnosis, LATER alternative
 **Repo folder:** [`Current Pipeline/`](/Current%20Pipeline/)
 

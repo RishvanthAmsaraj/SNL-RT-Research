@@ -59,6 +59,12 @@ SNL-RT-Research/
 │   ├── Deprecated Ver 2.5/           #   Early Bayesian refinement
 │   └── Deprecated Ver 3/             #   Pre-literature-anchored pipeline
 │
+├── kinarm-rt-app/                    # Streamlit GUI + headless CLI app
+│   ├── app.py                        #   Point-and-click interface
+│   ├── run_pipeline.py               #   Batch/CLI pipeline runner
+│   ├── kinarm_rt/                    #   Analysis package
+│   └── sample_data/                  #   Example trial data
+│
 └── pooled_data.csv                   # Canonical input (7,676 trials, 16 participants)
 ```
 
@@ -72,6 +78,43 @@ SNL-RT-Research/
 | **Method B — Hierarchical Bayesian** | PyMC / NUTS, partial pooling | `Bayesian/*.py` | **The reported results** — full credible intervals |
 
 **The DDM exists only as a comparison tool** — it shows the non-decision-time floor-piling that the Bayesian model resolves. The Bayesian figures are the results; DDM figures are the diagnostic that validates the Bayesian improvement; vincentile figures are model-free raw data.
+
+---
+
+---
+
+## KINARM RT Analysis App
+
+A point-and-click **Streamlit app** and **headless CLI** that reproduces the full SNL reaction-time pipeline. Upload a trial file, map the columns, choose a fitting mode, and download a report with every table and figure — no IDE, no editing scripts.
+
+The app fits the same models as the pipeline: shifted-Wald hierarchical Bayesian (Method B), frequentist MLE contamination fit (Method A), express/regular saccade mixtures, and LATER reciprobit. It adds cross-validation, parameter recovery, dissociation tests, and sensitivity sweeps on top.
+
+```
+kinarm-rt-app/
+├── app.py                    Streamlit GUI — point and click
+├── run_pipeline.py           Headless CLI for batch/cluster use
+├── Dockerfile                Reproducible container (no compiler)
+├── environment.yml           Conda environment
+├── requirements.txt          Pip dependencies
+├── kinarm_rt/                Analysis package (models, figures, reports)
+│   ├── models/wald.py        Shifted-Wald (hierarchical + mixture + MLE)
+│   ├── models/later.py       LATER reciprobit
+│   ├── analysis.py           Dissociation tests, sensitivity, recovery
+│   ├── compare.py            LOO-CV, Method A vs B comparison
+│   ├── figures.py            Publication-style figures
+│   └── ...
+└── sample_data/              Example trial file (wide format)
+```
+
+**Three ways to run it:**
+
+| Method | Command |
+|--------|---------|
+| **Docker** (most robust) | `docker build -t kinarm-rt . && docker run -p 8501:8501 kinarm-rt` |
+| **Conda** | `conda env create -f environment.yml && conda activate kinarm-rt && streamlit run app.py` |
+| **Pip** | `pip install -r requirements.txt && streamlit run app.py` |
+
+See [`kinarm-rt-app/README.md`](kinarm-rt-app/README.md) for full docs and [`kinarm-rt-app/RESEARCH_AND_ROADMAP.md`](kinarm-rt-app/RESEARCH_AND_ROADMAP.md) for the code review and improvement roadmap.
 
 ---
 
