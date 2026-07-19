@@ -113,6 +113,8 @@ def _fit_cell_mle(rt: np.ndarray, floor: float, contamination: float = 0.0):
                 best = r
         except Exception:
             continue
+    if best is None:                       # every restart failed: fall back to a moment estimate
+        return 6.0, 0.8, float(max(rt.min() - 0.01, floor))
     return unpack(best.x)
 
 
@@ -364,7 +366,8 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
         group = pd.DataFrame()
     max_rhat = float(max(rhats)) if rhats else float("nan")
     n_div = int(sum(divs))
+    converged = bool(rhats) and max_rhat < 1.01 and n_div == 0
     return {"effector": effector, "units": units_df, "group": group,
             "mixture": pd.DataFrame(mixture_rows), "idata": idata_store,
             "convergence": {"max_rhat": max_rhat, "n_divergences": n_div,
-                            "converged": (rhats and max_rhat < 1.01 and n_div == 0)}}
+                            "converged": converged}}

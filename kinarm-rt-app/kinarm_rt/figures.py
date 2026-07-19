@@ -212,3 +212,24 @@ def dissociation_plot(diss: dict):
     ax.set_title("Non-decision-time dissociation (bootstrap 95% CI)", fontsize=11)
     fig.tight_layout()
     return fig
+
+
+def group_ci_plot(group: pd.DataFrame, effector: str = "", param: str = "t0_ms"):
+    """Group-level parameter per speed with 94% credible intervals (per-speed model)."""
+    labels = {"t0_ms": "non-decision time (ms)", "v": "drift v", "a": "boundary a"}
+    fig, ax = plt.subplots(figsize=(5.2, 3.6))
+    for _, r in group.iterrows():
+        c = int(np.argmin([abs(r["speed"] - s) for s in SPEEDS]))
+        lo, hi = r.get(f"{param}_lo", r[param]), r.get(f"{param}_hi", r[param])
+        ax.errorbar(c, r[param], yerr=[[r[param] - lo], [hi - r[param]]], fmt="o", ms=9,
+                    color=_line(c), capsize=6, lw=2, zorder=3)
+    if param == "t0_ms" and "t0_floor_ms" in group.columns:
+        ax.axhline(group["t0_floor_ms"].iloc[0], color="0.4", ls="--", lw=1.0)
+        ax.text(2.0, group["t0_floor_ms"].iloc[0] + 1, "floor", fontsize=8, color="0.4")
+    ax.set_xticks(range(len(SPEEDS)))
+    ax.set_xticklabels([_spd(c) for c in range(len(SPEEDS))])
+    ax.set_ylabel(labels.get(param, param), fontsize=9)
+    ax.set_title(f"{effector.capitalize()} {labels.get(param, param)} by speed "
+                 f"(per-speed model, 94% CI)", fontsize=10)
+    fig.tight_layout()
+    return fig

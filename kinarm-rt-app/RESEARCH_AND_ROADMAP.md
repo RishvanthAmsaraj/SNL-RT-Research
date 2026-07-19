@@ -30,6 +30,15 @@ On the built-in synthetic data this returns the right picture: hand *t₀* aroun
 175/168/157 ms (identified, decreasing with speed), saccadic *t₀* pinned at ~70
 ms, express/regular mixtures recovered with express modes near 100–120 ms.
 
+**Validated against the real `pooled_data.csv`.** Running the app's hand Bayesian
+fit on your actual data reproduces `Bayesian_hrt_fits.csv` almost exactly: group
+*v*, *a*, and *t₀* match to two decimals (9.39/9.61/8.36; 0.77/0.78/0.80;
+169.5/158.0/147.9 ms), and the per-cell *t₀* estimates correlate with your
+published values at r = 0.999 with a mean absolute difference of 0.4 ms. LATER
+returns a median reciprobit r² of 0.971 (your reported 0.97) with median
+latencies 171/177/181 ms (matching your report), and the hand skew/CV is 12.9, as
+reported. The reimplementation is faithful, not approximate.
+
 Two corrections to my earlier notes, now that I can see the code: the
 express/regular **mixture and the LATER model already exist** in your pipeline. I
 had proposed them as additions; they are already there, so they are not on the
@@ -119,11 +128,20 @@ or how I would implement them.
 
 ## 4. Genuinely new suggestions (beyond your current list)
 
-- **Correlated participant effects.** The models draw *v*, *a*, and *t₀* offsets
-  independently. In reality a slower participant tends to be slower on several
-  parameters at once. Modelling the offsets as multivariate normal with an **LKJ
-  prior** on the correlation matrix pools information across parameters and
-  usually tightens the estimates.
+- **Correlated participant effects (LKJ) — now in the app.** The "Model
+  comparison" tab can model the participant *v*, *a*, and *t₀* offsets as
+  multivariate normal with an LKJ prior instead of independently. On your real
+  hand data this reveals structure the independent model cannot represent — the
+  boundary and non-decision-time offsets correlate about −0.57 (participants who
+  set a higher boundary tend to have a shorter non-decision time), with clean
+  convergence.
+
+- **Per-speed hierarchical structure — now in the app.** The same tab fits a model
+  that treats speed as a factor with participant random effects, giving
+  group-level *v*, *a*, and *t₀* per speed **with credible intervals** rather than
+  post-hoc means. On your real hand data it returns t₀ = 168 [161, 174] / 152
+  [148, 157] / 142 [137, 147] ms — the speed effect with clearly separated
+  intervals.
 
 - **Empirical or literature-informed priors (see §5).** Your priors are sensible
   and weakly informative; anchoring drift and boundary to published diffusion

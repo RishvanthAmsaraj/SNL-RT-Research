@@ -69,3 +69,22 @@ def test_pipeline_preview(tmp_path):
                        status=lambda m: None)
     assert (tmp_path / "out" / "report.html").exists()
     assert out["n_trials"] > 0
+
+
+@pytest.mark.slow
+def test_per_speed_hierarchical(kept):
+    from kinarm_rt.models import hierarchical
+    idata, grp = hierarchical.fit_per_speed(kept, "hand", correlated=False,
+                                            draws=150, tune=250, chains=2, cores=1)
+    assert len(grp) == 3
+    assert {"v", "a", "t0_ms", "t0_ms_lo", "t0_ms_hi"} <= set(grp.columns)
+    assert (grp["t0_ms"] > 130).all()                # hand above floor
+
+
+@pytest.mark.slow
+def test_per_speed_lkj(kept):
+    from kinarm_rt.models import hierarchical
+    idata, grp, corr = hierarchical.fit_per_speed(kept, "hand", correlated=True,
+                                                  draws=150, tune=250, chains=2, cores=1)
+    assert corr.shape == (3, 3)
+    assert np.allclose(np.diag(corr.values), 1.0, atol=1e-6)   # valid correlation matrix

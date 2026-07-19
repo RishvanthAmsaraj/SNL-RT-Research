@@ -4,6 +4,11 @@ A point-and-click app that reproduces the SNL-RT-Research reaction-time pipeline
 Upload a trial file, map the columns, choose a fitting mode, and download a report
 with every table and figure. No IDE, no editing scripts.
 
+The interface is a modern, themed single page — a guided four-step flow (Load →
+Filter → Fit → Results) with an animated progress indicator, card-based sections,
+and smooth transitions. Theme and layout live in `.streamlit/config.toml` and
+`kinarm_rt/ui.py`.
+
 It fits the same models as the repository:
 
 - a **single-boundary shifted-Wald** (drift *v*, boundary *a*, non-decision time
@@ -24,8 +29,15 @@ It also adds analyses beyond the basic fit:
   *t₀* is not;
 - **model comparison** by PSIS-LOO (estimated vs fixed *t₀*) and a **frequentist
   Method A** fit (differential evolution) for a Method-A-vs-B check;
+- a **per-speed hierarchical model** (group parameters per speed with credible
+  intervals) and an optional **LKJ correlated-effects** version that reveals how
+  participants' drift, boundary, and non-decision time covary;
 - **repo-format CSV export** (`Bayesian_hrt_fits.csv`, `Bayesian_srt_fits.csv`)
   that drops straight into the pipeline's downstream scripts.
+
+The core fit is **validated against the real `pooled_data.csv`**: it reproduces
+`Bayesian_hrt_fits.csv` with per-cell t₀ correlation r = 0.999 (mean difference
+0.4 ms) and LATER median r² = 0.971, matching the published values.
 
 Hand *t₀* is identified above the 130 ms floor; saccadic *t₀* floors at 70 ms and
 is reported as fixed — the app reproduces that diagnosis rather than hiding it.
