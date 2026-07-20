@@ -155,6 +155,10 @@ def run_pipeline(config: dict, status=print) -> dict:
     for cap, fig in ctx_figs.items():
         safe = cap.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("/", "_")
         fig.savefig(os.path.join(fig_dir, f"{safe}.png"), dpi=300, bbox_inches="tight")
+        fig.savefig(os.path.join(fig_dir, f"{safe}.pdf"), bbox_inches="tight")
+    if ctx_figs:
+        with open(os.path.join(fig_dir, "all_figures.pdf"), "wb") as f:
+            f.write(report.build_figures_pdf(ctx_figs))
     ctx = {"title": "KINARM RT analysis report", "subtitle": "Batch pipeline",
            "filter_report": frep, "cell_summary": data.cell_summary(kept),
            "results": results, "gof": {e: results[e].get("gof") for e in results if results[e].get("gof")},

@@ -1,10 +1,9 @@
 # Dual theme: bright white light mode and OLED-black dark mode, blue accents.
-# Switch via the ☰ menu -> Settings -> Theme (Light / Dark / Auto follows your OS).
+# No `base` is set, so the app follows your OS appearance automatically (Auto).
+# You can still force Light or Dark via the ☰ menu -> Settings -> Theme.
 
 [theme]
-base = "light"
 font = "sans-serif"
-primaryColor = "#2f6bff"
 
 [theme.light]
 primaryColor = "#2f6bff"

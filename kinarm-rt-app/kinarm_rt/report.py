@@ -23,6 +23,22 @@ def _fig_png(fig, dpi=300) -> bytes:
     buf.seek(0); return buf.read()
 
 
+def _fig_pdf(fig) -> bytes:
+    buf = io.BytesIO(); fig.savefig(buf, format="pdf", bbox_inches="tight")
+    buf.seek(0); return buf.read()
+
+
+def build_figures_pdf(figures: dict) -> bytes:
+    """A single multi-page PDF with one figure per page (vector, publication-ready)."""
+    from matplotlib.backends.backend_pdf import PdfPages
+    buf = io.BytesIO()
+    with PdfPages(buf) as pdf:
+        for _, fig in (figures or {}).items():
+            fig.savefig(pdf, format="pdf", bbox_inches="tight")
+    buf.seek(0)
+    return buf.read()
+
+
 def _tbl(df: pd.DataFrame) -> str:
     return df.to_html(index=False, border=0, classes="tbl", float_format=lambda x: f"{x:.3f}")
 
@@ -106,7 +122,10 @@ def build_zip_bundle(context: dict) -> bytes:
         z.writestr("report.html", html)
         for caption, fig in (context.get("figures") or {}).items():
             safe = caption.lower().replace(" ", "_").replace(":", "").replace("/", "_")[:60]
-            z.writestr(f"figures/{safe}.png", _fig_png(fig))
+            z.writestr(f"figures/png/{safe}.png", _fig_png(fig))
+            z.writestr(f"figures/pdf/{safe}.pdf", _fig_pdf(fig))
+        if context.get("figures"):
+            z.writestr("figures/all_figures.pdf", build_figures_pdf(context["figures"]))
         if isinstance(context.get("filter_report"), pd.DataFrame):
             z.writestr("tables/filter_report.csv", context["filter_report"].to_csv(index=False))
         if isinstance(context.get("cell_summary"), pd.DataFrame):

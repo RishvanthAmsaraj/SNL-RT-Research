@@ -48,6 +48,13 @@ html, body, [class*="css"], .stMarkdown, .stApp, input, button, textarea, select
 .stApp{ background:var(--kx-bg); }
 .block-container{ max-width:1120px; padding-top:2rem; padding-bottom:4rem; }
 
+/* consistent spacing rhythm everywhere */
+[data-testid="stVerticalBlock"]{ gap:0.8rem; }
+[data-testid="stHorizontalBlock"]{ gap:1rem; }
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"]{ gap:0.7rem; }
+hr{ margin:0.6rem 0 !important; opacity:.6; }
+h4{ margin:0.2rem 0 0.4rem !important; font-weight:700; letter-spacing:-.01em; }
+
 /* keep the ☰ menu (theme switch) but remove deploy button, running indicator, top bar */
 [data-testid="stToolbar"] [data-testid="stToolbarActions"] a,
 [data-testid="stAppDeployButton"], .stAppDeployButton,
@@ -140,14 +147,15 @@ footer{ visibility:hidden; }
 [data-testid="stMetricValue"]{ font-weight:700; font-size:25px; color:var(--kx-primary-ink); }
 [data-testid="stMetricLabel"]{ color:var(--kx-muted); font-weight:600; }
 
-/* ---------- tabs ---------- */
-.stTabs [data-baseweb="tab-list"]{ gap:4px; border-bottom:1px solid var(--kx-line); }
-.stTabs [data-baseweb="tab"]{ height:42px; border-radius:10px 10px 0 0; padding:0 16px;
-  font-weight:600; color:var(--kx-muted); transition:all .2s; }
+/* ---------- tabs (rounded pills, consistent with segmented control) ---------- */
+.stTabs [data-baseweb="tab-list"]{ gap:6px; border-bottom:none; padding-bottom:4px; flex-wrap:wrap; }
+.stTabs [data-baseweb="tab"]{ height:38px; border-radius:10px; padding:0 15px; font-weight:600;
+  color:var(--kx-muted); background:transparent; transition:all .2s; }
 .stTabs [data-baseweb="tab"]:hover{ color:var(--kx-ink); background:var(--kx-glow-soft); }
-.stTabs [aria-selected="true"]{ color:var(--kx-primary-ink) !important; background:var(--kx-glow-soft); }
-.stTabs [data-baseweb="tab-highlight"]{ background:var(--kx-primary); height:3px; border-radius:3px; }
-.stTabs [data-baseweb="tab-border"]{ background:transparent; }
+.stTabs [aria-selected="true"]{ color:#fff !important;
+  background:linear-gradient(135deg,var(--kx-primary),var(--kx-primary-2)) !important;
+  box-shadow:0 4px 12px var(--kx-glow); }
+.stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"]{ display:none !important; }
 
 /* ---------- dataframes / tables ---------- */
 [data-testid="stDataFrame"], [data-testid="stTable"]{ border-radius:12px; overflow:hidden;

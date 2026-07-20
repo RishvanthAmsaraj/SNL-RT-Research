@@ -95,56 +95,64 @@ with st.container(border=True):
             st.info("Example data is already in the repository's shape — just press **Use this mapping**.")
         cols = list(raw.columns)
 
-        def pick(label, defaults, allow_none=False):
+        def pick(label, defaults, allow_none=False, help=None):
             opts = (["— none —"] if allow_none else []) + cols
             idx = 0
             for i, cc in enumerate(cols):
                 if cc.lower() in defaults:
                     idx = i + (1 if allow_none else 0); break
-            return st.selectbox(label, opts, index=idx)
+            return st.selectbox(label, opts, index=idx, help=help)
 
         participant_col = rt_col = effector_col = effector_value = None
         hand_rt_col = eye_rt_col = condition_col = speed_col = speedcode_col = None
 
         top1, top2 = st.columns(2)
         with top1:
-            participant_col = pick("Participant id column", {"participant", "subject", "id"})
-            ui.hint("The column identifying each participant (e.g. CMT001).")
+            participant_col = pick("Participant id column", {"participant", "subject", "id"},
+                                   help="The column identifying each participant (e.g. CMT001).")
         with top2:
             rt_units = st.segmented_control("Reaction-time units",
                                             ["auto-detect", "seconds", "milliseconds"],
-                                            default="auto-detect")
-            ui.hint("Leave on auto-detect unless your RTs look wrong after loading.")
+                                            default="auto-detect",
+                                            help="Leave on auto-detect unless your RTs look wrong "
+                                                 "after loading. It converts milliseconds to seconds.")
 
-        st.write("")
         layout = st.segmented_control("How are the reaction times stored?",
                                       ["Wide — both RTs per row", "Long — one RT + effector column"],
-                                      default="Wide — both RTs per row")
-        ui.hint("Wide: each trial row has a hand-RT column and a saccade-RT column (the repository "
-                "format). Long: one reaction-time column, with another column saying hand or eye.")
+                                      default="Wide — both RTs per row",
+                                      help="Wide: each trial row has a hand-RT column and a saccade-RT "
+                                           "column (the repository format). Long: one reaction-time "
+                                           "column, with another column saying hand or eye.")
         m1, m2 = st.columns(2)
         if layout and layout.startswith("Wide"):
             with m1:
-                hand_rt_col = pick("Hand RT column", {"handrt_ms", "handrt", "hand_rt"}, allow_none=True)
+                hand_rt_col = pick("Hand RT column", {"handrt_ms", "handrt", "hand_rt"}, allow_none=True,
+                                   help="Column with the hand (reach) reaction time. Set to none if absent.")
             with m2:
-                eye_rt_col = pick("Saccade RT column", {"gazesrt_ms", "gazesrt", "saccadert", "eye_rt"}, allow_none=True)
+                eye_rt_col = pick("Saccade RT column", {"gazesrt_ms", "gazesrt", "saccadert", "eye_rt"},
+                                  allow_none=True,
+                                  help="Column with the saccadic (eye) reaction time. Set to none if absent.")
         else:
             with m1:
-                rt_col = pick("Reaction-time column", {"rt", "reaction_time", "latency"})
+                rt_col = pick("Reaction-time column", {"rt", "reaction_time", "latency"},
+                              help="The single column holding the reaction time for each trial.")
             with m2:
-                has_eff = st.toggle("There is an effector column", value=True)
+                has_eff = st.toggle("There is an effector column", value=True,
+                                    help="On if a column says whether each trial is hand or eye. "
+                                         "Off if the whole file is one effector.")
                 if has_eff:
-                    effector_col = pick("Effector column", {"effector", "modality"})
+                    effector_col = pick("Effector column", {"effector", "modality"},
+                                        help="Column whose values are hand / eye (synonyms accepted).")
                 else:
                     effector_value = st.segmented_control("These trials are all…", list(EFFECTORS),
                                                           default="hand")
 
-        st.write("")
         cond_mode = st.segmented_control("How is target speed given?",
                                          ["SpeedCode (1/2/3)", "Speed (deg/s)", "Condition index (0/1/2)"],
-                                         default="SpeedCode (1/2/3)")
-        ui.hint("SpeedCode 1/2/3 maps to 0/75/150 deg/s. Or point to a raw speed column, or a "
-                "0/1/2 condition index — whichever your file has.")
+                                         default="SpeedCode (1/2/3)",
+                                         help="SpeedCode 1/2/3 maps to 0/75/150 deg/s. Or point to a raw "
+                                              "speed column, or a 0/1/2 condition index — whichever your "
+                                              "file has.")
         s1, s2 = st.columns(2)
         with s1:
             if cond_mode and cond_mode.startswith("SpeedCode"):
@@ -156,12 +164,12 @@ with st.container(border=True):
         with s2:
             bt = [c for c in cols if c.lower() in ("blocktype", "block_type", "block")]
             blocktype_col = bt[0] if bt else None
-            blocktype_keep = st.text_input("Keep only this block type (blank = keep all)",
-                                           value="I" if blocktype_col else "")
-        ui.hint("Some datasets tag trials by task block — here 'I' means the interception task and "
-                "'S' another block. Type the block you want to analyse, or leave blank to keep every row.")
+            blocktype_keep = st.text_input(
+                "Keep only this block type (blank = keep all)",
+                value="I" if blocktype_col else "",
+                help="Some datasets tag trials by task block — here 'I' means the interception task "
+                     "and 'S' another block. Type the block to analyse, or leave blank to keep every row.")
 
-        st.write("")
         none = lambda x: None if (x in (None, "— none —")) else x
         if st.button("Use this mapping", type="primary"):
             try:
@@ -210,7 +218,6 @@ if SS.tidy is not None:
         kept, frep = filters.apply_windows(tidy, wins)
         SS.filtered, SS.filter_report = kept, frep
 
-        st.write("")
         ui.eyebrow("Kept after filtering")
         st.dataframe(frep.round(1), use_container_width=True, hide_index=True)
         with st.expander("Distribution shape by condition — why saccadic t₀ floors"):
@@ -231,28 +238,31 @@ if SS.filtered is not None:
         with c1:
             ui.eyebrow("What to fit")
             chosen = st.segmented_control("Effectors", avail, selection_mode="multi",
-                                          default=avail, key="fit_eff")
-            ui.hint("Toggle hand and/or eye.")
+                                          default=avail, key="fit_eff",
+                                          help="Toggle hand and/or eye on.")
             modes = ["Quick preview (seconds)"]
             if HAVE_PYMC:
                 modes.append("Full Bayesian (minutes)")
-            mode = st.segmented_control("Fitting mode", modes, default=modes[0])
-            ui.hint("Preview = fast maximum-likelihood point estimates. "
-                    "Bayesian = full hierarchical NUTS fit with uncertainty (the one to report).")
+            mode = st.segmented_control("Fitting mode", modes, default=modes[0],
+                                        help="Preview = fast maximum-likelihood point estimates. "
+                                             "Bayesian = full hierarchical NUTS fit with uncertainty "
+                                             "(the one to report).")
         with c2:
             ui.eyebrow("Bayesian options")
             preset = st.select_slider("Sampler effort", ["Fast", "Standard", "Thorough"],
-                                      value="Standard", disabled=not HAVE_PYMC)
+                                      value="Standard", disabled=not HAVE_PYMC,
+                                      help="Draws / tune / chains: Fast 500/500/2, Standard "
+                                           "1000/1000/4, Thorough 1500/1500/4 (matches the paper).")
             draws, tune, chains = {"Fast": (500, 500, 2), "Standard": (1000, 1000, 4),
                                    "Thorough": (1500, 1500, 4)}[preset]
             use_mixture = st.toggle("Express/regular mixture for bimodal saccade cells", value=True,
                                     help=("Uses the dip test to flag bimodal cells." if HAVE_DIPTEST
                                           else "diptest not installed; Gaussian-mixture BIC fallback used."))
-            contamination = st.slider("Uniform contamination share", 0.0, 0.10, 0.0, 0.01)
-            ui.hint("0.0 matches the repository's Bayesian likelihood.")
+            contamination = st.slider("Uniform contamination share", 0.0, 0.10, 0.0, 0.01,
+                                      help="Small uniform outlier component. 0.0 matches the "
+                                           "repository's Bayesian likelihood.")
 
         chosen = chosen or []
-        st.write("")
         if st.button("Run analysis", type="primary", disabled=not chosen):
             results, errors = {}, []
             if "eye" in chosen:
@@ -530,14 +540,17 @@ if SS.results or SS.later:
                             ctx["figures"][f"{eff.capitalize()} non-decision time"] = \
                                 figures.ndt_dots(src, r["group"], eff, floor_ms)
 
-                ui.eyebrow("Full report")
-                ui.hint("A self-contained HTML report, or a ZIP bundle with the report, every figure "
-                        "(300 DPI PNG), and all result tables as CSV.")
-                d1, d2 = st.columns(2)
-                d1.download_button("Download HTML report", report.build_html_report(ctx),
+                ui.eyebrow("Report & figures")
+                ui.hint("HTML report to read in a browser · a vector PDF of every figure · or a full "
+                        "ZIP with the report, figures (PNG + PDF), and all tables as CSV.")
+                d1, d2, d3 = st.columns(3)
+                d1.download_button("HTML report", report.build_html_report(ctx),
                                    file_name="kinarm_rt_report.html", mime="text/html",
                                    use_container_width=True)
-                d2.download_button("Download full bundle (ZIP)", report.build_zip_bundle(ctx),
+                d2.download_button("Figures (PDF)", report.build_figures_pdf(ctx["figures"]),
+                                   file_name="kinarm_rt_figures.pdf", mime="application/pdf",
+                                   use_container_width=True)
+                d3.download_button("Full bundle (ZIP)", report.build_zip_bundle(ctx),
                                    file_name="kinarm_rt_results.zip", mime="application/zip",
                                    use_container_width=True)
 
@@ -545,7 +558,6 @@ if SS.results or SS.later:
                               and isinstance(res_all[e].get("units"), pd.DataFrame)
                               and len(res_all[e]["units"])]
                 if have_units:
-                    st.write("")
                     ui.eyebrow("Repository-format tables")
                     ui.hint("Drop-in replacements for the pipeline's fit tables; they feed its "
                             "downstream figure and NDT scripts unchanged.")
