@@ -63,8 +63,20 @@ footer{ visibility:hidden; }
 
 /* smooth, consistent motion */
 *{ transition-timing-function:cubic-bezier(.22,.61,.36,1); }
-@keyframes kxFadeUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
-.block-container > div{ animation:kxFadeUp .45s both; }
+@keyframes kxFadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+@keyframes kxFade{ from{opacity:0;} to{opacity:1;} }
+@keyframes kxRise{ from{opacity:0; transform:translateY(6px) scale(.995);} to{opacity:1; transform:none;} }
+.block-container > div{ animation:kxFadeUp .5s both; }
+.block-container > div:nth-child(1){ animation-delay:.02s; }
+.block-container > div:nth-child(2){ animation-delay:.07s; }
+.block-container > div:nth-child(3){ animation-delay:.12s; }
+.block-container > div:nth-child(4){ animation-delay:.17s; }
+.block-container > div:nth-child(5){ animation-delay:.22s; }
+.block-container > div:nth-child(6){ animation-delay:.27s; }
+/* content inside cards eases in too */
+[data-testid="stImage"], [data-testid="stDataFrame"], [data-testid="stMetric"]{ animation:kxRise .45s both; }
+[data-testid="stExpander"]{ transition:box-shadow .2s, border-color .2s; }
+[data-testid="stExpander"]:hover{ box-shadow:var(--kx-shadow-lg); border-color:var(--kx-primary) !important; }
 
 /* ---------- hero (blue, glow, no shimmer) ---------- */
 .kx-hero{ position:relative; overflow:hidden; border-radius:20px; padding:28px 32px; margin-bottom:18px;
@@ -147,15 +159,32 @@ footer{ visibility:hidden; }
 [data-testid="stMetricValue"]{ font-weight:700; font-size:25px; color:var(--kx-primary-ink); }
 [data-testid="stMetricLabel"]{ color:var(--kx-muted); font-weight:600; }
 
-/* ---------- tabs (rounded pills, consistent with segmented control) ---------- */
-.stTabs [data-baseweb="tab-list"]{ gap:6px; border-bottom:none; padding-bottom:4px; flex-wrap:wrap; }
-.stTabs [data-baseweb="tab"]{ height:38px; border-radius:10px; padding:0 15px; font-weight:600;
-  color:var(--kx-muted); background:transparent; transition:all .2s; }
-.stTabs [data-baseweb="tab"]:hover{ color:var(--kx-ink); background:var(--kx-glow-soft); }
-.stTabs [aria-selected="true"]{ color:#fff !important;
+/* ---------- tabs (correct selectors for this Streamlit build) ---------- */
+.stTabs [role="tablist"]{ gap:6px; border-bottom:none !important; padding-bottom:4px; flex-wrap:wrap; }
+.stTabs [data-testid="stTab"]{ border-radius:10px !important; padding:7px 15px !important;
+  font-weight:600; color:var(--kx-muted); background:transparent; border-bottom:none !important;
+  transition:background .2s, color .2s, box-shadow .2s, transform .15s; }
+.stTabs [data-testid="stTab"]:hover{ color:var(--kx-ink); background:var(--kx-glow-soft);
+  transform:translateY(-1px); }
+.stTabs [data-testid="stTab"][aria-selected="true"]{ color:#fff !important;
   background:linear-gradient(135deg,var(--kx-primary),var(--kx-primary-2)) !important;
-  box-shadow:0 4px 12px var(--kx-glow); }
-.stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"]{ display:none !important; }
+  box-shadow:0 4px 14px var(--kx-glow); border-bottom:none !important; }
+.stTabs [data-testid="stTab"] [data-testid="stMarkdownContainer"] p{ font-weight:600; margin:0; }
+
+/* ---------- tooltip "?" sits right next to the label, consistently ---------- */
+[data-testid="stWidgetLabel"]{ display:flex !important; align-items:center; gap:6px; }
+[data-testid="stWidgetLabel"] > *{ flex:0 0 auto !important; margin:0 !important; }
+[data-testid="stWidgetLabel"] [data-testid="stMarkdownContainer"]{ width:auto !important; }
+[data-testid="stTooltipIcon"]{ display:inline-flex !important; align-items:center; }
+[data-testid="stTooltipIcon"] svg{ transition:color .2s, transform .2s; }
+[data-testid="stTooltipIcon"]:hover svg{ color:var(--kx-primary); transform:scale(1.12); }
+
+/* ---------- figures rendered as images ---------- */
+[data-testid="stImage"]{ border-radius:12px; overflow:hidden; border:1px solid var(--kx-line);
+  box-shadow:var(--kx-shadow); background:var(--kx-surface); padding:6px;
+  transition:box-shadow .25s, transform .25s; }
+[data-testid="stImage"]:hover{ box-shadow:var(--kx-shadow-lg); transform:translateY(-2px); }
+[data-testid="stImage"] img{ border-radius:8px; }
 
 /* ---------- dataframes / tables ---------- */
 [data-testid="stDataFrame"], [data-testid="stTable"]{ border-radius:12px; overflow:hidden;

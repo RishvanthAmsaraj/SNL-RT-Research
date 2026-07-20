@@ -49,6 +49,30 @@ def _reset_downstream():
         SS.pop(k, None)
 
 
+def show_fig(fig):
+    """Render a Matplotlib figure as a PNG image and close it.
+
+    Using st.image (a core element) rather than st.pyplot avoids a frontend
+    module-loading error some setups hit after long runs, and closing the figure
+    keeps memory flat across many reruns. A render failure degrades to a caption
+    rather than breaking the page.
+    """
+    import io
+    import matplotlib.pyplot as plt
+    try:
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+        buf.seek(0)
+        st.image(buf, use_container_width=True)
+    except Exception as e:
+        st.caption(f"(figure could not be displayed: {e})")
+    finally:
+        try:
+            plt.close(fig)
+        except Exception:
+            pass
+
+
 # --------------------------------------------------------------------------- header
 ui.hero(
     "KINARM Reaction-Time Analysis",
@@ -326,7 +350,7 @@ def advanced_tab():
                             f"(95% CI {b.get('ci95_ms', ['?','?'])[0]:.1f}, "
                             f"{b.get('ci95_ms', ['?','?'])[1]:.1f}); "
                             f"permutation p = {r['permutation'].get('p_value', float('nan')):.4f}")
-            st.pyplot(figures.dissociation_plot(SS["diss"]))
+            show_fig(figures.dissociation_plot(SS["diss"]))
         if st.button("Parameter-recovery study", use_container_width=True):
             with st.spinner("Simulating from known parameters and refitting…"):
                 SS["recovery"] = analysis.parameter_recovery()
@@ -344,17 +368,17 @@ def advanced_tab():
             with st.spinner("Refitting at fixed t₀ = 50/70/90 ms…"):
                 SS["fixed_t0"] = analysis.fixed_t0_sensitivity(kept, "eye")
         if SS.get("fixed_t0") is not None and len(SS["fixed_t0"]):
-            st.pyplot(figures.fixed_t0_plot(SS["fixed_t0"], "eye"))
+            show_fig(figures.fixed_t0_plot(SS["fixed_t0"], "eye"))
         if st.button("Identifiability sweep (saccades)", use_container_width=True):
             with st.spinner("Sweeping the floor…"):
                 SS["ident"] = analysis.identifiability_sweep(kept, "eye")
         if SS.get("ident") is not None and len(SS["ident"]):
-            st.pyplot(figures.identifiability_plot(SS["ident"], "eye"))
+            show_fig(figures.identifiability_plot(SS["ident"], "eye"))
         if st.button("Vincentiles (model-free)", use_container_width=True):
             SS["vinc"] = {e: analysis.vincentiles(kept, e) for e in kept.effector.unique()}
         if SS.get("vinc"):
             for eff, v in SS["vinc"].items():
-                st.pyplot(figures.vincentile_plot(v, eff))
+                show_fig(figures.vincentile_plot(v, eff))
 
 
 @st.fragment
@@ -416,7 +440,7 @@ def comparison_tab():
         ps = SS["perspeed"]
         st.caption(f"Group-level parameters by speed — {ps['effector']} (mean, 94% CI)")
         st.dataframe(ps["group"].round(2), use_container_width=True, hide_index=True)
-        st.pyplot(figures.group_ci_plot(ps["group"], ps["effector"], "t0_ms"))
+        show_fig(figures.group_ci_plot(ps["group"], ps["effector"], "t0_ms"))
         if ps["corr"] is not None:
             st.caption("Participant-effect correlation matrix (LKJ)")
             st.dataframe(ps["corr"], use_container_width=True)
@@ -486,17 +510,17 @@ if SS.results or SS.later:
             ui.hint("Visual model checks and summaries.")
             try:
                 if SS.later is not None:
-                    st.pyplot(figures.reciprobit(SS.later, kept[kept.effector == "eye"]))
-                st.pyplot(figures.why_floors(kept))
+                    show_fig(figures.reciprobit(SS.later, kept[kept.effector == "eye"]))
+                show_fig(figures.why_floors(kept))
                 for eff in EFFECTORS:
                     r = res_all.get(eff)
                     if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
-                        st.pyplot(figures.fit_overlay(kept, eff, r["group"]))
+                        show_fig(figures.fit_overlay(kept, eff, r["group"]))
                         src = r["units"] if len(r.get("units", [])) else r.get("preview", {}).get("cell")
                         if src is not None and len(src):
                             floor_ms = r.get("preview", {}).get("floor_ms",
                                         r["group"]["t0_floor_ms"].iloc[0] if "t0_floor_ms" in r["group"] else 130)
-                            st.pyplot(figures.ndt_dots(src, r["group"], eff, floor_ms))
+                            show_fig(figures.ndt_dots(src, r["group"], eff, floor_ms))
             except Exception as e:
                 st.error(f"Figure error: {e}")
 
