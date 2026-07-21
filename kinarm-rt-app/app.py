@@ -133,40 +133,54 @@ with st.container(border=True):
         top1, top2 = st.columns(2)
         with top1:
             participant_col = pick("Participant id column", {"participant", "subject", "id"},
-                                   help="The column identifying each participant (e.g. CMT001).")
+                                   help="The column that identifies each participant — one code per "
+                                        "person (e.g. CMT001). Every trial is grouped by this, so each "
+                                        "person is fit individually and then pooled together.")
         with top2:
             rt_units = st.segmented_control("Reaction-time units",
                                             ["auto-detect", "seconds", "milliseconds"],
                                             default="auto-detect",
-                                            help="Leave on auto-detect unless your RTs look wrong "
-                                                 "after loading. It converts milliseconds to seconds.")
+                                            help="Whether your reaction times are in seconds (like 0.25) "
+                                                 "or milliseconds (like 250). Auto-detect reads the size "
+                                                 "of the numbers and picks for you — only override if the "
+                                                 "values look off by 1000× after loading.")
 
         layout = st.segmented_control("How are the reaction times stored?",
                                       ["Wide — both RTs per row", "Long — one RT + effector column"],
                                       default="Wide — both RTs per row",
-                                      help="Wide: each trial row has a hand-RT column and a saccade-RT "
-                                           "column (the repository format). Long: one reaction-time "
-                                           "column, with another column saying hand or eye.")
+                                      help="This is about your spreadsheet's shape. WIDE means each trial "
+                                           "is one row with a separate column for the hand RT and for the "
+                                           "saccade RT (the KINARM export looks like this). LONG means each "
+                                           "trial is one row with a single reaction-time column, plus "
+                                           "another column that says whether it was a hand or an eye "
+                                           "movement. Pick whichever matches your file.")
         m1, m2 = st.columns(2)
         if layout and layout.startswith("Wide"):
             with m1:
                 hand_rt_col = pick("Hand RT column", {"handrt_ms", "handrt", "hand_rt"}, allow_none=True,
-                                   help="Column with the hand (reach) reaction time. Set to none if absent.")
+                                   help="The column with the hand (reach) reaction time — how long after "
+                                        "the target appeared the hand began to move. Choose 'none' if your "
+                                        "file has no hand data.")
             with m2:
                 eye_rt_col = pick("Saccade RT column", {"gazesrt_ms", "gazesrt", "saccadert", "eye_rt"},
                                   allow_none=True,
-                                  help="Column with the saccadic (eye) reaction time. Set to none if absent.")
+                                  help="The column with the saccadic (eye) reaction time — how long after "
+                                       "the target appeared the eyes began to move. Choose 'none' if your "
+                                       "file has no eye data.")
         else:
             with m1:
                 rt_col = pick("Reaction-time column", {"rt", "reaction_time", "latency"},
-                              help="The single column holding the reaction time for each trial.")
+                              help="The single column holding each trial's reaction time — the gap between "
+                                   "the target appearing and the response starting.")
             with m2:
                 has_eff = st.toggle("There is an effector column", value=True,
-                                    help="On if a column says whether each trial is hand or eye. "
-                                         "Off if the whole file is one effector.")
+                                    help="Turn on if a column labels each trial as a hand or an eye "
+                                         "movement. Turn off if every row in the file is the same "
+                                         "movement type.")
                 if has_eff:
                     effector_col = pick("Effector column", {"effector", "modality"},
-                                        help="Column whose values are hand / eye (synonyms accepted).")
+                                        help="The column whose values say hand or eye. Common synonyms "
+                                             "are accepted (hand/reach, eye/gaze/saccade).")
                 else:
                     effector_value = st.segmented_control("These trials are all…", list(EFFECTORS),
                                                           default="hand")
@@ -174,9 +188,11 @@ with st.container(border=True):
         cond_mode = st.segmented_control("How is target speed given?",
                                          ["SpeedCode (1/2/3)", "Speed (deg/s)", "Condition index (0/1/2)"],
                                          default="SpeedCode (1/2/3)",
-                                         help="SpeedCode 1/2/3 maps to 0/75/150 deg/s. Or point to a raw "
-                                              "speed column, or a 0/1/2 condition index — whichever your "
-                                              "file has.")
+                                         help="Each trial belongs to a target-speed condition; this study "
+                                              "uses three — 0, 75, and 150 degrees per second. Tell the app "
+                                              "how that's encoded in your file: a SpeedCode of 1/2/3 (which "
+                                              "maps to 0/75/150), the actual speed in deg/s, or a 0/1/2 "
+                                              "condition index. They all end up as the same three conditions.")
         s1, s2 = st.columns(2)
         with s1:
             if cond_mode and cond_mode.startswith("SpeedCode"):
@@ -191,8 +207,10 @@ with st.container(border=True):
             blocktype_keep = st.text_input(
                 "Keep only this block type (blank = keep all)",
                 value="I" if blocktype_col else "",
-                help="Some datasets tag trials by task block — here 'I' means the interception task "
-                     "and 'S' another block. Type the block to analyse, or leave blank to keep every row.")
+                help="Experiments often mix different task blocks in one file. Here the BlockType column "
+                     "marks each trial's block — 'I' is the interception task you want to analyse, and "
+                     "other letters (like 'S') are different blocks that should be left out. Type the "
+                     "letter to keep (usually I), or leave this blank to keep every trial.")
 
         none = lambda x: None if (x in (None, "— none —")) else x
         if st.button("Use this mapping", type="primary"):
@@ -263,28 +281,45 @@ if SS.filtered is not None:
             ui.eyebrow("What to fit")
             chosen = st.segmented_control("Effectors", avail, selection_mode="multi",
                                           default=avail, key="fit_eff",
-                                          help="Toggle hand and/or eye on.")
+                                          help="Which movement types to model — hand, eye, or both. "
+                                               "Each is fit and reported separately, because hand and eye "
+                                               "reaction times behave quite differently.")
             modes = ["Quick preview (seconds)"]
             if HAVE_PYMC:
                 modes.append("Full Bayesian (minutes)")
             mode = st.segmented_control("Fitting mode", modes, default=modes[0],
-                                        help="Preview = fast maximum-likelihood point estimates. "
-                                             "Bayesian = full hierarchical NUTS fit with uncertainty "
-                                             "(the one to report).")
+                                        help="Preview runs a quick best-fit estimate in seconds — great "
+                                             "for a first look and for checking the data loaded correctly. "
+                                             "Full Bayesian runs the proper hierarchical model with a "
+                                             "sampler (NUTS): it takes a few minutes but gives uncertainty "
+                                             "(credible intervals) and is the version you'd report.")
         with c2:
             ui.eyebrow("Bayesian options")
             preset = st.select_slider("Sampler effort", ["Fast", "Standard", "Thorough"],
                                       value="Standard", disabled=not HAVE_PYMC,
-                                      help="Draws / tune / chains: Fast 500/500/2, Standard "
-                                           "1000/1000/4, Thorough 1500/1500/4 (matches the paper).")
+                                      help="How hard the sampler works. More draws and chains give more "
+                                           "accurate, stable estimates but take longer. Fast (500/500/2) "
+                                           "for trying things out, Standard (1000/1000/4) for most runs, "
+                                           "Thorough (1500/1500/4) to match the paper for a final result. "
+                                           "The numbers are draws / tuning steps / parallel chains.")
             draws, tune, chains = {"Fast": (500, 500, 2), "Standard": (1000, 1000, 4),
                                    "Thorough": (1500, 1500, 4)}[preset]
             use_mixture = st.toggle("Express/regular mixture for bimodal saccade cells", value=True,
-                                    help=("Uses the dip test to flag bimodal cells." if HAVE_DIPTEST
-                                          else "diptest not installed; Gaussian-mixture BIC fallback used."))
+                                    help=("Some people make very fast 'express' saccades mixed in with "
+                                          "normal ones, so their reaction-time distribution has two humps. "
+                                          "When on, the app detects those cells (with a statistical dip "
+                                          "test) and fits two pieces — a fast express one and a regular "
+                                          "one — instead of forcing a single curve through both."
+                                          if HAVE_DIPTEST else
+                                          "Fits two components (fast express + regular) for saccade cells "
+                                          "with two humps. diptest isn't installed, so a Gaussian-mixture "
+                                          "BIC test is used to flag them instead."))
             contamination = st.slider("Uniform contamination share", 0.0, 0.10, 0.0, 0.01,
-                                      help="Small uniform outlier component. 0.0 matches the "
-                                           "repository's Bayesian likelihood.")
+                                      help="A few trials are always flukes (lapses, tracker glitches) that "
+                                           "no model fits well. This adds a flat 'anything-goes' component "
+                                           "to soak them up so they don't distort the estimates. 0 turns it "
+                                           "off, which matches the repository's Bayesian setup; a few "
+                                           "percent makes the fit more robust to outliers.")
 
         chosen = chosen or []
         if st.button("Run analysis", type="primary", disabled=not chosen):

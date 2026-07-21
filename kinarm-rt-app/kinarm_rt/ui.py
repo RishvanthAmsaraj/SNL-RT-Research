@@ -66,15 +66,16 @@ footer{ visibility:hidden; }
 @keyframes kxFadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
 @keyframes kxFade{ from{opacity:0;} to{opacity:1;} }
 @keyframes kxRise{ from{opacity:0; transform:translateY(6px) scale(.995);} to{opacity:1; transform:none;} }
-.block-container > div{ animation:kxFadeUp .5s both; }
+.block-container > div{ animation:kxFade .5s both; }
 .block-container > div:nth-child(1){ animation-delay:.02s; }
 .block-container > div:nth-child(2){ animation-delay:.07s; }
 .block-container > div:nth-child(3){ animation-delay:.12s; }
 .block-container > div:nth-child(4){ animation-delay:.17s; }
 .block-container > div:nth-child(5){ animation-delay:.22s; }
 .block-container > div:nth-child(6){ animation-delay:.27s; }
-/* content inside cards eases in too */
-[data-testid="stImage"], [data-testid="stDataFrame"], [data-testid="stMetric"]{ animation:kxRise .45s both; }
+/* content eases in with opacity only — a lingering transform on any ancestor of a
+   figure or table would collapse Streamlit's fixed fullscreen overlay */
+[data-testid="stDataFrame"], [data-testid="stMetric"], [data-testid="stImage"]{ animation:kxFade .45s both; }
 [data-testid="stExpander"]{ transition:box-shadow .2s, border-color .2s; }
 [data-testid="stExpander"]:hover{ box-shadow:var(--kx-shadow-lg); border-color:var(--kx-primary) !important; }
 
@@ -119,7 +120,7 @@ footer{ visibility:hidden; }
 
 /* sub-labels inside a card */
 .kx-eyebrow{ font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-  color:var(--kx-primary-ink); margin:6px 0 8px; }
+  color:var(--kx-primary-ink); margin:10px 0 6px; }
 
 /* ---------- cards (bordered containers), consistent padding ---------- */
 [data-testid="stVerticalBlockBorderWrapper"]{ background:var(--kx-surface);
@@ -170,6 +171,14 @@ footer{ visibility:hidden; }
   background:linear-gradient(135deg,var(--kx-primary),var(--kx-primary-2)) !important;
   box-shadow:0 4px 14px var(--kx-glow); border-bottom:none !important; }
 .stTabs [data-testid="stTab"] [data-testid="stMarkdownContainer"] p{ font-weight:600; margin:0; }
+/* consistent breathing room inside the results tabs */
+.stTabs [data-testid="stTabPanel"]{ padding-top:16px; }
+.stTabs [data-testid="stTabPanel"] h4{ margin:.5rem 0 .1rem !important; font-size:16px; }
+.stTabs [data-testid="stTabPanel"] [data-testid="stCaptionContainer"]{ margin-bottom:.2rem; }
+/* remove the sliding/underline indicators (the active tab is a filled pill instead) */
+.stTabs [role="tablist"]::after, .stTabs [role="tablist"]::before{ display:none !important; }
+.stTabs .react-aria-SelectionIndicator{ display:none !important; }
+.stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"]{ display:none !important; }
 
 /* ---------- tooltip "?" sits right next to the label, consistently ---------- */
 [data-testid="stWidgetLabel"]{ display:flex !important; align-items:center; gap:6px; }
@@ -179,12 +188,19 @@ footer{ visibility:hidden; }
 [data-testid="stTooltipIcon"] svg{ transition:color .2s, transform .2s; }
 [data-testid="stTooltipIcon"]:hover svg{ color:var(--kx-primary); transform:scale(1.12); }
 
-/* ---------- figures rendered as images ---------- */
-[data-testid="stImage"]{ border-radius:12px; overflow:hidden; border:1px solid var(--kx-line);
-  box-shadow:var(--kx-shadow); background:var(--kx-surface); padding:6px;
-  transition:box-shadow .25s, transform .25s; }
-[data-testid="stImage"]:hover{ box-shadow:var(--kx-shadow-lg); transform:translateY(-2px); }
-[data-testid="stImage"] img{ border-radius:8px; }
+/* ---------- figures rendered as images (style the img, never the container, so
+   Streamlit's native fullscreen — which fills the viewport — keeps working) ---------- */
+[data-testid="stImage"] img{ border-radius:10px; border:1px solid var(--kx-line);
+  box-shadow:var(--kx-shadow); transition:box-shadow .25s; }
+[data-testid="stImage"]:hover img{ box-shadow:var(--kx-shadow-lg); }
+/* keep the expand / minimise control visible on figures (not hover-only) */
+[data-testid="stImage"] [data-testid="stElementToolbar"],
+[data-testid="stFullScreenFrame"] [data-testid="stElementToolbar"]{ opacity:1 !important; }
+[data-testid="stImage"] [data-testid="StyledFullScreenButton"],
+[data-testid="stFullScreenFrame"] [data-testid="StyledFullScreenButton"]{
+  opacity:1 !important; visibility:visible !important; background:var(--kx-surface) !important;
+  border:1px solid var(--kx-line) !important; border-radius:8px !important; color:var(--kx-ink) !important; }
+[data-testid="stFullScreenFrame"] img{ border-radius:8px; box-shadow:none; border:none; }
 
 /* ---------- dataframes / tables ---------- */
 [data-testid="stDataFrame"], [data-testid="stTable"]{ border-radius:12px; overflow:hidden;
@@ -213,7 +229,7 @@ footer{ visibility:hidden; }
   background:var(--kx-glow-soft); color:var(--kx-primary-ink); }
 .kx-note{ background:var(--kx-inset); border:1px solid var(--kx-line); border-left:3px solid var(--kx-primary);
   border-radius:10px; padding:11px 14px; font-size:13px; color:var(--kx-ink); line-height:1.5; }
-.kx-hint{ font-size:12px; color:var(--kx-muted); margin:-2px 0 8px; line-height:1.45; }
+.kx-hint{ font-size:12.5px; color:var(--kx-muted); margin:2px 0 8px; line-height:1.5; }
 """
 
 
