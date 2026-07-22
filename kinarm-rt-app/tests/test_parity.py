@@ -352,3 +352,62 @@ def test_later_thresholds():
     """Express cutoff and the minimum cell size come from LATER_analysis.py."""
     assert L.EXPRESS_CUTOFF_MS == 130.0
     assert L.MIN_TRIALS == 40
+
+
+# --------------------------------------------------------------------------- #
+# Selection rule against the recorded pipeline output
+# --------------------------------------------------------------------------- #
+def _recorded_srt_fits():
+    """The published DDM_srt_fits.csv, if the pipeline folder is alongside the app."""
+    import os
+    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(os.path.dirname(here), "Current Pipeline", "Code", "DDM",
+                        "DDM_srt_fits.csv")
+    return pd.read_csv(path) if os.path.exists(path) else None
+
+
+def test_selection_rule_reproduces_recorded_output():
+    """
+    Replay the rule against the published per-cell table.
+
+    This is the strongest available check that the app splits cells the same way
+    the pipeline did: it uses the recorded KS values, mixing weights and modes, so
+    it does not depend on refitting anything.
+    """
+    d = _recorded_srt_fits()
+    if d is None:
+        pytest.skip("published DDM_srt_fits.csv not present next to the app")
+
+    def replay(r):
+        if r.ks_single <= W.KS_ACCEPT:
+            return "single"
+        if pd.isna(r.get("pi")):
+            return "single"
+        if (r.ks < W.KS_ACCEPT) and (W.MIX_MIN_PI <= r.pi <= W.MIX_MAX_PI) \
+                and ((r.reg_mode - r.express_mode) >= W.MIX_MIN_MODE_GAP_MS):
+            return "mixture"
+        return "single"
+
+    got = d.apply(replay, axis=1)
+    mismatched = d[got != d.model]
+    assert mismatched.empty, f"{len(mismatched)} cells classified differently"
+
+
+def test_two_component_is_not_the_same_as_express():
+    """
+    A two-component cell is a statistical split, not an express-saccade finding.
+
+    In the published data sixteen cells across nine participants need two
+    components, but only one of those has its faster mode below the 130 ms express
+    cutoff. The interface must not describe the other fifteen as express, so this
+    records the distinction that wording depends on.
+    """
+    d = _recorded_srt_fits()
+    if d is None:
+        pytest.skip("published DDM_srt_fits.csv not present next to the app")
+    mx = d[d.model == "mixture"]
+    assert len(mx) > 1, "expected several two-component cells"
+    truly_express = (mx.express_mode < L.EXPRESS_CUTOFF_MS).sum()
+    assert truly_express < len(mx), (
+        "if every fast component were under the express cutoff the wording could "
+        "safely say 'express'; it is not, so it must not")

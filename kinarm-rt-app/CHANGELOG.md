@@ -2,6 +2,85 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] — 2026-07-22
+
+### Fixed — the minimise control in fullscreen
+
+Two separate faults, both in the stylesheet. Bare Streamlit closes fullscreen
+correctly; the themed app did not, and clicks on the control never reached it.
+
+- A blanket `.block-container > div{ animation:kxFade .5s both; }` with staggered
+  `nth-child` delays. With fill mode `both` and a delay, a matched div holds the
+  from-state — `opacity: 0` — for the length of its delay: invisible, but still
+  laid out and still taking pointer events. Streamlit re-indexes those divs when
+  the fullscreen overlay mounts, which left a transparent div sitting over the
+  control. Removed; section entrances are handled by a scoped rule instead. No
+  animation anywhere now uses `both`, since a retained fill on anything that can
+  host the fullscreen frame causes the same class of problem.
+- Every element toolbar was given `z-index: 2147483000`. With eleven figures on
+  the Graphs tab, the other ten toolbars painted above the fullscreen overlay and
+  intercepted the click. Only the expanded frame — the one containing a
+  "Close fullscreen" button — is lifted now.
+
+The fullscreen image is also fitted to the viewport (`max-width`/`max-height` with
+`object-fit: contain`) rather than rendering at its natural pixel size, which had
+made the scaling look wrong.
+
+### Fixed — wording that overstated the express-saccade result
+
+The two-component saccade fit was labelled "express/regular" throughout. In the
+published data sixteen cells across nine participants need two components, but
+only one of those sixteen has its faster mode below the 130 ms express cutoff —
+the rest sit between 135 and 185 ms, which is ordinary saccade latency. Only one
+participant is genuinely express-dominant by LATER (express fraction 0.74–0.84;
+the next highest is 0.17). Describing nine participants as express was wrong.
+
+The interface now says "two-component", shows a `fast mode < 130 ms` column, and
+states how many cells are actually in express territory. The CSV column names
+(`t0e`, `t0r`, `express_mode`, `reg_mode`, `pi`) are unchanged, so exported tables
+still line up with the pipeline's own files. The mixture toggle's help text also
+described the dip test, which stopped being the selection rule in 1.2.0.
+
+### Changed — speed
+
+Exact optimiser settings made fitting substantially slower: a cell needing two
+components costs about nine times a single fit (roughly 5.4 s against 0.6 s).
+Cells are independent and the optimiser is seeded per cell, so they are now fitted
+across cores, leaving one free. Verified to give byte-identical parameters, KS and
+model choice to the sequential path. The saccade selection inside the Bayesian fit
+was running serially inside the sampling loop and is now part of the same parallel
+step.
+
+### Added — progress and time estimates
+
+`ui.StepBar` gives each stage of a run its own labelled progress bar with a time
+estimate derived from the rate observed so far, so it adapts to the machine and to
+how many cells need the slower fit. Method A reports per cell; Method B reports
+across cell selection, the per-speed hierarchical fits, and each two-component
+cell. The panel lists the stages, and the run reports how many cores it used.
+
+### Changed — motion
+
+Section cards rise 26 px over 0.62 s with a stagger. Previously the blanket fade
+above was fighting the scoped section rule, so neither read as motion. The glow
+behind the selected tab (`box-shadow: 0 4px 14px`) is gone; the filled pill is the
+highlight. The hover lift on tabs was removed too.
+
+### Added
+
+- `test_selection_rule_reproduces_recorded_output` replays the single-versus-
+  two-component rule against the published `DDM_srt_fits.csv` and requires all 48
+  cells to be classified identically, using the recorded statistics so it does not
+  depend on refitting.
+- `test_two_component_is_not_the_same_as_express` records the distinction the
+  interface wording depends on.
+
+### Known issues
+
+- Streamlit reports `use_container_width` as deprecated and due for removal. The
+  app still uses it throughout. It works today but will need replacing with
+  `width="stretch"` before a future Streamlit drops it.
+
 ## [1.2.0] — 2026-07-22
 
 The app is meant to be the pipeline with an interface on it, not a second

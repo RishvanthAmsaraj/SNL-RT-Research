@@ -83,9 +83,10 @@ footer{ visibility:hidden; }
    containing block, which collapses Streamlit's position:fixed fullscreen overlay. */
 .block-container [data-testid="stVerticalBlockBorderWrapper"],
 .block-container [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){
-  animation:kxSection .5s backwards; }
+  animation:kxSection .62s cubic-bezier(.16,.84,.34,1) backwards; }
 @keyframes kxSection{
-  from{ opacity:0; transform:translateY(14px); }
+  from{ opacity:0; transform:translateY(26px); }
+  60%{ opacity:1; }
   to{ opacity:1; transform:translateY(0); }
 }
 /* Stagger: the general sibling combinator counts how many step cards precede this
@@ -97,18 +98,22 @@ footer{ visibility:hidden; }
 .block-container [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){ animation-delay:.12s; }
 .block-container [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"],
 .block-container [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){ animation-delay:.18s; }
-.block-container > div{ animation:kxFade .5s both; }
-.block-container > div:nth-child(1){ animation-delay:.02s; }
-.block-container > div:nth-child(2){ animation-delay:.07s; }
-.block-container > div:nth-child(3){ animation-delay:.12s; }
-.block-container > div:nth-child(4){ animation-delay:.17s; }
-.block-container > div:nth-child(5){ animation-delay:.22s; }
-.block-container > div:nth-child(6){ animation-delay:.27s; }
+/* NOTE: a blanket `.block-container > div{ animation:kxFade .5s both }` used to live
+   here with staggered nth-child delays. It broke fullscreen: with fill-mode `both`
+   and a delay, a matched div holds the from-state (opacity 0) during its delay, so
+   it is invisible but still laid out and still takes pointer events. Streamlit
+   re-indexes these divs when the fullscreen overlay mounts, which left a phantom
+   transparent div sitting over the expand/minimise control -- clicks landed on it
+   instead of the button, and Escape became the only way out. Section entrances are
+   handled by the scoped .kx-sec rule above instead. */
 /* tab panels ease in when you switch tabs inside Results */
-.stTabs [data-testid="stTabPanel"]{ animation:kxFade .32s both; }
+.stTabs [data-testid="stTabPanel"]{ animation:kxFade .32s backwards; }
 /* content eases in with opacity only — a lingering transform on any ancestor of a
    figure or table would collapse Streamlit's fixed fullscreen overlay */
-[data-testid="stDataFrame"], [data-testid="stMetric"], [data-testid="stImage"]{ animation:kxFade .45s both; }
+/* Figures are deliberately NOT animated: [data-testid="stImage"] hosts the
+   fullscreen frame, and any filled animation on it leaves styles applied for
+   good, which puts a transparent layer over the minimise control. */
+[data-testid="stDataFrame"], [data-testid="stMetric"]{ animation:kxFade .45s backwards; }
 /* honour reduced-motion preferences */
 @media (prefers-reduced-motion: reduce){
   *, .block-container [data-testid="stVerticalBlockBorderWrapper"],
@@ -121,7 +126,7 @@ footer{ visibility:hidden; }
 /* ---------- hero (blue, glow, no shimmer) ---------- */
 .kx-hero{ position:relative; overflow:hidden; border-radius:20px; padding:28px 32px; margin-bottom:18px;
   color:#fff; background:linear-gradient(120deg,var(--kx-primary),var(--kx-primary-2));
-  box-shadow:0 10px 34px var(--kx-glow); animation:kxFadeUp .5s both; }
+  box-shadow:0 10px 34px var(--kx-glow); animation:kxFadeUp .5s backwards; }
 .kx-hero:before{ content:""; position:absolute; inset:0;
   background:radial-gradient(560px 200px at 88% -40%, rgba(255,255,255,.28), transparent 60%); }
 .kx-hero h1{ margin:0; font-size:29px; font-weight:800; letter-spacing:-.02em; }
@@ -205,12 +210,12 @@ footer{ visibility:hidden; }
 .stTabs [role="tablist"]{ gap:6px; border-bottom:none !important; padding-bottom:4px; flex-wrap:wrap; }
 .stTabs [data-testid="stTab"]{ border-radius:10px !important; padding:7px 15px !important;
   font-weight:600; color:var(--kx-muted); background:transparent; border-bottom:none !important;
-  transition:background .2s, color .2s, box-shadow .2s, transform .15s; }
-.stTabs [data-testid="stTab"]:hover{ color:var(--kx-ink); background:var(--kx-glow-soft);
-  transform:translateY(-1px); }
+  transition:background .2s, color .2s; }
+.stTabs [data-testid="stTab"]:hover{ color:var(--kx-ink); background:var(--kx-glow-soft); }
+/* the active tab is a filled pill -- no glow behind it, the fill is the highlight */
 .stTabs [data-testid="stTab"][aria-selected="true"]{ color:#fff !important;
   background:linear-gradient(135deg,var(--kx-primary),var(--kx-primary-2)) !important;
-  box-shadow:0 4px 14px var(--kx-glow); border-bottom:none !important; }
+  box-shadow:none !important; border-bottom:none !important; }
 .stTabs [data-testid="stTab"] [data-testid="stMarkdownContainer"] p{ font-weight:600; margin:0; }
 /* consistent breathing room inside the results tabs */
 .stTabs [data-testid="stTabPanel"]{ padding-top:16px; }
@@ -239,47 +244,62 @@ footer{ visibility:hidden; }
    Streamlit renames this button between versions: older builds use
    [data-testid="StyledFullScreenButton"], current builds use
    [data-testid="stBaseButton-elementToolbar"] with aria-label
-   "Fullscreen" / "Close fullscreen". Target all of them so the control is styled
-   whichever version is installed — and give it a real surface, because by default
-   it renders as a pale icon on the figure's white background and is effectively
-   invisible in fullscreen, leaving Escape as the only way out. */
+   "Fullscreen" / "Close fullscreen". All of them are targeted so the control is
+   styled whichever version is installed.
+
+   Only its APPEARANCE is changed. Its box is left alone deliberately: forcing a
+   larger width/height pushed the button out from under its own toolbar, so the
+   topmost element at the button's centre became the image container and clicks
+   never reached the button -- which left Escape as the only way out of
+   fullscreen. The toolbar is given a stacking context instead, so the control
+   always sits above the figure and stays clickable. */
 [data-testid="stElementToolbar"],
 [data-testid="stImage"] [data-testid="stElementToolbar"],
 [data-testid="stFullScreenFrame"] [data-testid="stElementToolbar"]{
-  opacity:1 !important; visibility:visible !important; }
+  opacity:1 !important; visibility:visible !important;
+  z-index:3 !important; pointer-events:auto !important; }
+/* Only the figure that is actually expanded gets lifted above everything. A page can
+   hold a dozen figures, and giving every toolbar a huge z-index put the other
+   toolbars on top of the fullscreen overlay, where they intercepted the click meant
+   for the minimise control. The expanded frame is the one containing a
+   "Close fullscreen" button. */
+[data-testid="stFullScreenFrame"]:has(button[aria-label="Close fullscreen"]){
+  z-index:2147483000 !important; }
+[data-testid="stFullScreenFrame"]:has(button[aria-label="Close fullscreen"])
+  [data-testid="stElementToolbar"]{ z-index:2147483001 !important; }
 [data-testid="StyledFullScreenButton"],
 [data-testid="stBaseButton-elementToolbar"],
 button[aria-label="Fullscreen"],
 button[aria-label="Close fullscreen"]{
   opacity:1 !important; visibility:visible !important;
+  pointer-events:auto !important;
   background:var(--kx-surface) !important;
   border:1px solid var(--kx-line) !important;
-  border-radius:9px !important; color:var(--kx-ink) !important;
+  border-radius:8px !important; color:var(--kx-ink) !important;
   box-shadow:var(--kx-shadow) !important;
-  width:34px !important; height:34px !important; padding:5px !important;
-  display:inline-flex !important; align-items:center; justify-content:center;
-  transition:background .18s, border-color .18s, transform .15s; }
+  transition:background .18s, border-color .18s; }
 [data-testid="StyledFullScreenButton"] svg,
 [data-testid="stBaseButton-elementToolbar"] svg,
 button[aria-label="Fullscreen"] svg,
 button[aria-label="Close fullscreen"] svg{
-  color:var(--kx-ink) !important; fill:currentColor !important;
-  width:19px !important; height:19px !important; opacity:1 !important; }
+  color:var(--kx-ink) !important; fill:currentColor !important; opacity:1 !important; }
 [data-testid="StyledFullScreenButton"]:hover,
 [data-testid="stBaseButton-elementToolbar"]:hover,
 button[aria-label="Fullscreen"]:hover,
 button[aria-label="Close fullscreen"]:hover{
-  background:var(--kx-primary) !important; border-color:var(--kx-primary) !important;
-  transform:translateY(-1px); }
+  background:var(--kx-primary) !important; border-color:var(--kx-primary) !important; }
 [data-testid="StyledFullScreenButton"]:hover svg,
 [data-testid="stBaseButton-elementToolbar"]:hover svg,
 button[aria-label="Fullscreen"]:hover svg,
 button[aria-label="Close fullscreen"]:hover svg{ color:#fff !important; }
-/* Streamlit already positions this control correctly in both states (over the
-   figure's corner when inline, at the viewport corner in fullscreen), so only its
-   appearance is changed here — repositioning the toolbar would also move the
-   collapsed-state button, because the frame wrapper is present in both states. */
-[data-testid="stFullScreenFrame"] img{ border-radius:8px; box-shadow:none; border:none; }
+
+/* In fullscreen, fit the figure to the viewport instead of letting it render at
+   its natural pixel size, which overflowed and made the scaling look wrong. */
+[data-testid="stFullScreenFrame"] img{
+  border-radius:8px; box-shadow:none; border:none;
+  max-width:calc(100vw - 32px) !important; max-height:calc(100vh - 32px) !important;
+  width:auto !important; height:auto !important;
+  object-fit:contain; margin:0 auto; display:block; }
 
 /* ---------- dataframes / tables ---------- */
 [data-testid="stDataFrame"], [data-testid="stTable"]{ border-radius:12px; overflow:hidden;
@@ -362,3 +382,53 @@ def note(text: str):
 
 def hint(text: str):
     st.markdown(f"<div class='kx-hint'>{text}</div>", unsafe_allow_html=True)
+
+
+# --------------------------------------------------------------------------- #
+# Progress reporting
+# --------------------------------------------------------------------------- #
+def format_eta(seconds) -> str:
+    """'~2m 05s left' from a number of seconds; empty string if not yet known."""
+    import math
+    if seconds is None or not math.isfinite(seconds) or seconds < 0:
+        return ""
+    seconds = int(round(seconds))
+    if seconds < 60:
+        return f"~{seconds}s left"
+    m, s = divmod(seconds, 60)
+    if m < 60:
+        return f"~{m}m {s:02d}s left"
+    h, m = divmod(m, 60)
+    return f"~{h}h {m:02d}m left"
+
+
+class StepBar:
+    """
+    A labelled progress bar that estimates the time remaining.
+
+    The estimate comes from the rate actually observed so far rather than a fixed
+    guess, so it adapts to the machine and to how many cells need the slower
+    two-component fit. Call the instance as progress(done, total).
+    """
+
+    def __init__(self, container, label: str, unit: str = "cells"):
+        import time
+        self._time = time
+        self.t0 = time.time()
+        self.label = label
+        self.unit = unit
+        self.bar = container.progress(0.0, text=f"{label} — starting…")
+
+    def __call__(self, done: int, total: int):
+        frac = (done / total) if total else 1.0
+        elapsed = self._time.time() - self.t0
+        eta = (elapsed / done) * (total - done) if done else None
+        tail = format_eta(eta)
+        self.bar.progress(min(max(frac, 0.0), 1.0),
+                          text=f"{self.label} — {done}/{total} {self.unit}"
+                               + (f"  ·  {tail}" if tail else ""))
+
+    def finish(self, note: str = ""):
+        elapsed = int(round(self._time.time() - self.t0))
+        self.bar.progress(1.0, text=f"{self.label} — done in {elapsed}s"
+                                    + (f"  ·  {note}" if note else ""))

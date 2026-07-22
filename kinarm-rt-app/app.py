@@ -308,16 +308,17 @@ if SS.filtered is not None:
                                            "they reach the same estimates but with more sampling noise.")
             draws, tune, chains = {"Fast": (500, 500, 2), "Standard": (1000, 1000, 4),
                                    "Thorough": (1500, 1500, 4)}[preset]
-            use_mixture = st.toggle("Express/regular mixture for bimodal saccade cells", value=True,
-                                    help=("Some people make very fast 'express' saccades mixed in with "
-                                          "normal ones, so their reaction-time distribution has two humps. "
-                                          "When on, the app detects those cells (with a statistical dip "
-                                          "test) and fits two pieces — a fast express one and a regular "
-                                          "one — instead of forcing a single curve through both."
-                                          if HAVE_DIPTEST else
-                                          "Fits two components (fast express + regular) for saccade cells "
-                                          "with two humps. diptest isn't installed, so a Gaussian-mixture "
-                                          "BIC test is used to flag them instead."))
+            use_mixture = st.toggle("Two-component fit for saccade cells that need it", value=True,
+                                    help=("Some saccade cells have two humps rather than one, and a single "
+                                          "shifted-Wald cannot fit both. Where that happens the pipeline fits "
+                                          "two components — a faster and a slower one — keeping the "
+                                          "two-component version only if the single fit was poor (KS > 0.10), "
+                                          "the two-component fit is good (KS < 0.10), it splits the trials "
+                                          "between 10% and 90%, and the two modes are at least 30 ms apart. "
+                                          "This is a statistical split, not a claim about express saccades: "
+                                          "in the reference dataset only one of the sixteen two-component "
+                                          "cells has its fast mode under 130 ms. Use the LATER tab for the "
+                                          "express question. Off means every cell gets a single component."))
             contamination = st.slider("Uniform contamination share", 0.0, 0.10, 0.0, 0.01,
                                       help="A few trials are always flukes (lapses, tracker glitches) that "
                                            "no model fits well. This adds a flat 'anything-goes' component "
@@ -328,35 +329,57 @@ if SS.filtered is not None:
         chosen = chosen or []
         if st.button("Run analysis", type="primary", disabled=not chosen):
             results, errors = {}, []
+            is_method_a = bool(mode and mode.startswith("Method A"))
+            box = st.status("Running…", expanded=True)
+            n_jobs = wald.default_jobs()
+            if n_jobs > 1:
+                box.write(f"Using {n_jobs} cores — cells are fitted independently, "
+                          f"so this does not change any result.")
+
             if "eye" in chosen:
                 try:
-                    with st.spinner("Fitting LATER to saccades…"):
-                        SS.later = later.fit_later(kept[kept.effector == "eye"])
+                    lb = ui.StepBar(box, "LATER (saccades)", unit="participants")
+                    SS.later = later.fit_later(kept[kept.effector == "eye"])
+                    lb.finish()
                 except Exception as e:
                     errors.append(f"LATER: {e}")
-            if mode and mode.startswith("Method A"):
+
+            if is_method_a:
                 for eff in chosen:
                     try:
-                        with st.spinner(f"MLE preview — {eff}…"):
-                            prev = wald.mle_preview(kept, eff, contamination)
+                        bar = ui.StepBar(box, f"Method A — {eff}")
+                        prev = wald.mle_preview(kept, eff, contamination,
+                                                use_mixture=use_mixture,
+                                                n_jobs=n_jobs, progress=bar)
+                        nmix = int((prev["cell"]["model"] == "mixture").sum()) \
+                            if len(prev["cell"]) else 0
+                        bar.finish(f"{nmix} cells needed two components" if nmix else "")
                         results[eff] = {"effector": eff, "preview": prev, "units": pd.DataFrame(),
                                         "group": prev["group"].assign(t0_floor_ms=prev["floor_ms"]),
                                         "mixture": pd.DataFrame(), "convergence": {}}
                     except Exception as e:
-                        errors.append(f"{eff} preview: {e}")
+                        errors.append(f"{eff} Method A: {e}")
             else:
-                box = st.status("Running Bayesian fits…", expanded=True)
                 for eff in chosen:
                     try:
+                        sbar = ui.StepBar(box, f"Method B — {eff}", unit="steps")
                         res = wald.fit_effector(kept, eff, draws=draws, tune=tune, chains=chains,
                                                 cores=1, contamination=contamination,
-                                                use_mixture=use_mixture, status=box.write)
-                        res["preview"] = wald.mle_preview(kept, eff, contamination)
+                                                use_mixture=use_mixture, status=box.write,
+                                                n_jobs=n_jobs, progress=sbar)
+                        sbar.finish()
+                        pbar = ui.StepBar(box, f"Method A cross-check — {eff}")
+                        res["preview"] = wald.mle_preview(kept, eff, contamination,
+                                                          use_mixture=use_mixture,
+                                                          n_jobs=n_jobs, progress=pbar)
+                        pbar.finish()
                         res["gof"] = diagnostics.goodness_of_fit(kept, eff, res["units"])
                         results[eff] = res
                     except Exception as e:
                         errors.append(f"{eff} Bayesian fit: {e}")
-                box.update(label="Bayesian fits complete", state="complete")
+
+            box.update(label="Analysis complete" if not errors else "Finished with errors",
+                       state="complete" if not errors else "error", expanded=False)
             SS.results = results
             for e in errors:
                 st.error(e)
@@ -515,10 +538,22 @@ if SS.results or SS.later:
                     with st.expander(f"{eff} — per-participant × speed estimates"):
                         st.dataframe(r["units"], use_container_width=True, hide_index=True)
                 if isinstance(r.get("mixture"), pd.DataFrame) and len(r["mixture"]):
-                    ui.eyebrow("Express / regular mixture cells")
-                    st.dataframe(r["mixture"][["participant", "speed", "n", "pi",
-                                               "express_mode", "reg_mode"]].round(2),
+                    ui.eyebrow("Two-component saccade cells")
+                    mixtbl = r["mixture"].copy()
+                    if "express_mode" in mixtbl.columns:
+                        # a fast component is only an express saccade if it is actually
+                        # under the 130 ms express cutoff -- usually it is not
+                        mixtbl["fast mode < 130 ms"] = mixtbl["express_mode"] < 130
+                    st.dataframe(mixtbl[[c for c in ["participant", "speed", "n", "pi",
+                                                     "express_mode", "reg_mode",
+                                                     "fast mode < 130 ms"]
+                                         if c in mixtbl.columns]].round(2),
                                  use_container_width=True, hide_index=True)
+                    n_true = int((mixtbl["express_mode"] < 130).sum()) if "express_mode" in mixtbl else 0
+                    ui.hint(f"{len(mixtbl)} cells needed two components; in {n_true} of them the "
+                            f"faster component is actually in express territory (under 130 ms). "
+                            f"The rest are two ordinary-latency modes, so these are not "
+                            f"express-saccade participants — see the LATER tab for that.")
             if not any_p:
                 st.info("Run a fit to see parameters.")
 

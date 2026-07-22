@@ -22,6 +22,8 @@ and LATER features) still work when PyMC is not installed.
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 
@@ -248,8 +250,71 @@ def _fit_cell_mle(rt: np.ndarray, floor: float, contamination: float = 0.0):
     return float(x[0]), float(x[1]), float(x[2])
 
 
+# --------------------------------------------------------------------------- #
+# Running many cell fits
+#
+# Each participant x speed cell is fitted independently and the optimiser is
+# seeded per cell, so the result does not depend on how the work is scheduled.
+# That makes the loop safe to run across cores, which matters because the
+# two-component saccade fit costs roughly nine times a single fit.
+# --------------------------------------------------------------------------- #
+def _cell_worker(item):
+    """Fit one cell. Module-level so it can be sent to a worker process."""
+    key, rt, floor, contam, mode = item
+    if mode == "select":
+        return key, ddm_select_srt(rt, floor, contam)
+    x, nll, ks = ddm_fit_single(rt, floor, contam)
+    return key, {"model": "single", "v": x[0], "a": x[1], "t0": x[2],
+                 "ks": ks, "ks_single": ks, "nll": nll, "mixture": None}
+
+
+def default_jobs() -> int:
+    """Leave one core free so the interface stays responsive."""
+    try:
+        return max(1, (os.cpu_count() or 1) - 1)
+    except Exception:
+        return 1
+
+
+def map_cells(items, n_jobs: int = -1, progress=None):
+    """
+    Fit a list of cells, optionally across processes, reporting progress.
+
+    `progress` is called as progress(done, total) after each cell. Results come
+    back keyed, so out-of-order completion does not affect the output. Any failure
+    to start workers falls back to a plain loop rather than losing the run.
+    """
+    items = list(items)
+    total = len(items)
+    if n_jobs is None or n_jobs < 0:
+        n_jobs = default_jobs()
+    out = {}
+    if total == 0:
+        return out
+
+    if n_jobs > 1 and total > 1:
+        try:
+            from joblib import Parallel, delayed
+            gen = Parallel(n_jobs=min(n_jobs, total), return_as="generator_unordered")(
+                delayed(_cell_worker)(it) for it in items)
+            for i, (key, res) in enumerate(gen, 1):
+                out[key] = res
+                if progress:
+                    progress(i, total)
+            return out
+        except Exception:
+            out = {}          # fall through to the sequential path
+
+    for i, it in enumerate(items, 1):
+        key, res = _cell_worker(it)
+        out[key] = res
+        if progress:
+            progress(i, total)
+    return out
+
+
 def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
-                use_mixture: bool = True) -> dict:
+                use_mixture: bool = True, n_jobs: int = -1, progress=None) -> dict:
     """
     Per-cell maximum-likelihood fit across participant x speed cells (no sampling).
 
@@ -262,28 +327,29 @@ def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
     """
     sub = df[df["effector"] == effector]
     floor = PHYSIO_FLOOR[effector]
-    rows = []
+    mode = "select" if (effector == "eye" and use_mixture) else "single"
+    items = []
     for (p, c), g in sub.groupby(["participant", "condition"]):
         rt = g["rt"].values.astype(float)
         rt = rt[np.isfinite(rt)]
         if len(rt) < MIN_TRIALS:
             continue
-        if effector == "eye" and use_mixture:
-            sel = ddm_select_srt(rt, floor, contamination)
-            if sel["model"] == "mixture":
-                m = sel["mixture"]
-                v, a, t0, model = m["vr"], m["ar"], m["t0r"], "mixture"
-            else:
-                v, a, t0, model = sel["v"], sel["a"], sel["t0"], "single"
-            ks = sel["ks"]
+        items.append(((p, int(c)), rt, floor, contamination, mode))
+
+    fits = map_cells(items, n_jobs=n_jobs, progress=progress)
+    rows = []
+    for (p, c), sel in fits.items():
+        if sel["model"] == "mixture":
+            m = sel["mixture"]
+            v, a, t0 = m["vr"], m["ar"], m["t0r"]
         else:
-            x, _, ks = ddm_fit_single(rt, floor, contamination)
-            v, a, t0, model = x[0], x[1], x[2], "single"
+            v, a, t0 = sel["v"], sel["a"], sel["t0"]
         rows.append({"participant": p, "condition": int(c), "speed": SPEEDS[int(c)],
                      "v": float(v), "a": float(a), "t0_ms": float(t0) * 1000.0,
-                     "ks": float(ks), "model": model,
+                     "ks": float(sel["ks"]), "model": sel["model"],
                      "floored": float(t0) * 1000.0 <= floor * 1000.0 + 1.0})
-    cell = pd.DataFrame(rows)
+    cell = pd.DataFrame(rows).sort_values(["participant", "condition"]).reset_index(drop=True) \
+        if rows else pd.DataFrame(rows)
     if not len(cell):
         return {"cell": cell, "group": pd.DataFrame(), "floor_ms": floor * 1000.0}
     group = (cell.groupby("condition")
@@ -420,14 +486,15 @@ def fit_mixture_cell(rts, draws=1000, tune=1000, chains=4, target_accept=0.95,
 # --------------------------------------------------------------------------- #
 def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=4,
                  target_accept=0.95, cores=1, contamination=0.0, use_mixture=True,
-                 progressbar=False, status=lambda msg: None):
+                 progressbar=False, status=lambda msg: None,
+                 n_jobs: int = -1, progress=None):
     """
     Fit one effector following the repository's structure and return a result dict:
 
         units       : DataFrame [participant, condition, speed, v, a, t0_ms, t0_lo95,
                       t0_hi95, model]
         group       : per-speed means of v, a, t0 (and % floored)
-        mixture     : DataFrame of express/regular mixture cells (saccades only)
+        mixture     : DataFrame of two-component saccade cells (saccades only)
         idata       : the hand posterior, or {speed: posterior} for saccades
         convergence : {max_rhat, n_divergences, converged}
 
@@ -455,6 +522,8 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
     if effector == "hand":
         units, rt, uidx, minrt = _build_units(sub, effector)
         status(f"Hand: pooled hierarchical fit over {len(units)} units, {len(rt)} trials")
+        if progress:
+            progress(0, 1)
         idata, arr = fit_pooled_hierarchical(rt, uidx, minrt, len(units), floor,
                                              mu_z_mean=mu_z_mean, draws=draws, tune=tune,
                                              chains=chains, target_accept=target_accept,
@@ -465,7 +534,50 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
         rh = az.rhat(idata, var_names=["v", "a", "t0"])
         rhats.append(float(max(rh["v"].max(), rh["a"].max(), rh["t0"].max())))
         divs.append(int(idata.sample_stats["diverging"].sum()))
+        if progress:
+            progress(1, 1)
     else:
+        # Which cells get a two-component fit is decided exactly as in the pipeline:
+        # Bayesian_SRT_fit.py reads the selection from DDM_srt_fits.csv, i.e. the cells
+        # where DDM_fit.py's rule chose a mixture. That rule is recomputed here on the
+        # same data, so the app needs no CSV from a previous run but still splits the
+        # cells the same way. Hartigan's dip test is only the fallback the script uses
+        # when that table is absent.
+        #
+        # The selection is the expensive part -- a failing cell costs a full
+        # two-component fit -- so it is done up front across cores. Cells are
+        # independent and seeded individually, so this changes nothing.
+        sel_items = []
+        for c in range(len(SPEEDS)):
+            for pid in sorted(sub["participant"].unique()):
+                x = sub[(sub.participant == pid) & (sub.condition == c)]["rt"].values.astype(float)
+                x = x[np.isfinite(x)]
+                if len(x) >= MIN_TRIALS:
+                    sel_items.append(((pid, c), x, floor, contamination, "select"))
+
+        n_sel = len(sel_items)
+        step = {"done": 0, "total": n_sel + len(SPEEDS) + 1}
+
+        def bump(done_sel=None):
+            if done_sel is not None:
+                step["done"] = done_sel
+            else:
+                step["done"] += 1
+            if progress:
+                progress(min(step["done"], step["total"]), step["total"])
+
+        selection = {}
+        if use_mixture and n_sel:
+            status(f"Saccade: choosing single vs two-component for {n_sel} cells")
+            try:
+                selection = map_cells(sel_items, n_jobs=n_jobs,
+                                      progress=lambda d, t: bump(d))
+            except Exception:
+                selection = {}
+        n_mix_total = sum(1 for v in selection.values() if v.get("model") == "mixture")
+        step["total"] = n_sel + len(SPEEDS) + max(n_mix_total, 1)
+        status(f"Saccade: {n_mix_total} of {n_sel} cells need two components")
+
         for c in range(len(SPEEDS)):
             spd = SPEEDS[c]
             pids = sorted(sub["participant"].unique())
@@ -475,14 +587,11 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
                 x = x[np.isfinite(x)]
                 if len(x) < MIN_TRIALS:
                     continue
-                # Which cells get a mixture is decided exactly as in the pipeline:
-                # Bayesian_SRT_fit.py reads the selection from DDM_srt_fits.csv, i.e. the
-                # cells where DDM_fit.py's rule chose a mixture. That rule is recomputed
-                # here on the same data, so the app needs no CSV from a previous run but
-                # still splits the cells the same way. Hartigan's dip test is only the
-                # fallback the script uses when that CSV is absent.
-                is_mix = False
-                if use_mixture:
+                if not use_mixture:
+                    is_mix = False
+                elif (pid, c) in selection:
+                    is_mix = selection[(pid, c)].get("model") == "mixture"
+                else:
                     try:
                         is_mix = ddm_select_srt(x, floor, contamination)["model"] == "mixture"
                     except Exception:
@@ -507,17 +616,19 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
                 rh = az.rhat(idata, var_names=["v", "a", "t0"])
                 rhats.append(float(max(rh["v"].max(), rh["a"].max(), rh["t0"].max())))
                 divs.append(int(idata.sample_stats["diverging"].sum()))
-            # bimodal: a mixture per cell
+            bump()
+            # cells needing two components: one fit each
             for pid in bim:
                 x = sub[(sub.participant == pid) & (sub.condition == c)]["rt"].values.astype(float)
                 x = x[np.isfinite(x)]
-                status(f"Saccade {int(spd)} deg/s: express/regular mixture for {pid}")
+                status(f"Saccade {int(spd)} deg/s: two-component fit for {pid}")
                 mres = fit_mixture_cell(x, draws=draws, tune=tune, chains=chains,
                                         target_accept=target_accept, cores=cores,
                                         progressbar=progressbar)
                 mres.update({"participant": pid, "condition": c, "speed": spd, "n": len(x)})
                 mixture_rows.append(mres)
                 divs.append(mres["conv_div"])
+                bump()
 
     units_df = pd.DataFrame(unit_rows)
     if len(units_df):
