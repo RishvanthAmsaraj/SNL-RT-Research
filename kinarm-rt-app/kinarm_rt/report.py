@@ -115,13 +115,33 @@ def build_html_report(context: dict) -> str:
     return "".join(p)
 
 
+def _safe_name(caption: str, limit: int = 60) -> str:
+    """A conservative, ASCII-only filename stem.
+
+    Figure captions contain em dashes and a Unicode minus (HRT - SRT). Those are
+    legal in filenames but travel badly between operating systems, archive tools,
+    and shells, so they are folded to ASCII here and anything else unexpected is
+    replaced with an underscore.
+    """
+    s = (caption or "figure").lower()
+    for ch, repl in (("\u2014", "-"), ("\u2013", "-"), ("\u2212", "-"),
+                     ("\u00b7", "-"), ("\u2018", ""), ("\u2019", ""),
+                     ("\u201c", ""), ("\u201d", ""), ("\u00b2", "2"), ("\u2080", "0")):
+        s = s.replace(ch, repl)
+    s = s.encode("ascii", "ignore").decode("ascii")
+    s = "".join(c if (c.isalnum() or c in "-_") else "_" for c in s.replace(" ", "_"))
+    while "__" in s:
+        s = s.replace("__", "_")
+    return (s.strip("_-") or "figure")[:limit]
+
+
 def build_zip_bundle(context: dict) -> bytes:
     html = build_html_report(context)
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("report.html", html)
         for caption, fig in (context.get("figures") or {}).items():
-            safe = caption.lower().replace(" ", "_").replace(":", "").replace("/", "_")[:60]
+            safe = _safe_name(caption)
             z.writestr(f"figures/png/{safe}.png", _fig_png(fig))
             z.writestr(f"figures/pdf/{safe}.pdf", _fig_pdf(fig))
         if context.get("figures"):

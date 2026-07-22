@@ -66,6 +66,21 @@ footer{ visibility:hidden; }
 @keyframes kxFadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
 @keyframes kxFade{ from{opacity:0;} to{opacity:1;} }
 @keyframes kxRise{ from{opacity:0; transform:translateY(6px) scale(.995);} to{opacity:1; transform:none;} }
+/* Section cards (steps 1-4) rise in with a stagger, so moving from one step to the
+   next feels like it arrives rather than blinking on. Fill mode is `backwards`, not
+   `both`: the transform applies during the delay and the animation, then the element
+   returns to its normal untransformed state. That matters because ANY retained
+   transform on an ancestor of a figure creates a containing block, which collapses
+   Streamlit's position:fixed fullscreen overlay. */
+.block-container [data-testid="stVerticalBlockBorderWrapper"]{ animation:kxSection .55s backwards; }
+@keyframes kxSection{
+  from{ opacity:0; transform:translateY(14px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1){ animation-delay:.04s; }
+.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(2){ animation-delay:.10s; }
+.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(3){ animation-delay:.16s; }
+.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(4){ animation-delay:.22s; }
 .block-container > div{ animation:kxFade .5s both; }
 .block-container > div:nth-child(1){ animation-delay:.02s; }
 .block-container > div:nth-child(2){ animation-delay:.07s; }
@@ -73,9 +88,16 @@ footer{ visibility:hidden; }
 .block-container > div:nth-child(4){ animation-delay:.17s; }
 .block-container > div:nth-child(5){ animation-delay:.22s; }
 .block-container > div:nth-child(6){ animation-delay:.27s; }
+/* tab panels ease in when you switch tabs inside Results */
+.stTabs [data-testid="stTabPanel"]{ animation:kxFade .32s both; }
 /* content eases in with opacity only — a lingering transform on any ancestor of a
    figure or table would collapse Streamlit's fixed fullscreen overlay */
 [data-testid="stDataFrame"], [data-testid="stMetric"], [data-testid="stImage"]{ animation:kxFade .45s both; }
+/* honour reduced-motion preferences */
+@media (prefers-reduced-motion: reduce){
+  *, .block-container [data-testid="stVerticalBlockBorderWrapper"], .block-container > div,
+  .stTabs [data-testid="stTabPanel"], .kx-hero{ animation:none !important; transition:none !important; }
+}
 [data-testid="stExpander"]{ transition:box-shadow .2s, border-color .2s; }
 [data-testid="stExpander"]:hover{ box-shadow:var(--kx-shadow-lg); border-color:var(--kx-primary) !important; }
 
@@ -193,13 +215,51 @@ footer{ visibility:hidden; }
 [data-testid="stImage"] img{ border-radius:10px; border:1px solid var(--kx-line);
   box-shadow:var(--kx-shadow); transition:box-shadow .25s; }
 [data-testid="stImage"]:hover img{ box-shadow:var(--kx-shadow-lg); }
-/* keep the expand / minimise control visible on figures (not hover-only) */
+
+/* Expand / minimise control.
+   Streamlit renames this button between versions: older builds use
+   [data-testid="StyledFullScreenButton"], current builds use
+   [data-testid="stBaseButton-elementToolbar"] with aria-label
+   "Fullscreen" / "Close fullscreen". Target all of them so the control is styled
+   whichever version is installed — and give it a real surface, because by default
+   it renders as a pale icon on the figure's white background and is effectively
+   invisible in fullscreen, leaving Escape as the only way out. */
+[data-testid="stElementToolbar"],
 [data-testid="stImage"] [data-testid="stElementToolbar"],
-[data-testid="stFullScreenFrame"] [data-testid="stElementToolbar"]{ opacity:1 !important; }
-[data-testid="stImage"] [data-testid="StyledFullScreenButton"],
-[data-testid="stFullScreenFrame"] [data-testid="StyledFullScreenButton"]{
-  opacity:1 !important; visibility:visible !important; background:var(--kx-surface) !important;
-  border:1px solid var(--kx-line) !important; border-radius:8px !important; color:var(--kx-ink) !important; }
+[data-testid="stFullScreenFrame"] [data-testid="stElementToolbar"]{
+  opacity:1 !important; visibility:visible !important; }
+[data-testid="StyledFullScreenButton"],
+[data-testid="stBaseButton-elementToolbar"],
+button[aria-label="Fullscreen"],
+button[aria-label="Close fullscreen"]{
+  opacity:1 !important; visibility:visible !important;
+  background:var(--kx-surface) !important;
+  border:1px solid var(--kx-line) !important;
+  border-radius:9px !important; color:var(--kx-ink) !important;
+  box-shadow:var(--kx-shadow) !important;
+  width:34px !important; height:34px !important; padding:5px !important;
+  display:inline-flex !important; align-items:center; justify-content:center;
+  transition:background .18s, border-color .18s, transform .15s; }
+[data-testid="StyledFullScreenButton"] svg,
+[data-testid="stBaseButton-elementToolbar"] svg,
+button[aria-label="Fullscreen"] svg,
+button[aria-label="Close fullscreen"] svg{
+  color:var(--kx-ink) !important; fill:currentColor !important;
+  width:19px !important; height:19px !important; opacity:1 !important; }
+[data-testid="StyledFullScreenButton"]:hover,
+[data-testid="stBaseButton-elementToolbar"]:hover,
+button[aria-label="Fullscreen"]:hover,
+button[aria-label="Close fullscreen"]:hover{
+  background:var(--kx-primary) !important; border-color:var(--kx-primary) !important;
+  transform:translateY(-1px); }
+[data-testid="StyledFullScreenButton"]:hover svg,
+[data-testid="stBaseButton-elementToolbar"]:hover svg,
+button[aria-label="Fullscreen"]:hover svg,
+button[aria-label="Close fullscreen"]:hover svg{ color:#fff !important; }
+/* Streamlit already positions this control correctly in both states (over the
+   figure's corner when inline, at the viewport corner in fullscreen), so only its
+   appearance is changed here — repositioning the toolbar would also move the
+   collapsed-state button, because the frame wrapper is present in both states. */
 [data-testid="stFullScreenFrame"] img{ border-radius:8px; box-shadow:none; border:none; }
 
 /* ---------- dataframes / tables ---------- */

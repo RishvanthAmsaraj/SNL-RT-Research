@@ -103,15 +103,16 @@ def run_pipeline(config: dict, status=print) -> dict:
         except Exception as e:
             status(f"  LATER failed: {e}")
 
-    # ---- core figures ----
+    # ---- core figures (same set the app's Graphs tab shows) ----
     ctx_figs["Why saccadic t0 floors"] = figures.why_floors(kept)
     for eff in cfg["effectors"]:
         r = results.get(eff)
         if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
+            for lab, f in figures.ddm_schematic_figs(kept, r["group"], eff):
+                ctx_figs[f"{eff.capitalize()} — {lab}"] = f
             ctx_figs[f"{eff.capitalize()} fit"] = figures.fit_overlay(kept, eff, r["group"])
-            src = r["units"] if len(r.get("units", [])) else r["preview"]["cell"]
-            ctx_figs[f"{eff.capitalize()} non-decision time"] = figures.ndt_dots(
-                src, r["group"], eff, r.get("preview", {}).get("floor_ms", 130))
+    if results:
+        ctx_figs["Non-decision time by speed"] = figures.ndt_by_speed(results)
 
     # ---- analyses ----
     A = cfg["analyses"]
@@ -120,7 +121,8 @@ def run_pipeline(config: dict, status=print) -> dict:
             for eff in cfg["effectors"]:
                 v = analysis.vincentiles(kept, eff)
                 v.to_csv(os.path.join(tbl_dir, f"vincentiles_{eff}.csv"), index=False)
-                ctx_figs[f"Vincentiles ({eff})"] = figures.vincentile_plot(v, eff)
+            for lab, f in figures.vincentile_suite(kept):
+                ctx_figs[lab] = f
         if "fixed_t0" in A and "eye" in cfg["effectors"]:
             sd = analysis.fixed_t0_sensitivity(kept, "eye")
             sd.to_csv(os.path.join(tbl_dir, "fixed_t0_sensitivity.csv"), index=False)
@@ -153,7 +155,7 @@ def run_pipeline(config: dict, status=print) -> dict:
 
     # ---- report + figures ----
     for cap, fig in ctx_figs.items():
-        safe = cap.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("/", "_")
+        safe = report._safe_name(cap)
         fig.savefig(os.path.join(fig_dir, f"{safe}.png"), dpi=300, bbox_inches="tight")
         fig.savefig(os.path.join(fig_dir, f"{safe}.pdf"), bbox_inches="tight")
     if ctx_figs:

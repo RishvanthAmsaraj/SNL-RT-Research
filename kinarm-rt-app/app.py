@@ -263,7 +263,7 @@ if SS.tidy is not None:
         ui.eyebrow("Kept after filtering")
         st.dataframe(frep.round(1), use_container_width=True, hide_index=True)
         with st.expander("Distribution shape by condition — why saccadic t₀ floors"):
-            ui.note("skew / CV near <b>3</b> means near-symmetric for the spread — a shifted Wald "
+            ui.hint("skew / CV near <b>3</b> means near-symmetric for the spread — a shifted Wald "
                     "cannot lift t₀ above the floor. Values well above 3 (typically the hand) "
                     "support an identified t₀.")
             st.dataframe(data.cell_summary(kept).round(2), use_container_width=True, hide_index=True)
@@ -390,7 +390,7 @@ def advanced_tab():
             with st.spinner("Simulating from known parameters and refitting…"):
                 SS["recovery"] = analysis.parameter_recovery()
         if SS.get("recovery"):
-            ui.note("Hand t₀ recovers; saccadic t₀ (true ≈ 30 ms) cannot be recovered and pins at the floor.")
+            ui.hint("Hand t₀ recovers; saccadic t₀ (true ≈ 30 ms) cannot be recovered and pins at the floor.")
             for eff, tb in SS["recovery"].items():
                 st.markdown(f"**{eff}**"); st.dataframe(tb, use_container_width=True, hide_index=True)
         if st.button("Mixture-threshold sensitivity", use_container_width=True):
@@ -409,11 +409,11 @@ def advanced_tab():
                 SS["ident"] = analysis.identifiability_sweep(kept, "eye")
         if SS.get("ident") is not None and len(SS["ident"]):
             show_fig(figures.identifiability_plot(SS["ident"], "eye"))
-        if st.button("Vincentiles (model-free)", use_container_width=True):
-            SS["vinc"] = {e: analysis.vincentiles(kept, e) for e in kept.effector.unique()}
+        if st.button("Vincentiles (RT distributions)", use_container_width=True):
+            SS["vinc"] = True
         if SS.get("vinc"):
-            for eff, v in SS["vinc"].items():
-                show_fig(figures.vincentile_plot(v, eff))
+            for _lab, f in figures.vincentile_suite(kept):
+                show_fig(f)
 
 
 @st.fragment
@@ -456,7 +456,7 @@ def comparison_tab():
 
     st.divider()
     ui.eyebrow("Per-speed hierarchical model (group parameters with credible intervals)")
-    ui.note("Treats speed as a modelled factor with participant random effects, so you get "
+    ui.hint("Treats speed as a modelled factor with participant random effects, so you get "
             "group-level v, a, and t₀ per speed <b>with</b> uncertainty — and optionally "
             "correlated participant effects (LKJ).")
     correlated = st.toggle("Model correlated participant effects (LKJ)", value=False)
@@ -479,7 +479,7 @@ def comparison_tab():
         if ps["corr"] is not None:
             st.caption("Participant-effect correlation matrix (LKJ)")
             st.dataframe(ps["corr"], use_container_width=True)
-            ui.note("Off-diagonal terms show how participants' parameters covary — "
+            ui.hint("Off-diagonal terms show how participants' parameters covary — "
                     "structure the independent-effects model cannot represent.")
 
 
@@ -542,20 +542,27 @@ if SS.results or SS.later:
 
         # -------------------------------------------------- Graphs
         with tabs[2]:
-            ui.hint("Visual model checks and summaries.")
+            ui.hint("Visual model checks and summaries, in the repository's house style.")
             try:
-                if SS.later is not None:
-                    show_fig(figures.reciprobit(SS.later, kept[kept.effector == "eye"]))
-                show_fig(figures.why_floors(kept))
+                # conceptual single-boundary diffusion schematics (one per speed)
+                for eff in EFFECTORS:
+                    r = res_all.get(eff)
+                    if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
+                        for _lab, f in figures.ddm_schematic_figs(kept, r["group"], eff):
+                            show_fig(f)
+                # pooled RT data with the fitted shifted-Wald density
                 for eff in EFFECTORS:
                     r = res_all.get(eff)
                     if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
                         show_fig(figures.fit_overlay(kept, eff, r["group"]))
-                        src = r["units"] if len(r.get("units", [])) else r.get("preview", {}).get("cell")
-                        if src is not None and len(src):
-                            floor_ms = r.get("preview", {}).get("floor_ms",
-                                        r["group"]["t0_floor_ms"].iloc[0] if "t0_floor_ms" in r["group"] else 130)
-                            show_fig(figures.ndt_dots(src, r["group"], eff, floor_ms))
+                # non-decision time by speed (hand + eye, dots + mean on a zoomed axis)
+                if res_all:
+                    show_fig(figures.ndt_by_speed(res_all))
+                # why saccadic t0 floors — the distribution-shape diagnostic
+                show_fig(figures.why_floors(kept))
+                # LATER reciprobit for saccades
+                if SS.later is not None:
+                    show_fig(figures.reciprobit(SS.later, kept[kept.effector == "eye"]))
             except Exception as e:
                 st.error(f"Figure error: {e}")
 
@@ -586,18 +593,19 @@ if SS.results or SS.later:
                    "gof": {e: res_all[e].get("gof") for e in res_all if res_all[e].get("gof")},
                    "later": SS.later, "figures": {}}
             try:
-                if SS.later is not None:
-                    ctx["figures"]["LATER reciprobit"] = figures.reciprobit(SS.later, kept[kept.effector == "eye"])
-                ctx["figures"]["Why saccadic t0 floors"] = figures.why_floors(kept)
                 for eff in EFFECTORS:
                     r = res_all.get(eff)
                     if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
+                        for lab, f in figures.ddm_schematic_figs(kept, r["group"], eff):
+                            ctx["figures"][f"{eff.capitalize()} — {lab}"] = f
                         ctx["figures"][f"{eff.capitalize()} fit"] = figures.fit_overlay(kept, eff, r["group"])
-                        src = r["units"] if len(r.get("units", [])) else r.get("preview", {}).get("cell")
-                        if src is not None and len(src):
-                            floor_ms = r.get("preview", {}).get("floor_ms", 130)
-                            ctx["figures"][f"{eff.capitalize()} non-decision time"] = \
-                                figures.ndt_dots(src, r["group"], eff, floor_ms)
+                if res_all:
+                    ctx["figures"]["Non-decision time by speed"] = figures.ndt_by_speed(res_all)
+                ctx["figures"]["Why saccadic t0 floors"] = figures.why_floors(kept)
+                for lab, f in figures.vincentile_suite(kept):
+                    ctx["figures"][lab] = f
+                if SS.later is not None:
+                    ctx["figures"]["LATER reciprobit"] = figures.reciprobit(SS.later, kept[kept.effector == "eye"])
 
                 ui.eyebrow("Report & figures")
                 ui.hint("HTML report to read in a browser · a vector PDF of every figure · or a full "
