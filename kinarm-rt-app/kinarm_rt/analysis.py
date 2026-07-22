@@ -14,48 +14,55 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize_scalar, minimize
+from scipy.optimize import minimize_scalar, minimize, differential_evolution
 from scipy.stats import kstest
 
-from ._speeds import SPEEDS, PHYSIO_FLOOR, V_MAX, A_MAX
-from .models.wald import wald_pdf, wald_cdf, _fit_cell_mle, detect_bimodal
+from ._speeds import SPEEDS, PHYSIO_FLOOR, V_MAX, A_MAX, P_CONTAM
+from .models.wald import (wald_pdf, wald_cdf, detect_bimodal, ddm_fit_single,
+                          ddm_select_srt, MIN_TRIALS)
 
 _LOG2PI = float(np.log(2.0 * np.pi))
 
 
 # --------------------------------------------------------------------------- #
-def _fit_va_fixed_t0(rt: np.ndarray, t0: float):
-    """MLE of (v, a) with t0 held fixed. Returns (v, a, ks)."""
-    tau = rt - t0
-    tau = tau[tau > 1e-6]
-    if tau.size < 10:
+def _fit_va_fixed_t0(rt: np.ndarray, t0: float, contam: float = P_CONTAM):
+    """
+    MLE of (v, a) with t0 held fixed. Returns (v, a, ks).
+
+    Port of SRT_fixed_t0_analysis.py::fit_va -- differential evolution over the
+    same bounds, with the uniform contamination component. The cell is rejected
+    (rather than trimmed) if any trial falls at or below the fixed t0, exactly as
+    in the script: dropping those trials would change the sample being fitted.
+    """
+    rt = np.asarray(rt, float)
+    adj = rt - t0
+    if np.any(adj <= 0):
         return np.nan, np.nan, np.nan
+    Tr = float(rt.max() - rt.min())
 
     def nll(p):
-        v, a = np.exp(p[0]), np.exp(p[1])
-        if v > V_MAX or a > A_MAX:
-            return 1e12
-        w = wald_pdf(tau, v, a)
-        if np.any(w <= 0) or not np.all(np.isfinite(w)):
-            return 1e12
-        return float(-np.sum(np.log(w)))
+        v, a = p
+        d = (1 - contam) * wald_pdf(adj, v, a) + (contam / Tr if contam > 0 else 0.0)
+        if np.any(d <= 0) or not np.all(np.isfinite(d)):
+            return 1e10
+        return -np.sum(np.log(d))
 
-    best = None
-    for x0 in ([np.log(6), np.log(0.8)], [np.log(10), np.log(1.2)]):
-        r = minimize(nll, x0, method="Nelder-Mead", options={"maxiter": 1500, "xatol": 1e-6})
-        if best is None or r.fun < best.fun:
-            best = r
-    v, a = float(np.exp(best.x[0])), float(np.exp(best.x[1]))
-    ks = float(kstest(tau, lambda z: wald_cdf(z, v, a)).statistic)
-    return v, a, ks
+    r = differential_evolution(nll, [(0.1, V_MAX), (0.05, A_MAX)], seed=42,
+                               maxiter=300, tol=1e-9, popsize=12, polish=True)
+    ks = float(kstest(adj, lambda z: wald_cdf(z, r.x[0], r.x[1])).statistic)
+    return float(r.x[0]), float(r.x[1]), ks
 
 
-def fixed_t0_sensitivity(df: pd.DataFrame, effector: str,
+def fixed_t0_sensitivity(df: pd.DataFrame, effector: str = "eye",
                          t0_values_ms=(50, 70, 90)) -> pd.DataFrame:
     """
     Refit each cell with t0 fixed at each value and aggregate drift, boundary, and
-    KS by speed. Shows that fixing t0 leaves drift and fit quality essentially
-    unchanged -- the point of the saccadic fixed-t0 analysis.
+    KS by speed.
+
+    Port of SRT_fixed_t0_analysis.py: fixing the saccadic non-decision time removes
+    the floor-piling artifact, and the drift pattern across speeds and the fit
+    quality are both essentially unchanged, so the conclusions do not depend on
+    which value is assumed.
     """
     sub = df[df["effector"] == effector]
     rows = []
@@ -64,7 +71,8 @@ def fixed_t0_sensitivity(df: pd.DataFrame, effector: str,
         recs = []
         for (p, c), g in sub.groupby(["participant", "condition"]):
             rt = g["rt"].values.astype(float)
-            if len(rt) < 15 or rt.min() <= t0:
+            rt = rt[np.isfinite(rt)]
+            if len(rt) < MIN_TRIALS or rt.min() <= t0:
                 continue
             v, a, ks = _fit_va_fixed_t0(rt, t0)
             if np.isfinite(v):
@@ -75,34 +83,45 @@ def fixed_t0_sensitivity(df: pd.DataFrame, effector: str,
             if len(cc):
                 rows.append({"t0_fixed_ms": t0_ms, "condition": c, "speed": SPEEDS[c],
                              "v": cc["v"].mean(), "a": cc["a"].mean(),
-                             "median_ks": cc["ks"].median(), "n_cells": len(cc)})
+                             "median_ks": cc["ks"].median(), "mean_ks": cc["ks"].mean(),
+                             "n_cells": len(cc)})
     return pd.DataFrame(rows)
 
 
-def identifiability_sweep(df: pd.DataFrame, effector: str,
-                          floors_ms=(35, 50, 70, 90, 110)) -> pd.DataFrame:
+def identifiability_sweep(df: pd.DataFrame, effector: str = "eye",
+                          floors_ms=(40, 50, 60, 70, 80, 90),
+                          slope_threshold: float = 0.7) -> pd.DataFrame:
     """
-    For each candidate floor, what fraction of cells have their free-t0 MLE below
-    that floor (i.e. would be pinned to it)? A high fraction means t0 is
-    determined by the floor, not the data.
+    Refit each cell at a range of imposed non-decision floors and measure how
+    closely the fitted t0 follows the floor.
+
+    Port of SRT_identifiability_check.py. A cell whose t0 moves one-for-one with
+    the floor (slope near 1) is not identified by the data -- the floor is setting
+    it. A cell whose t0 stays put regardless of the floor is genuinely identified.
+    One row per cell, with the fitted t0 at each floor and the fitted slope.
     """
     sub = df[df["effector"] == effector]
-    free_t0 = []
+    floor_s = [f / 1000.0 for f in floors_ms]
+    rows = []
     for (p, c), g in sub.groupby(["participant", "condition"]):
         rt = g["rt"].values.astype(float)
-        if len(rt) < 15:
+        rt = rt[np.isfinite(rt)]
+        if len(rt) < MIN_TRIALS:
             continue
-        v, a, t0 = _fit_cell_mle(rt, floor=0.0)      # unconstrained floor
-        free_t0.append((int(c), t0 * 1000.0))
-    ft = pd.DataFrame(free_t0, columns=["condition", "t0_ms"])
-    rows = []
-    for fl in floors_ms:
-        for c in range(len(SPEEDS)):
-            cc = ft[ft.condition == c]
-            if len(cc):
-                rows.append({"floor_ms": fl, "condition": c, "speed": SPEEDS[c],
-                             "pct_below_floor": 100.0 * float(np.mean(cc["t0_ms"] < fl)),
-                             "n_cells": len(cc)})
+        # only single-component cells are diagnostic here, matching the script,
+        # which reads the single/mixture split from the DDM fit table
+        if effector == "eye" and ddm_select_srt(rt, PHYSIO_FLOOR[effector])["model"] == "mixture":
+            continue
+        t0s = []
+        for fl in floor_s:
+            x, _, _ = ddm_fit_single(rt, fl, P_CONTAM)
+            t0s.append(float(x[2]) * 1000.0)
+        slope = float(np.polyfit(list(floors_ms), t0s, 1)[0])
+        row = {"participant": p, "condition": int(c), "speed": SPEEDS[int(c)],
+               "slope": slope, "tracks_floor": bool(slope > slope_threshold)}
+        for f, t in zip(floors_ms, t0s):
+            row[f"t0_at_{int(f)}"] = t
+        rows.append(row)
     return pd.DataFrame(rows)
 
 

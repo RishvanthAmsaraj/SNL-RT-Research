@@ -24,10 +24,23 @@ def test_fixed_t0_sensitivity(kept):
 
 
 def test_identifiability_sweep(kept):
-    sw = analysis.identifiability_sweep(kept, "eye")
-    hi = sw[sw.floor_ms == sw.floor_ms.max()]["pct_below_floor"].mean()
-    lo = sw[sw.floor_ms == sw.floor_ms.min()]["pct_below_floor"].mean()
-    assert hi >= lo                               # more cells pinned as the floor rises
+    """
+    The sweep refits t0 at a range of imposed floors and reports, per cell, the
+    slope of fitted t0 against floor (SRT_identifiability_check.py). A slope near 1
+    means the floor is setting t0 rather than the data.
+    """
+    small = kept[kept.participant.isin(sorted(kept.participant.unique())[:2])]
+    sw = analysis.identifiability_sweep(small, "eye")
+    if sw.empty:
+        pytest.skip("no single-component saccade cells in this subset")
+    assert {"slope", "tracks_floor"} <= set(sw.columns)
+    t0_cols = [c for c in sw.columns if c.startswith("t0_at_")]
+    assert len(t0_cols) == 6                      # 40..90 ms, as in the script
+    assert sw["tracks_floor"].dtype == bool
+    assert ((sw["slope"] > 0.7) == sw["tracks_floor"]).all()
+    # a fitted t0 can never sit below the floor that was imposed on it
+    for c in t0_cols:
+        assert (sw[c] >= int(c.split("_")[-1]) - 1e-6).all()
 
 
 def test_vincentiles_monotone(kept):

@@ -629,33 +629,93 @@ def vincentile_plot(vinc_df: pd.DataFrame, effector: str = ""):
 # Advanced-analysis diagnostics (kept)
 # --------------------------------------------------------------------------- #
 def fixed_t0_plot(sens_df: pd.DataFrame, effector: str = ""):
-    """Drift and KS as t0 is fixed at several values -- shows the fit is stable."""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 3.4))
-    for c in range(len(SPEEDS)):
-        g = sens_df[sens_df["condition"] == c].sort_values("t0_fixed_ms")
-        if len(g):
-            ax1.plot(g["t0_fixed_ms"], g["v"], "-o", ms=4, color=_line(c), label=_spd(c))
-            ax2.plot(g["t0_fixed_ms"], g["median_ks"], "-o", ms=4, color=_line(c), label=_spd(c))
-    ax1.set_xlabel("fixed $t_0$ (ms)", fontsize=9); ax1.set_ylabel("drift v", fontsize=9)
-    ax2.set_xlabel("fixed $t_0$ (ms)", fontsize=9); ax2.set_ylabel("median KS", fontsize=9)
-    ax1.legend(fontsize=8, frameon=False)
-    fig.suptitle(f"Fixed-$t_0$ sensitivity{' — ' + effector if effector else ''}", fontsize=11)
+    """
+    Fixed-t0 sensitivity, reproducing SRT_fixed_t0_analysis.py.
+
+    Left: mean drift by speed, one line per assumed t0 -- the pattern is the same
+    whichever value is fixed. Right: mean KS per assumed t0 -- fit quality is
+    effectively identical, which is why the data cannot pick the value and fixing
+    it costs nothing.
+    """
+    fig, ax = plt.subplots(1, 2, figsize=(13, 5.2))
+    t0_vals = sorted(sens_df["t0_fixed_ms"].unique()) if len(sens_df) else []
+    styles = {0: ("--", "o"), 1: ("-", "s"), 2: (":", "^")}
+    for i, t0 in enumerate(t0_vals):
+        g = sens_df[sens_df["t0_fixed_ms"] == t0].sort_values("condition")
+        ls, mk = styles.get(i, ("-", "o"))
+        ax[0].plot(g["condition"], g["v"], ls, marker=mk, lw=2, ms=7,
+                   label=f"$t_0$ = {int(t0)} ms")
+    ax[0].set_xticks(range(len(SPEEDS)))
+    ax[0].set_xticklabels([_spd(c) for c in range(len(SPEEDS))])
+    ax[0].set_ylabel("mean drift rate $v$")
+    ax[0].set_title("A.  Drift by speed is stable across the assumed $t_0$\n"
+                    "(the conclusions do not depend on the fixed value)",
+                    fontsize=11, fontweight="bold")
+    ax[0].legend(fontsize=9.5, title="fixed non-decision time")
+    ax[0].grid(True, ls="--", alpha=0.3)
+
+    ks_col = "mean_ks" if "mean_ks" in sens_df.columns else "median_ks"
+    means = [sens_df[sens_df["t0_fixed_ms"] == t0][ks_col].mean() for t0 in t0_vals]
+    ax[1].bar([f"{int(t0)} ms" for t0 in t0_vals], means,
+              color=["#9ecae1", "#4292c6", "#08519c"][:len(t0_vals)],
+              edgecolor="#333", width=0.6)
+    for i, mn in enumerate(means):
+        if np.isfinite(mn):
+            ax[1].text(i, mn + 0.002, f"{mn:.3f}", ha="center", fontsize=10, fontweight="bold")
+    ax[1].axhline(0.10, color="#E84855", ls=":", lw=1.3)
+    ax[1].text(len(t0_vals) - 0.6, 0.103, "acceptable < 0.10", ha="right",
+               color="#E84855", fontsize=8.5)
+    ax[1].set_ylabel("mean KS (fit quality)")
+    ax[1].set_ylim(0, max([m for m in means if np.isfinite(m)] + [0.12]) * 1.15)
+    ax[1].set_title("B.  Fit quality is identical across $t_0$\n"
+                    "(data cannot distinguish the values — hence fixing it)",
+                    fontsize=11, fontweight="bold")
+    ax[1].grid(True, axis="y", ls="--", alpha=0.3)
+    fig.suptitle("Saccadic RT with fixed non-decision time — the floor-piling artifact "
+                 "is removed and conclusions are robust", fontsize=12.5, fontweight="bold", y=1.0)
     fig.tight_layout()
     return fig
 
 
 def identifiability_plot(sweep_df: pd.DataFrame, effector: str = ""):
-    """Fraction of cells pinned below the floor as the floor moves."""
-    fig, ax = plt.subplots(figsize=(5.4, 3.8))
-    for c in range(len(SPEEDS)):
-        g = sweep_df[sweep_df["condition"] == c].sort_values("floor_ms")
-        if len(g):
-            ax.plot(g["floor_ms"], g["pct_below_floor"], "-o", ms=4, color=_line(c), label=_spd(c))
-    ax.axhline(50, color="0.6", ls=":", lw=0.8)
-    ax.set_xlabel("candidate floor (ms)", fontsize=9)
-    ax.set_ylabel("% of cells below the floor", fontsize=9)
-    ax.legend(fontsize=8, frameon=False)
-    ax.set_title(f"Identifiability{' — ' + effector if effector else ''}: t$_0$ pinned by the floor", fontsize=11)
+    """
+    Saccadic t0 identifiability, reproducing SRT_identifiability_check.py.
+
+    Left: fitted t0 against the imposed floor, one line per cell, red where t0
+    tracks the floor (slope > 0.7, so the floor is setting it) and green where it
+    stays put. Right: the distribution of those slopes.
+    """
+    fig, ax = plt.subplots(1, 2, figsize=(13, 5.4))
+    t0_cols = sorted([c for c in sweep_df.columns if c.startswith("t0_at_")],
+                     key=lambda c: int(c.split("_")[-1]))
+    floors = [int(c.split("_")[-1]) for c in t0_cols]
+    n_track = 0
+    for _, r in sweep_df.iterrows():
+        col = "#C0392B" if r["tracks_floor"] else "#27AE60"
+        n_track += bool(r["tracks_floor"])
+        ax[0].plot(floors, [r[c] for c in t0_cols], "-o", color=col, alpha=0.55, ms=3, lw=1)
+    if floors:
+        ax[0].plot([floors[0], floors[-1]], [floors[0], floors[-1]], "k--", lw=1.5,
+                   label="$t_0$ = floor (unidentified)")
+        ax[0].legend(fontsize=9)
+    ax[0].set_xlabel("imposed non-decision floor (ms)")
+    ax[0].set_ylabel("fitted $t_0$ (ms)")
+    ax[0].set_title("SRT $t_0$ vs imposed floor\nred = tracks floor (unidentified); "
+                    "green = stable (identified)", fontsize=11, fontweight="bold")
+    ax[0].grid(True, ls="--", alpha=0.3)
+
+    slopes = sweep_df["slope"].values if "slope" in sweep_df else np.array([])
+    if slopes.size:
+        ax[1].hist(slopes, bins=np.linspace(0, 1.05, 12), color="#7f8c8d", edgecolor="white")
+        ax[1].axvline(0.7, color="#C0392B", ls=":", lw=1.5)
+        ax[1].text(0.71, ax[1].get_ylim()[1] * 0.9, "tracks floor →", color="#C0392B", fontsize=9)
+    ax[1].set_xlabel("slope of $t_0$ vs floor  (1 = perfectly tracks floor)")
+    ax[1].set_ylabel("number of cells")
+    ax[1].set_title(f"{n_track}/{len(sweep_df)} SRT single cells are floor-determined",
+                    fontsize=11, fontweight="bold")
+    ax[1].grid(True, axis="y", ls="--", alpha=0.3)
+    fig.suptitle("Saccadic non-decision time is largely NOT identifiable — "
+                 "it sits at the imposed floor", fontsize=12.5, fontweight="bold", y=1.0)
     fig.tight_layout()
     return fig
 

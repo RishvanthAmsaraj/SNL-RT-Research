@@ -284,24 +284,28 @@ if SS.filtered is not None:
                                           help="Which movement types to model — hand, eye, or both. "
                                                "Each is fit and reported separately, because hand and eye "
                                                "reaction times behave quite differently.")
-            modes = ["Quick preview (seconds)"]
+            modes = ["Method A — frequentist MLE"]
             if HAVE_PYMC:
-                modes.append("Full Bayesian (minutes)")
+                modes.append("Method B — hierarchical Bayesian")
             mode = st.segmented_control("Fitting mode", modes, default=modes[0],
-                                        help="Preview runs a quick best-fit estimate in seconds — great "
-                                             "for a first look and for checking the data loaded correctly. "
-                                             "Full Bayesian runs the proper hierarchical model with a "
-                                             "sampler (NUTS): it takes a few minutes but gives uncertainty "
-                                             "(credible intervals) and is the version you'd report.")
+                                        help="The two methods from the pipeline. Method A fits each "
+                                             "participant × speed cell on its own by maximum likelihood "
+                                             "(this is DDM_fit.py, same optimiser and settings) and "
+                                             "takes a minute or two. "
+                                             "Method B is the hierarchical model sampled with NUTS "
+                                             "(Bayesian_HRT_fit.py / Bayesian_SRT_fit.py): it borrows "
+                                             "strength across participants and gives credible intervals, "
+                                             "and is the version reported in the write-up. Running both "
+                                             "and showing they agree is the standard robustness check.")
         with c2:
             ui.eyebrow("Bayesian options")
             preset = st.select_slider("Sampler effort", ["Fast", "Standard", "Thorough"],
-                                      value="Standard", disabled=not HAVE_PYMC,
-                                      help="How hard the sampler works. More draws and chains give more "
-                                           "accurate, stable estimates but take longer. Fast (500/500/2) "
-                                           "for trying things out, Standard (1000/1000/4) for most runs, "
-                                           "Thorough (1500/1500/4) to match the paper for a final result. "
-                                           "The numbers are draws / tuning steps / parallel chains.")
+                                      value="Thorough", disabled=not HAVE_PYMC,
+                                      help="How hard the sampler works, as draws / tuning steps / chains. "
+                                           "Thorough (1500/1500/4) is what the pipeline scripts use, so it "
+                                           "is the default here and the setting to report. Standard "
+                                           "(1000/1000/4) and Fast (500/500/2) are for trying things out — "
+                                           "they reach the same estimates but with more sampling noise.")
             draws, tune, chains = {"Fast": (500, 500, 2), "Standard": (1000, 1000, 4),
                                    "Thorough": (1500, 1500, 4)}[preset]
             use_mixture = st.toggle("Express/regular mixture for bimodal saccade cells", value=True,
@@ -330,7 +334,7 @@ if SS.filtered is not None:
                         SS.later = later.fit_later(kept[kept.effector == "eye"])
                 except Exception as e:
                     errors.append(f"LATER: {e}")
-            if mode and mode.startswith("Quick"):
+            if mode and mode.startswith("Method A"):
                 for eff in chosen:
                     try:
                         with st.spinner(f"MLE preview — {eff}…"):
@@ -405,7 +409,8 @@ def advanced_tab():
         if SS.get("fixed_t0") is not None and len(SS["fixed_t0"]):
             show_fig(figures.fixed_t0_plot(SS["fixed_t0"], "eye"))
         if st.button("Identifiability sweep (saccades)", use_container_width=True):
-            with st.spinner("Sweeping the floor…"):
+            with st.spinner("Refitting every saccade cell at floors of 40–90 ms — "
+                            "this is six full fits per cell, so give it a few minutes…"):
                 SS["ident"] = analysis.identifiability_sweep(kept, "eye")
         if SS.get("ident") is not None and len(SS["ident"]):
             show_fig(figures.identifiability_plot(SS["ident"], "eye"))

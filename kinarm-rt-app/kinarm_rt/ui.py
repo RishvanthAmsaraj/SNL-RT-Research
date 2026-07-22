@@ -51,7 +51,8 @@ html, body, [class*="css"], .stMarkdown, .stApp, input, button, textarea, select
 /* consistent spacing rhythm everywhere */
 [data-testid="stVerticalBlock"]{ gap:0.8rem; }
 [data-testid="stHorizontalBlock"]{ gap:1rem; }
-[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"]{ gap:0.7rem; }
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"],
+[data-testid="stLayoutWrapper"]:has(.kx-sec) > [data-testid="stVerticalBlock"]{ gap:0.7rem; }
 hr{ margin:0.6rem 0 !important; opacity:.6; }
 h4{ margin:0.2rem 0 0.4rem !important; font-weight:700; letter-spacing:-.01em; }
 
@@ -67,20 +68,35 @@ footer{ visibility:hidden; }
 @keyframes kxFade{ from{opacity:0;} to{opacity:1;} }
 @keyframes kxRise{ from{opacity:0; transform:translateY(6px) scale(.995);} to{opacity:1; transform:none;} }
 /* Section cards (steps 1-4) rise in with a stagger, so moving from one step to the
-   next feels like it arrives rather than blinking on. Fill mode is `backwards`, not
-   `both`: the transform applies during the delay and the animation, then the element
-   returns to its normal untransformed state. That matters because ANY retained
-   transform on an ancestor of a figure creates a containing block, which collapses
-   Streamlit's position:fixed fullscreen overlay. */
-.block-container [data-testid="stVerticalBlockBorderWrapper"]{ animation:kxSection .55s backwards; }
+   next feels like it arrives rather than blinking on.
+
+   Streamlit renames the container wrapper between versions: older builds emit
+   [data-testid="stVerticalBlockBorderWrapper"], current builds emit
+   [data-testid="stLayoutWrapper"] -- but that one wraps EVERY layout block
+   (columns included), so it is narrowed with :has(.kx-sec) to the four step cards,
+   each of which renders a section header. Both are listed so the app looks and
+   behaves the same whichever version is installed.
+
+   Fill mode is `backwards`, not `both`: the transform applies during the delay and
+   the animation, then the element returns to its normal untransformed state. That
+   matters because ANY retained transform on an ancestor of a figure establishes a
+   containing block, which collapses Streamlit's position:fixed fullscreen overlay. */
+.block-container [data-testid="stVerticalBlockBorderWrapper"],
+.block-container [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){
+  animation:kxSection .5s backwards; }
 @keyframes kxSection{
   from{ opacity:0; transform:translateY(14px); }
   to{ opacity:1; transform:translateY(0); }
 }
-.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1){ animation-delay:.04s; }
-.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(2){ animation-delay:.10s; }
-.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(3){ animation-delay:.16s; }
-.block-container [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(4){ animation-delay:.22s; }
+/* Stagger: the general sibling combinator counts how many step cards precede this
+   one, so the delays hold regardless of where the cards sit among their siblings
+   (hero, stepper, and -- only when PyMC is missing -- a warning come first). */
+.block-container [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"],
+.block-container [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){ animation-delay:.06s; }
+.block-container [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"],
+.block-container [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){ animation-delay:.12s; }
+.block-container [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"] ~ [data-testid="stVerticalBlockBorderWrapper"],
+.block-container [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec) ~ [data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){ animation-delay:.18s; }
 .block-container > div{ animation:kxFade .5s both; }
 .block-container > div:nth-child(1){ animation-delay:.02s; }
 .block-container > div:nth-child(2){ animation-delay:.07s; }
@@ -95,7 +111,8 @@ footer{ visibility:hidden; }
 [data-testid="stDataFrame"], [data-testid="stMetric"], [data-testid="stImage"]{ animation:kxFade .45s both; }
 /* honour reduced-motion preferences */
 @media (prefers-reduced-motion: reduce){
-  *, .block-container [data-testid="stVerticalBlockBorderWrapper"], .block-container > div,
+  *, .block-container [data-testid="stVerticalBlockBorderWrapper"],
+  .block-container [data-testid="stLayoutWrapper"], .block-container > div,
   .stTabs [data-testid="stTabPanel"], .kx-hero{ animation:none !important; transition:none !important; }
 }
 [data-testid="stExpander"]{ transition:box-shadow .2s, border-color .2s; }
@@ -145,11 +162,13 @@ footer{ visibility:hidden; }
   color:var(--kx-primary-ink); margin:10px 0 6px; }
 
 /* ---------- cards (bordered containers), consistent padding ---------- */
-[data-testid="stVerticalBlockBorderWrapper"]{ background:var(--kx-surface);
+[data-testid="stVerticalBlockBorderWrapper"],
+[data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec){ background:var(--kx-surface);
   border-radius:16px !important; border:1px solid var(--kx-line) !important;
   box-shadow:var(--kx-shadow); padding:20px 22px !important; margin-bottom:6px;
   transition:box-shadow .25s, transform .25s; }
-[data-testid="stVerticalBlockBorderWrapper"]:hover{ box-shadow:var(--kx-shadow-lg); }
+[data-testid="stVerticalBlockBorderWrapper"]:hover,
+[data-testid="stLayoutWrapper"]:has(> [data-testid="stVerticalBlock"] .kx-sec):hover{ box-shadow:var(--kx-shadow-lg); }
 
 /* ---------- buttons ---------- */
 .stButton>button, .stDownloadButton>button, .stFormSubmitButton>button{

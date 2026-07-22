@@ -73,68 +73,222 @@ def detect_bimodal(rts_s: np.ndarray) -> bool:
 
 
 # --------------------------------------------------------------------------- #
+# Frequentist per-cell fit -- a literal port of the repository's DDM_fit.py
+#
+# These three functions are the same code the standalone script runs, so the app
+# reports the same numbers as running DDM_fit.py in an IDE. Keep them in step: the
+# optimiser, its seeds, iteration cap and tolerance, the bounds, and the mixture
+# acceptance rule all affect the fitted values.
+# --------------------------------------------------------------------------- #
+DE_SEEDS = (42, 7)
+DE_MAXITER = 400
+DE_TOL = 1e-9
+DE_POPSIZE = 12
+MIX_DE_POPSIZE = 14
+MIN_TRIALS = 15
+KS_ACCEPT = 0.10          # a single Wald is kept unless its KS exceeds this
+MIX_MIN_PI, MIX_MAX_PI = 0.10, 0.90
+MIX_MIN_MODE_GAP_MS = 30.0
+
+
+def ddm_fit_single(rts, floor, contam=0.0):
+    """Single shifted-Wald by differential evolution. Returns (x, nll, ks).
+
+    Port of DDM_fit.py::fit_single.
+    """
+    from scipy import stats
+    from scipy.optimize import differential_evolution
+
+    rts = np.asarray(rts, float)
+    Tr = float(rts.max() - rts.min())
+
+    def nll(p):
+        v, a, t0 = p
+        adj = rts - t0
+        if np.any(adj <= 0):
+            return 1e10
+        w = wald_pdf(adj, v, a)
+        if np.any(w <= 0) or not np.all(np.isfinite(w)):
+            return 1e10
+        d = (1 - contam) * w + (contam / Tr if contam > 0 else 0.0)
+        if np.any(d <= 0):
+            return 1e10
+        return -np.sum(np.log(d))
+
+    b = [(0.1, V_MAX), (0.05, A_MAX),
+         (floor, max(np.percentile(rts, 3) - 0.002, floor + 1e-3))]
+    best = None
+    for s in DE_SEEDS:
+        r = differential_evolution(nll, b, seed=s, maxiter=DE_MAXITER, tol=DE_TOL,
+                                   popsize=DE_POPSIZE, polish=True)
+        if best is None or r.fun < best.fun:
+            best = r
+    x = best.x
+    adj = rts - x[2]
+    ks = float(stats.kstest(adj, lambda z: wald_cdf(z, x[0], x[1])).statistic)
+    return x, float(best.fun), ks
+
+
+def _mix_nll(p, rts, Tr, contam):
+    """Port of DDM_fit.py::_mix_nll."""
+    pi, ve, ae, t0e, vr, ar, t0r = p
+    ee = rts - t0e
+    rr = rts - t0r
+    if np.any(ee <= 0) or np.any(rr <= 0):
+        return 1e10
+    if (t0e + ae / ve) >= (t0r + ar / vr):      # express mean must precede regular
+        return 1e10
+    core = pi * wald_pdf(ee, ve, ae) + (1 - pi) * wald_pdf(rr, vr, ar)
+    d = (1 - contam) * core + (contam / Tr if contam > 0 else 0.0)
+    if np.any(d <= 0) or not np.all(np.isfinite(d)):
+        return 1e10
+    return -np.sum(np.log(d))
+
+
+def _moments_to_wald(mean, sd, floor):
+    """Port of DDM_fit.py::_moments_to_wald."""
+    t0 = min(max(floor, mean - 2.5 * sd), mean - 1e-3)
+    mu = mean - t0
+    var = max(sd ** 2, 1e-6)
+    lam = mu ** 3 / var
+    a = np.sqrt(lam)
+    v = a / mu
+    return [np.clip(v, 0.1, V_MAX), np.clip(a, 0.05, A_MAX), np.clip(t0, floor, mean - 1e-3)]
+
+
+def ddm_fit_mixture(rts, floor, contam=0.0):
+    """Two-component express/regular Wald mixture. Returns (x, nll, ks).
+
+    Port of DDM_fit.py::fit_mixture.
+    """
+    from scipy import stats
+    from scipy.optimize import differential_evolution, minimize
+
+    rts = np.asarray(rts, float)
+    Tr = float(rts.max() - rts.min())
+    mn = float(rts.min())
+    cands = []
+    try:
+        from sklearn.mixture import GaussianMixture
+        gm = GaussianMixture(2, n_init=8, random_state=0).fit(rts.reshape(-1, 1))
+        o = np.argsort(gm.means_.ravel())
+        m1, m2 = gm.means_.ravel()[o]
+        s1, s2 = np.sqrt(gm.covariances_.ravel()[o])
+        w1 = gm.weights_[o][0]
+        cands.append([np.clip(w1, 0.05, 0.95)]
+                     + _moments_to_wald(m1, s1, floor) + _moments_to_wald(m2, s2, floor))
+    except Exception:
+        pass
+    for pe, pr, piw in [(15, 65, 0.5), (25, 70, 0.4), (10, 55, 0.6), (30, 75, 0.5)]:
+        me, mr = np.percentile(rts, pe), np.percentile(rts, pr)
+        if mr - me < 0.005:
+            continue
+        cands.append([piw] + _moments_to_wald(me, (mr - me) / 3, floor)
+                     + _moments_to_wald(mr, (rts.max() - mr) / 3, floor))
+    b = [(0.02, 0.98), (0.1, V_MAX), (0.05, A_MAX), (floor, mn - 1e-3),
+         (0.1, V_MAX), (0.05, A_MAX), (floor, mn - 1e-3)]
+    best = None
+    for c in cands:
+        try:
+            r = minimize(_mix_nll, c, args=(rts, Tr, contam), method="L-BFGS-B", bounds=b)
+            if r.fun < 1e9 and (best is None or r.fun < best.fun):
+                best = r
+        except Exception:
+            pass
+    rde = differential_evolution(_mix_nll, b, args=(rts, Tr, contam), seed=42,
+                                 maxiter=DE_MAXITER, tol=DE_TOL, popsize=MIX_DE_POPSIZE,
+                                 polish=True)
+    if best is None or rde.fun < best.fun:
+        best = rde
+    x = best.x
+    pi = x[0]
+
+    def mc(z):
+        return pi * wald_cdf(z - x[3], x[1], x[2]) + (1 - pi) * wald_cdf(z - x[6], x[4], x[5])
+
+    ks = float(stats.kstest(rts, mc).statistic)
+    return x, float(best.fun), ks
+
+
+def ddm_select_srt(rts, floor, contam=0.0):
+    """Choose single vs express/regular mixture for one saccade cell.
+
+    Port of the selection rule in DDM_fit.py::main: the mixture is only attempted
+    where the single Wald fails (KS > 0.10), and is only accepted if it fits well,
+    splits the trials sensibly, and separates the two modes by at least 30 ms.
+    Returns a dict with the chosen model and both fits' diagnostics.
+    """
+    xs, _, ks_s = ddm_fit_single(rts, floor, contam)
+    out = {"ks_single": ks_s, "model": "single", "v": xs[0], "a": xs[1], "t0": xs[2],
+           "ks": ks_s, "mixture": None}
+    if ks_s <= KS_ACCEPT:
+        return out
+    try:
+        xm, _, ks_m = ddm_fit_mixture(rts, floor, contam)
+    except Exception:
+        return out
+    pi = xm[0]
+    em = (xm[3] + xm[2] / xm[1]) * 1000.0
+    rm = (xm[6] + xm[5] / xm[4]) * 1000.0
+    if (ks_m < KS_ACCEPT) and (MIX_MIN_PI <= pi <= MIX_MAX_PI) \
+            and ((rm - em) >= MIX_MIN_MODE_GAP_MS):
+        out.update({"model": "mixture", "ks": ks_m,
+                    "mixture": {"pi": pi, "ve": xm[1], "ae": xm[2], "t0e": xm[3],
+                                "vr": xm[4], "ar": xm[5], "t0r": xm[6],
+                                "express_mode": em, "reg_mode": rm}})
+    return out
+
+
+# --------------------------------------------------------------------------- #
 # Fast per-cell MLE preview
 # --------------------------------------------------------------------------- #
 def _fit_cell_mle(rt: np.ndarray, floor: float, contamination: float = 0.0):
-    """Fast (v, a, t0) MLE for one cell; bounds follow the frequentist DDM fit."""
-    from scipy.optimize import minimize
-
-    rtmin = float(rt.min())
-    Tr = float(rt.max() - rt.min()) or 1e-3
-    t0_hi = max(np.percentile(rt, 3) - 0.002, floor + 1e-3)
-
-    def sig(z):
-        return 1.0 / (1.0 + np.exp(-z))
-
-    def unpack(p):
-        v = float(np.clip(np.exp(p[0]), 0.1, V_MAX))
-        a = float(np.clip(np.exp(p[1]), 0.05, A_MAX))
-        t0 = floor + (t0_hi - floor) * sig(p[2])
-        return v, a, t0
-
-    def nll(p):
-        v, a, t0 = unpack(p)
-        tau = rt - t0
-        if np.any(tau <= 1e-6):
-            return 1e12
-        w = wald_pdf(tau, v, a)
-        d = (1 - contamination) * w + (contamination / Tr if contamination > 0 else 0.0)
-        if np.any(d <= 0) or not np.all(np.isfinite(d)):
-            return 1e12
-        return float(-np.sum(np.log(d)))
-
-    best = None
-    for t0f in (0.3, 0.6, 0.85):
-        x0 = [np.log(6.0), np.log(0.8), np.log(t0f / (1 - t0f))]
-        try:
-            r = minimize(nll, x0, method="Nelder-Mead",
-                         options={"maxiter": 2000, "xatol": 1e-6, "fatol": 1e-6})
-            if best is None or r.fun < best.fun:
-                best = r
-        except Exception:
-            continue
-    if best is None:                       # every restart failed: fall back to a moment estimate
-        return 6.0, 0.8, float(max(rt.min() - 0.01, floor))
-    return unpack(best.x)
+    """(v, a, t0) for one cell, using the repository's DDM_fit.py optimiser."""
+    x, _, _ = ddm_fit_single(rt, floor, contamination)
+    return float(x[0]), float(x[1]), float(x[2])
 
 
-def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0) -> dict:
-    """Per-cell MLE preview across participant x speed cells (seconds, no sampling)."""
+def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
+                use_mixture: bool = True) -> dict:
+    """
+    Per-cell maximum-likelihood fit across participant x speed cells (no sampling).
+
+    This is Method A: the same optimiser, bounds and model-selection rule as
+    DDM_fit.py. Hand cells get a single Wald; saccade cells get a single Wald
+    unless it fits poorly, in which case the express/regular mixture is tried and
+    accepted on the pipeline's criteria. For a mixture cell the reported t0 is the
+    regular component's shift, which is the value NDT_barchart.py compares across
+    cells.
+    """
     sub = df[df["effector"] == effector]
     floor = PHYSIO_FLOOR[effector]
     rows = []
     for (p, c), g in sub.groupby(["participant", "condition"]):
-        rt = g["rt"].values
-        if len(rt) < 15:
+        rt = g["rt"].values.astype(float)
+        rt = rt[np.isfinite(rt)]
+        if len(rt) < MIN_TRIALS:
             continue
-        v, a, t0 = _fit_cell_mle(rt, floor, contamination)
+        if effector == "eye" and use_mixture:
+            sel = ddm_select_srt(rt, floor, contamination)
+            if sel["model"] == "mixture":
+                m = sel["mixture"]
+                v, a, t0, model = m["vr"], m["ar"], m["t0r"], "mixture"
+            else:
+                v, a, t0, model = sel["v"], sel["a"], sel["t0"], "single"
+            ks = sel["ks"]
+        else:
+            x, _, ks = ddm_fit_single(rt, floor, contamination)
+            v, a, t0, model = x[0], x[1], x[2], "single"
         rows.append({"participant": p, "condition": int(c), "speed": SPEEDS[int(c)],
-                     "v": v, "a": a, "t0_ms": t0 * 1000.0,
-                     "floored": t0 * 1000.0 <= floor * 1000.0 + 1.0})
+                     "v": float(v), "a": float(a), "t0_ms": float(t0) * 1000.0,
+                     "ks": float(ks), "model": model,
+                     "floored": float(t0) * 1000.0 <= floor * 1000.0 + 1.0})
     cell = pd.DataFrame(rows)
+    if not len(cell):
+        return {"cell": cell, "group": pd.DataFrame(), "floor_ms": floor * 1000.0}
     group = (cell.groupby("condition")
                  .agg(v=("v", "mean"), a=("a", "mean"), t0_ms=("t0_ms", "mean"),
-                      pct_floored=("floored", "mean")).reset_index())
+                      median_ks=("ks", "median"), pct_floored=("floored", "mean")).reset_index())
     group["speed"] = group["condition"].map(lambda c: SPEEDS[int(c)])
     group["pct_floored"] *= 100
     return {"cell": cell, "group": group, "floor_ms": floor * 1000.0}
@@ -319,9 +473,21 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
             for pid in pids:
                 x = sub[(sub.participant == pid) & (sub.condition == c)]["rt"].values.astype(float)
                 x = x[np.isfinite(x)]
-                if len(x) < 15:
+                if len(x) < MIN_TRIALS:
                     continue
-                (bim if (use_mixture and detect_bimodal(x)) else uni).append(pid)
+                # Which cells get a mixture is decided exactly as in the pipeline:
+                # Bayesian_SRT_fit.py reads the selection from DDM_srt_fits.csv, i.e. the
+                # cells where DDM_fit.py's rule chose a mixture. That rule is recomputed
+                # here on the same data, so the app needs no CSV from a previous run but
+                # still splits the cells the same way. Hartigan's dip test is only the
+                # fallback the script uses when that CSV is absent.
+                is_mix = False
+                if use_mixture:
+                    try:
+                        is_mix = ddm_select_srt(x, floor, contamination)["model"] == "mixture"
+                    except Exception:
+                        is_mix = detect_bimodal(x)
+                (bim if is_mix else uni).append(pid)
             # unimodal: one pooled hierarchical fit for this speed
             if uni:
                 units, rt, uidx, minrt = [], [], [], []
