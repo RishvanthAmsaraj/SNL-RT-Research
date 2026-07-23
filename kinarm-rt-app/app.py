@@ -14,6 +14,8 @@ reciprobit model for saccades.
 
 from __future__ import annotations
 
+import os
+
 import pandas as pd
 import streamlit as st
 
@@ -329,11 +331,31 @@ if SS.filtered is not None:
                                            "off, which matches the repository's Bayesian setup; a few "
                                            "percent makes the fit more robust to outliers.")
 
+            use_parallel = st.toggle("Fit cells across multiple cores", value=False,
+                                     help=("Each participant x speed cell is fitted on its own and the "
+                                           "optimiser is seeded per cell, so spreading them across cores "
+                                           "cannot change any result — only how long the run takes. It is "
+                                           "off by default because the worker processes have been seen to "
+                                           "stall under Streamlit on Windows, and a run that finishes "
+                                           "slowly beats one that hangs. The app checks that workers "
+                                           "actually start before using them, and falls back to a single "
+                                           "core if they do not."))
+            if use_parallel:
+                # probed once per session: the check itself starts worker processes,
+                # which is the thing that can stall on Windows
+                if "parallel_ok" not in SS:
+                    SS["parallel_ok"] = wald.parallel_probe(2)
+                _ok, _why = SS["parallel_ok"]
+                st.caption(f"Multiple cores available — {os.cpu_count()} detected."
+                           if _ok else
+                           f"Multiple cores unavailable ({_why}); the run will use one core.")
+
         chosen = chosen or []
         if st.button("Run analysis", type="primary", disabled=not chosen):
             results, errors = {}, []
             is_method_a = bool(mode and mode.startswith("Method A"))
-            n_jobs = wald.default_jobs()
+            n_jobs = (max(2, (os.cpu_count() or 2) - 1)
+                      if (use_parallel and SS.get("parallel_ok", (False, ""))[0]) else 1)
 
             # Lay out every stage before any of them starts, so the panel shows what
             # the run consists of and which part is moving.
@@ -350,8 +372,9 @@ if SS.filtered is not None:
 
             box = st.status(f"Running {len(stages)} stages…", expanded=True)
             if n_jobs > 1:
-                box.caption(f"Fitting across {n_jobs} cores. Cells are independent and "
-                            f"seeded individually, so this does not change any result.")
+                box.caption(f"Fitting on {n_jobs} core{'s' if n_jobs > 1 else ''}. Cells are "
+                            f"independent and seeded individually, so this affects only how "
+                            f"long the run takes, never the result.")
             prog = ui.RunProgress(box, stages)
 
             if "eye" in chosen:

@@ -2,6 +2,45 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.0] — 2026-07-22
+
+### Fixed — runs could stall instead of finishing
+
+Cell fitting was being spread across worker processes by default. That was a
+mistake, and an inconsistent one: the sampler is deliberately run with `cores=1`
+because multiprocessing under Streamlit is unreliable on Windows, and then the same
+hazard was introduced for the per-cell fits. joblib's process backend starts fresh
+interpreters that re-import the module, and under `streamlit run` that can hang
+rather than fail cleanly, which leaves the run sitting on a stage forever.
+
+Fitting is now single-core by default. Using several cores is an explicit choice in
+the interface, and it is guarded three ways: a couple of trivial tasks are run first
+to confirm workers actually start (with a short timeout, and the result remembered
+for the session), each cell has a result timeout, and any failure or partial result
+finishes the remaining cells in this process. The setting only affects how long a
+run takes, never what it produces -- cells are independent and seeded individually.
+
+### Fixed — time estimates that could not be trusted
+
+Three separate faults:
+
+- The estimate was the average pace since the start. Cells cost very different
+  amounts -- a two-component fit runs several times longer than a single one -- and
+  cheaper cells often complete first, so the estimate promised a finish nowhere
+  near the truth and then climbed as the expensive cells arrived.
+- The saccade branch of the Bayesian fit changed its own total part-way through,
+  once it knew how many cells needed two components, so the bar and its estimate
+  jumped.
+- Reusing an already-computed selection restarted the count from one for whatever
+  remained, so the bar went backwards.
+
+The estimate now comes from the median pace over a trailing window, and is withheld
+entirely when the recent per-item times are uneven enough that no figure would mean
+anything -- "estimating time left" instead of a confident wrong number. Selection
+and sampling are reported as separate phases with their own totals, the bar never
+moves backwards, and the elapsed time and item count are always shown so a long
+stage is visibly alive.
+
 ## [1.4.0] — 2026-07-22
 
 ### Fixed — figures were rendering at their natural size

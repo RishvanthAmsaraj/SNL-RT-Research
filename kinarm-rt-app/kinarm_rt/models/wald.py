@@ -268,48 +268,102 @@ def _cell_worker(item):
                  "ks": ks, "ks_single": ks, "nll": nll, "mixture": None}
 
 
+def _ping(x):
+    """Trivial task used to check that worker processes actually start."""
+    return x
+
+
+PARALLEL_PROBE_TIMEOUT = 30.0     # seconds to confirm workers can start
+PARALLEL_TASK_TIMEOUT = 300.0     # seconds to wait for any single cell
+
+
 def default_jobs() -> int:
-    """Leave one core free so the interface stays responsive."""
-    try:
-        return max(1, (os.cpu_count() or 1) - 1)
-    except Exception:
-        return 1
-
-
-def map_cells(items, n_jobs: int = -1, progress=None):
     """
-    Fit a list of cells, optionally across processes, reporting progress.
+    One by default: fitting runs in this process.
 
-    `progress` is called as progress(done, total) after each cell. Results come
-    back keyed, so out-of-order completion does not affect the output. Any failure
-    to start workers falls back to a plain loop rather than losing the run.
+    Cell fits are independent and could be spread across cores, but joblib's
+    process backend starts fresh interpreters that re-import this module, and under
+    `streamlit run` that has been seen to hang rather than fail cleanly -- on
+    Windows especially, where spawning is the only option. The same concern is why
+    the sampler runs its chains with cores=1. A run that finishes slowly is worth
+    more than one that stalls, so parallelism is opt-in via the interface and
+    guarded by the checks below.
+    """
+    return 1
+
+
+def parallel_probe(n_jobs: int = 2) -> tuple[bool, str]:
+    """
+    Check that worker processes really start, without risking a long stall.
+
+    Returns (ok, reason). A couple of trivial tasks answer the question in about a
+    second when the backend is healthy, and give up quickly when it is not.
+    """
+    if n_jobs < 2:
+        return False, "single core requested"
+    try:
+        from joblib import Parallel, delayed
+    except Exception as e:
+        return False, f"joblib unavailable ({type(e).__name__})"
+    try:
+        got = Parallel(n_jobs=2, timeout=PARALLEL_PROBE_TIMEOUT)(
+            delayed(_ping)(i) for i in (1, 2))
+        if got == [1, 2]:
+            return True, "workers started"
+        return False, "workers returned unexpected results"
+    except Exception as e:
+        return False, f"workers did not start ({type(e).__name__})"
+
+
+def map_cells(items, n_jobs: int = -1, progress=None, offset: int = 0,
+              grand_total: int | None = None):
+    """
+    Fit a list of cells, reporting progress as each finishes.
+
+    `progress` is called as progress(done, total). `offset` and `grand_total` let a
+    caller report against a larger span than this batch, so a bar does not restart
+    when work is split into several calls.
+
+    Parallel execution is attempted only when asked for, only after `parallel_probe`
+    confirms workers start, and with a per-result timeout so a stalled worker falls
+    back to running in this process instead of hanging the run. Cells are
+    independent and seeded individually, so the schedule never affects the result.
     """
     items = list(items)
     total = len(items)
-    if n_jobs is None or n_jobs < 0:
-        n_jobs = default_jobs()
+    span = grand_total if grand_total is not None else total
     out = {}
     if total == 0:
         return out
+    if n_jobs is None or n_jobs < 0:
+        n_jobs = default_jobs()
 
-    if n_jobs > 1 and total > 1:
+    if n_jobs > 1 and total > 1 and parallel_probe(n_jobs)[0]:
         try:
             from joblib import Parallel, delayed
-            gen = Parallel(n_jobs=min(n_jobs, total), return_as="generator_unordered")(
+            done = 0
+            gen = Parallel(n_jobs=min(n_jobs, total), timeout=PARALLEL_TASK_TIMEOUT,
+                           return_as="generator_unordered")(
                 delayed(_cell_worker)(it) for it in items)
-            for i, (key, res) in enumerate(gen, 1):
+            for key, res in gen:
                 out[key] = res
+                done += 1
                 if progress:
-                    progress(i, total)
-            return out
+                    progress(offset + done, span)
+            if len(out) == total:
+                return out
+            # partial result: finish the remainder in this process
+            items = [it for it in items if it[0] not in out]
         except Exception:
-            out = {}          # fall through to the sequential path
+            out = {}                      # fall back to running here
 
-    for i, it in enumerate(items, 1):
+    done = len(out)
+    for it in items:
         key, res = _cell_worker(it)
         out[key] = res
+        done += 1
         if progress:
-            progress(i, total)
+            progress(offset + done, span)
     return out
 
 
@@ -345,7 +399,8 @@ def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
         if progress:
             progress(len(fits), len(items))
         if missing:
-            fits.update(map_cells(missing, n_jobs=n_jobs, progress=progress))
+            fits.update(map_cells(missing, n_jobs=n_jobs, progress=progress,
+                                  offset=len(fits), grand_total=len(items)))
     else:
         fits = map_cells(items, n_jobs=n_jobs, progress=progress)
     rows = []
@@ -568,27 +623,26 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
                     sel_items.append(((pid, c), x, floor, contamination, "select"))
 
         n_sel = len(sel_items)
-        step = {"done": 0, "total": n_sel + len(SPEEDS) + 1}
-
-        def bump(done_sel=None):
-            if done_sel is not None:
-                step["done"] = done_sel
-            else:
-                step["done"] += 1
-            if progress:
-                progress(min(step["done"], step["total"]), step["total"])
-
         selection = {}
         if use_mixture and n_sel:
-            status(f"Saccade: choosing single vs two-component for {n_sel} cells")
+            status(f"choosing single vs two-component for {n_sel} cells")
             try:
-                selection = map_cells(sel_items, n_jobs=n_jobs,
-                                      progress=lambda d, t: bump(d))
+                selection = map_cells(sel_items, n_jobs=n_jobs, progress=progress)
             except Exception:
                 selection = {}
         n_mix_total = sum(1 for v in selection.values() if v.get("model") == "mixture")
-        step["total"] = n_sel + len(SPEEDS) + max(n_mix_total, 1)
-        status(f"Saccade: {n_mix_total} of {n_sel} cells need two components")
+        status(f"{n_mix_total} of {n_sel} cells need two components")
+
+        # Sampling is reported as its own counted phase rather than being folded in
+        # with the selection above. The two do very different amounts of work per
+        # step, so a single running total would make the time estimate lurch.
+        sample_total = len(SPEEDS) + n_mix_total
+        sampled = {"n": 0}
+
+        def bump():
+            sampled["n"] += 1
+            if progress:
+                progress(min(sampled["n"], sample_total), sample_total)
 
         for c in range(len(SPEEDS)):
             spd = SPEEDS[c]

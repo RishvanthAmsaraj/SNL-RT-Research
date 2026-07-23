@@ -437,52 +437,111 @@ def hint(text: str):
 # Progress reporting
 # --------------------------------------------------------------------------- #
 def format_eta(seconds) -> str:
-    """'~2m 05s left' from a number of seconds; empty string if not yet known."""
+    """
+    A deliberately coarse 'about ...' from a number of seconds.
+
+    The work behind these bars is uneven -- a cell needing two components costs
+    several times a single fit -- so a precise-looking countdown would be false
+    precision. Rounding to something readable is more honest.
+    """
     import math
     if seconds is None or not math.isfinite(seconds) or seconds < 0:
         return ""
-    seconds = int(round(seconds))
-    if seconds < 60:
-        return f"~{seconds}s left"
-    m, s = divmod(seconds, 60)
-    if m < 60:
-        return f"~{m}m {s:02d}s left"
-    h, m = divmod(m, 60)
-    return f"~{h}h {m:02d}m left"
+    if seconds < 20:
+        return "a few seconds left"
+    if seconds < 90:
+        return f"about {int(round(seconds / 10.0)) * 10}s left"
+    minutes = seconds / 60.0
+    if minutes < 10:
+        half = round(minutes * 2) / 2
+        return f"about {half:g} min left"
+    return f"about {int(round(minutes))} min left"
 
 
 class StepBar:
     """
-    A labelled progress bar that estimates the time remaining.
+    A labelled progress bar with a time estimate.
 
-    The estimate comes from the rate actually observed so far rather than a fixed
-    guess, so it adapts to the machine and to how many cells need the slower
-    two-component fit. Call the instance as progress(done, total).
+    The estimate comes from the pace over recent items rather than the average
+    since the start. Cells differ a lot in cost, and the cheap ones tend to come
+    first, so an average-since-start estimate reads far too optimistic early on and
+    then climbs -- which looks broken even when the run is healthy. A trailing
+    window tracks the current pace instead, and nothing is shown until there are
+    enough completions to say anything meaningful.
+
+    Call the instance as progress(done, total).
     """
+
+    WINDOW = 12          # items in the trailing window
+    MIN_SAMPLES = 3      # completions before an estimate is offered
 
     def __init__(self, container, label: str, unit: str = "cells"):
         import time
+        from collections import deque
         self._time = time
-        self.t0 = None                      # started on the first update
+        self.t0 = None
         self.label = label
         self.unit = unit
         self.done = False
+        self.total = None
+        self.max_frac = 0.0
+        self.samples = deque(maxlen=self.WINDOW)
         self.bar = container.progress(0.0, text=f"{label} — waiting")
 
     def start(self, note: str = ""):
         self.t0 = self._time.time()
+        self.samples.clear()
+        self.max_frac = 0.0
         self.bar.progress(0.0, text=f"{self.label} — running{('  ·  ' + note) if note else ''}")
 
     def __call__(self, done: int, total: int):
         if self.t0 is None:
             self.start()
+        # a changed total means a new phase of work: start the estimate again
+        # rather than carrying a rate that no longer applies
+        if self.total is not None and total != self.total:
+            self.samples.clear()
+            self.max_frac = 0.0
+        self.total = total
+
+        now = self._time.time()
+        self.samples.append((now, done))
         frac = (done / total) if total else 1.0
-        elapsed = self._time.time() - self.t0
-        eta = (elapsed / done) * (total - done) if done else None
-        tail = format_eta(eta)
-        self.bar.progress(min(max(frac, 0.0), 1.0),
-                          text=f"{self.label} — {done}/{total} {self.unit}"
-                               + (f"  ·  {tail}" if tail else ""))
+        self.max_frac = max(self.max_frac, min(max(frac, 0.0), 1.0))   # never slide back
+
+        elapsed = now - self.t0
+        tail = self._estimate(done, total, now)
+        self.bar.progress(
+            self.max_frac,
+            text=f"{self.label} — {done}/{total} {self.unit}"
+                 f"  ·  {int(round(elapsed))}s elapsed"
+                 + (f"  ·  {tail}" if tail else ""))
+
+    def _estimate(self, done, total, now):
+        """
+        A time estimate, but only when the pace is steady enough to mean something.
+
+        Cells cost very different amounts -- a two-component fit runs several times
+        longer than a single one -- and the cheap ones often come first, so a rate
+        measured over a cheap stretch will confidently promise a finish that is
+        nowhere near. When the recent per-item times are uneven, no figure is shown
+        at all; an honest "estimating" beats a precise-looking wrong answer.
+        """
+        if len(self.samples) < self.MIN_SAMPLES or done >= total:
+            return "estimating time left…" if done < total else ""
+        gaps = []
+        for (t_prev, d_prev), (t_now, d_now) in zip(self.samples, list(self.samples)[1:]):
+            if d_now > d_prev and t_now > t_prev:
+                gaps.append((t_now - t_prev) / (d_now - d_prev))
+        if len(gaps) < 2:
+            return "estimating time left…"
+        lo, hi = min(gaps), max(gaps)
+        if lo <= 0:
+            return "estimating time left…"
+        if hi / lo > 4.0:                 # pace is still swinging; do not commit
+            return "estimating time left…"
+        pace = sorted(gaps)[len(gaps) // 2]           # median seconds per item
+        return format_eta((total - done) * pace)
 
     def note(self, msg: str):
         """Show what this stage is doing without adding a separate line."""
@@ -490,7 +549,7 @@ class StepBar:
             return
         if self.t0 is None:
             self.start()
-        self.bar.progress(0.0, text=f"{self.label} — {msg}")
+        self.bar.progress(self.max_frac, text=f"{self.label} — {msg}")
 
     def finish(self, note: str = ""):
         if self.t0 is None:
