@@ -98,7 +98,7 @@ if not HAVE_PYMC:
 # --------------------------------------------------------------------------- Step 1
 with st.container(border=True):
     ui.section("Load your trial data", "Upload a file or try the example. "
-               "The repository's wide pooled_data.csv works directly.", "1")
+               "The repository's wide pooled_data.csv works directly.", "1", anchor="load")
     left, right = st.columns([2, 1], vertical_alignment="center")
     with left:
         uploaded = st.file_uploader("Trial file (CSV / TSV), one row per trial",
@@ -241,8 +241,9 @@ with st.container(border=True):
 # --------------------------------------------------------------------------- Step 2
 if SS.tidy is not None:
     with st.container(border=True):
+        ui.reveal("filter")
         ui.section("Inclusion windows", "Keep trials within physiological limits "
-                   "(hand 150–800 ms, saccades 80–600 ms).", "2")
+                   "(hand 150–800 ms, saccades 80–600 ms).", "2", anchor="filter")
         tidy = SS.tidy
         issues = data.validate(tidy)
         if issues:
@@ -277,8 +278,9 @@ if SS.tidy is not None:
 # --------------------------------------------------------------------------- Step 3
 if SS.filtered is not None:
     with st.container(border=True):
+        ui.reveal("fit")
         ui.section("Fit the models", "A fast preview in seconds, or the full hierarchical "
-                   "Bayesian fit in minutes.", "3")
+                   "Bayesian fit in minutes.", "3", anchor="fit")
         kept = SS.filtered
         avail = sorted(kept["effector"].unique())
         c1, c2 = st.columns(2)
@@ -403,7 +405,7 @@ if SS.filtered is not None:
                 try:
                     bar = prog[f"a_{eff}"]
                     prev = wald.mle_preview(kept, eff, contamination, use_mixture=use_mixture,
-                                            n_jobs=n_jobs, progress=bar,
+                                            n_jobs=n_jobs, progress=bar, status=bar.note,
                                             selection=(results.get(eff) or {}).get("selection"))
                     nmix = int((prev["cell"]["model"] == "mixture").sum()) if len(prev["cell"]) else 0
                     prog.finish_stage(f"a_{eff}",
@@ -560,8 +562,9 @@ def comparison_tab():
 # --------------------------------------------------------------------------- Step 4
 if SS.results or SS.later:
     with st.container(border=True):
+        ui.reveal("results")
         ui.section("Results & report", "Parameters, diagnostics, graphs, advanced analyses, "
-                   "and a downloadable report.", "4")
+                   "and a downloadable report.", "4", anchor="results")
         kept = SS.filtered; res_all = SS.results
         tabs = st.tabs(["Parameters", "Diagnostics", "Graphs", "LATER",
                         "Advanced", "Model comparison", "Download"])

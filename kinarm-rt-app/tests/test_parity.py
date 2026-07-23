@@ -539,3 +539,87 @@ def test_shape_implied_t0_matches_the_script(sample_kept):
         a = figures._rt_ms(kept, eff)
         a = a[np.isfinite(a)]
         assert abs(ref - (a.mean() - 3 * a.std() / skew(a))) < 1e-9
+
+
+def test_two_pass_selection_matches_cell_by_cell(kept):
+    """
+    Splitting the saccade selection into two passes must not change any outcome.
+
+    Pass one fits a single Wald to every cell; pass two fits a two-component model
+    only where the single fit failed. That exists so each pass costs about the same
+    per cell and the progress bar means something -- it must be a scheduling change
+    and nothing more.
+    """
+    items = []
+    for (p, c), g in list(kept[kept.effector == "eye"].groupby(["participant", "condition"]))[:8]:
+        rt = g["rt"].values.astype(float)
+        if len(rt) >= W.MIN_TRIALS:
+            items.append(((p, int(c)), rt, REF_SRT_FLOOR, REF_P_CONTAM, "select"))
+    if not items:
+        pytest.skip("no saccade cells")
+    one = {k: W.ddm_select_srt(rt, fl, ct) for (k, rt, fl, ct, _m) in items}
+    two = W.select_srt_cells(items, n_jobs=1)
+    assert set(one) == set(two)
+    for k in one:
+        a, b = one[k], two[k]
+        assert a["model"] == b["model"]
+        assert a["ks"] == b["ks"] and a["ks_single"] == b["ks_single"]
+        if a["model"] == "single":
+            assert (a["v"], a["a"], a["t0"]) == (b["v"], b["a"], b["t0"])
+        else:
+            for f in ("pi", "ve", "ae", "t0e", "vr", "ar", "t0r"):
+                assert a["mixture"][f] == b["mixture"][f]
+
+
+@pytest.mark.parametrize("seed", [1, 7, 29])
+def test_vincentiles_match_on_independent_datasets(seed):
+    """
+    The vincentile agreement must be structural, not a property of one dataset.
+
+    The same comparison is run against freshly simulated data so a coincidental
+    match on the bundled sample cannot pass for correctness.
+    """
+    raw = data.simulate_dataset(n_participants=8, trials_per_cell=95, seed=seed)
+    tidy = data.load_trials(raw, participant_col="Participant",
+                            hand_rt_col="HandRT_ms", eye_rt_col="GazeSRT_ms",
+                            speed_col="Speed_deg_per_s",
+                            blocktype_col="BlockType", blocktype_keep="I", rt_units="ms")
+    kept_df, _ = filters.apply_windows(tidy, FILTER_WINDOWS)
+    got = figures._vincentile_shift(kept_df)
+
+    d = raw[raw["BlockType"] == "I"]
+    for i, s in enumerate((0, 75, 150)):
+        z = d[d["Speed_deg_per_s"] == s]
+        rows = []
+        for _pid, g in z.groupby("Participant"):
+            h = g["HandRT_ms"].values.astype(float)
+            r = g["GazeSRT_ms"].values.astype(float)
+            ok = ((~np.isnan(h)) & (~np.isnan(r)) & (h >= 150) & (h <= 800)
+                  & (r >= 80) & (r <= 600))
+            dif = np.sort(h[ok] - r[ok])
+            if len(dif) < 20:
+                continue
+            idx = np.linspace(0, len(dif), 21).astype(int)
+            rows.append(np.array([dif[idx[j]:idx[j + 1]].mean() for j in range(20)]))
+        ref = np.array(rows)
+        assert ref.shape == got[i].shape
+        assert np.abs(ref[np.lexsort(ref.T)] - got[i][np.lexsort(got[i].T)]).max() < 1e-9
+
+
+def test_results_do_not_depend_on_row_order(sample_kept):
+    """
+    Reproducibility: shuffling the input rows must not move a single number.
+
+    Anything that depends on the order rows happen to arrive in -- a tie broken by
+    position, a groupby that does not sort -- would make the same file give
+    different answers on different runs.
+    """
+    _path, kept_df = sample_kept
+    shuffled = kept_df.sample(frac=1.0, random_state=17).reset_index(drop=True)
+    a = figures._vincentile_shift(kept_df)
+    b = figures._vincentile_shift(shuffled)
+    for i in range(3):
+        assert np.abs(np.sort(a[i], axis=0) - np.sort(b[i], axis=0)).max() < 1e-12
+    pa = W.mle_preview(kept_df, "hand", REF_P_CONTAM)["cell"]
+    pb = W.mle_preview(shuffled, "hand", REF_P_CONTAM)["cell"]
+    pd.testing.assert_frame_equal(pa, pb)

@@ -263,6 +263,9 @@ def _cell_worker(item):
     key, rt, floor, contam, mode = item
     if mode == "select":
         return key, ddm_select_srt(rt, floor, contam)
+    if mode == "mixture":
+        x, nll, ks = ddm_fit_mixture(rt, floor, contam)
+        return key, {"x": x, "nll": nll, "ks": ks}
     x, nll, ks = ddm_fit_single(rt, floor, contam)
     return key, {"model": "single", "v": x[0], "a": x[1], "t0": x[2],
                  "ks": ks, "ks_single": ks, "nll": nll, "mixture": None}
@@ -367,9 +370,57 @@ def map_cells(items, n_jobs: int = -1, progress=None, offset: int = 0,
     return out
 
 
+def select_srt_cells(items, n_jobs: int = -1, progress=None, status=lambda m: None):
+    """
+    Choose single versus two-component for a batch of saccade cells, in two passes.
+
+    Deciding cell by cell means a cheap single fit and an expensive two-component
+    fit are interleaved unpredictably, and in real data the cells that need two
+    components are clustered rather than spread out. That makes any progress bar
+    based on cells misleading: the pace measured over the early cells does not
+    describe the rest.
+
+    Splitting the work fixes that without changing anything about the outcome. Pass
+    one fits a single Wald to every cell; pass two fits a two-component model only
+    to the cells the single fit failed. Every cell in a pass costs about the same,
+    so the count and the time estimate mean what they appear to mean. The
+    acceptance rule is applied exactly as in ddm_select_srt.
+    """
+    items = list(items)
+    single_items = [(k, rt, fl, ct, "single") for (k, rt, fl, ct, _m) in items]
+    status(f"pass 1 of 2 — single fits, {len(single_items)} cells")
+    singles = map_cells(single_items, n_jobs=n_jobs, progress=progress)
+
+    by_key = {k: (rt, fl, ct) for (k, rt, fl, ct, _m) in items}
+    out = {}
+    needs_mix = []
+    for k, r in singles.items():
+        out[k] = {"ks_single": r["ks"], "model": "single", "v": r["v"], "a": r["a"],
+                  "t0": r["t0"], "ks": r["ks"], "mixture": None}
+        if r["ks"] > KS_ACCEPT:
+            needs_mix.append(k)
+
+    if needs_mix:
+        status(f"pass 2 of 2 — two-component fits, {len(needs_mix)} cells")
+        mix_items = [(k, *by_key[k], "mixture") for k in needs_mix]
+        mixes = map_cells(mix_items, n_jobs=n_jobs, progress=progress)
+        for k, m in mixes.items():
+            xm, ks_m = m["x"], m["ks"]
+            pi = xm[0]
+            em = (xm[3] + xm[2] / xm[1]) * 1000.0
+            rm = (xm[6] + xm[5] / xm[4]) * 1000.0
+            if (ks_m < KS_ACCEPT) and (MIX_MIN_PI <= pi <= MIX_MAX_PI) \
+                    and ((rm - em) >= MIX_MIN_MODE_GAP_MS):
+                out[k].update({"model": "mixture", "ks": ks_m,
+                               "mixture": {"pi": pi, "ve": xm[1], "ae": xm[2], "t0e": xm[3],
+                                           "vr": xm[4], "ar": xm[5], "t0r": xm[6],
+                                           "express_mode": em, "reg_mode": rm}})
+    return out
+
+
 def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
                 use_mixture: bool = True, n_jobs: int = -1, progress=None,
-                selection: dict | None = None) -> dict:
+                selection: dict | None = None, status=lambda m: None) -> dict:
     """
     Per-cell maximum-likelihood fit across participant x speed cells (no sampling).
 
@@ -401,6 +452,8 @@ def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
         if missing:
             fits.update(map_cells(missing, n_jobs=n_jobs, progress=progress,
                                   offset=len(fits), grand_total=len(items)))
+    elif mode == "select":
+        fits = select_srt_cells(items, n_jobs=n_jobs, progress=progress, status=status)
     else:
         fits = map_cells(items, n_jobs=n_jobs, progress=progress)
     rows = []
@@ -627,7 +680,8 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
         if use_mixture and n_sel:
             status(f"choosing single vs two-component for {n_sel} cells")
             try:
-                selection = map_cells(sel_items, n_jobs=n_jobs, progress=progress)
+                selection = select_srt_cells(sel_items, n_jobs=n_jobs,
+                                             progress=progress, status=status)
             except Exception:
                 selection = {}
         n_mix_total = sum(1 for v in selection.values() if v.get("model") == "mixture")

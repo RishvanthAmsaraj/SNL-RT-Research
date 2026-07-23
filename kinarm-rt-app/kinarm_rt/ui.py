@@ -10,6 +10,7 @@ the step indicator, section headers, and callouts.
 from __future__ import annotations
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Per-theme design tokens.
 _LIGHT = {
@@ -415,10 +416,52 @@ def stepper(labels: list[str], current: int):
     st.markdown(f"<div class='kx-steps'>{''.join(cells)}</div>", unsafe_allow_html=True)
 
 
-def section(title: str, desc: str = "", icon: str = "•"):
+def section(title: str, desc: str = "", icon: str = "•", anchor: str | None = None):
     d = f"<div class='d'>{desc}</div>" if desc else ""
-    st.markdown(f"<div class='kx-sec'><div class='ico'>{icon}</div>"
+    a = f" id='kx-anchor-{anchor}'" if anchor else ""
+    st.markdown(f"<div class='kx-sec'{a}><div class='ico'>{icon}</div>"
                 f"<div><div class='t'>{title}</div>{d}</div></div>", unsafe_allow_html=True)
+
+
+def reveal(anchor: str):
+    """
+    Bring a newly opened section into view, once.
+
+    A section appears below the fold when the one above it is finished, so without
+    this the page looks unchanged until you scroll. It fires only the first time a
+    given section appears, so the view is never yanked around while someone is
+    reading or adjusting settings further up. The delay lets the entrance animation
+    start first, so the section is seen arriving rather than already in place.
+    """
+    seen = st.session_state.setdefault("_kx_revealed", set())
+    if anchor in seen:
+        return
+    seen.add(anchor)
+    components.html(
+        "<script>"
+        "const doc = window.parent.document;"
+        "const GAP = 84, TOL = 26;"
+        "const main = () => doc.querySelector('[data-testid=\"stMain\"]')"
+        "               || doc.querySelector('section.main') || doc.scrollingElement;"
+        f"const anchorEl = () => doc.getElementById('kx-anchor-{anchor}');"
+        # The section keeps rendering after it first appears and the step above it
+        # collapses, so the target keeps moving. Rather than scrolling once and
+        # hoping, the position is corrected until the header settles near the top,
+        # then left alone.
+        "let steady = 0, tries = 0;"
+        "const settle = () => {"
+        "  const el = anchorEl(), m = main();"
+        "  if (el && m) {"
+        "    const off = el.getBoundingClientRect().top - GAP;"
+        "    if (Math.abs(off) <= TOL) { steady++; } else {"
+        "      steady = 0;"
+        "      m.scrollTo({top: Math.max(m.scrollTop + off, 0), behavior: 'smooth'});"
+        "    }"
+        "  }"
+        "  if (steady < 2 && tries++ < 24) setTimeout(settle, 160);"
+        "};"
+        "setTimeout(settle, 280);"
+        "</script>", height=0)
 
 
 def eyebrow(text: str):
@@ -519,29 +562,22 @@ class StepBar:
 
     def _estimate(self, done, total, now):
         """
-        A time estimate, but only when the pace is steady enough to mean something.
+        Time remaining, from the average pace over this phase.
 
-        Cells cost very different amounts -- a two-component fit runs several times
-        longer than a single one -- and the cheap ones often come first, so a rate
-        measured over a cheap stretch will confidently promise a finish that is
-        nowhere near. When the recent per-item times are uneven, no figure is shown
-        at all; an honest "estimating" beats a precise-looking wrong answer.
+        Every item within a phase costs about the same -- the fitting is split so a
+        pass either does single fits or two-component fits, never a mixture of the
+        two -- so a plain average is both stable and accurate here, and there is no
+        need to withhold it. A few items are still needed before the first estimate
+        means anything.
         """
-        if len(self.samples) < self.MIN_SAMPLES or done >= total:
-            return "estimating time left…" if done < total else ""
-        gaps = []
-        for (t_prev, d_prev), (t_now, d_now) in zip(self.samples, list(self.samples)[1:]):
-            if d_now > d_prev and t_now > t_prev:
-                gaps.append((t_now - t_prev) / (d_now - d_prev))
-        if len(gaps) < 2:
-            return "estimating time left…"
-        lo, hi = min(gaps), max(gaps)
-        if lo <= 0:
-            return "estimating time left…"
-        if hi / lo > 4.0:                 # pace is still swinging; do not commit
-            return "estimating time left…"
-        pace = sorted(gaps)[len(gaps) // 2]           # median seconds per item
-        return format_eta((total - done) * pace)
+        if done >= total:
+            return ""
+        if done < self.MIN_SAMPLES:
+            return "estimating…"
+        elapsed = now - self.t0
+        if elapsed <= 0:
+            return "estimating…"
+        return format_eta((total - done) * (elapsed / done))
 
     def note(self, msg: str):
         """Show what this stage is doing without adding a separate line."""

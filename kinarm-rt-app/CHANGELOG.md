@@ -2,6 +2,61 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.0] — 2026-07-22
+
+### Verified — the vincentile figures are correct, including the dip below zero
+
+The corrected figures cross below zero in the first bin or two. That is what the
+pipeline script produces as well: the difference is taken per trial, and on some
+trials the saccade is slower than the hand, so the fastest vincentile bin can be
+negative. Checked against the script's own algorithm on five independently
+simulated datasets, where the reference implementation itself returns first-bin
+means between -35 ms and +4 ms depending on the data. Agreement is exact
+(worst deviation 5.7e-14 ms, which is floating-point noise), so the match is
+structural rather than a property of one file.
+
+Filter boundaries were confirmed inclusive on both ends, matching the script's
+`>=` and `<=`, and the four figures' layout, colours, error bars and captions were
+compared line by line against the original.
+
+### Changed — reproducibility is now enforced rather than assumed
+
+- Trial identity uses a positional counter instead of the source row index, so the
+  hand-eye link holds even if a caller passes a frame whose index repeats.
+- The two participants shown in the reciprobit figure were picked by sorting on fit
+  quality and express fraction alone, so a tie could resolve differently depending
+  on row order. Participant id is now a secondary sort key, with a stable sort.
+- The jitter on the non-decision-time and LATER latency dots was assigned in
+  whatever order rows arrived. It now follows a fixed participant order, so the
+  same data always draws the same figure.
+
+A test shuffles every input row and requires that no fitted number and no figure
+input moves.
+
+### Changed — progress that reflects the actual work
+
+The saccade selection ran a cheap single fit and, where that failed, an expensive
+two-component fit, cell by cell. In real data the cells needing two components are
+clustered rather than spread out -- in the published table, three of the first
+twenty-four and thirteen of the last twenty-four -- so the pace over the early
+cells said nothing about the rest, and any estimate from it was wrong by a factor
+of two. The previous release papered over this by withholding the estimate whenever
+the pace looked unsteady, which is why it often showed nothing at all.
+
+The work is now split into two passes: every cell gets a single fit, then only the
+failures get a two-component fit. Same fits, same acceptance rule, same results --
+verified cell by cell -- but each pass costs about the same per cell, so the count
+and the estimate mean what they appear to mean. On the sample data the estimate is
+accurate from the third cell onwards.
+
+### Added — the page follows along
+
+Opening a new step scrolls it into view rather than leaving it below the fold. The
+position is corrected until the heading settles about 84 pixels from the top, since
+the step above collapses and the new one keeps rendering for a moment after it
+appears. It fires once per step, so the view is never pulled away while reading or
+adjusting something higher up.
+
 ## [1.6.0] — 2026-07-22
 
 ### Fixed — the vincentile difference figures were computing the wrong quantity

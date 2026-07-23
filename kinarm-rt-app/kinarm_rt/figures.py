@@ -215,7 +215,10 @@ def _ndt_panel(ax, units_df, effector, floor_ms, group=None):
     rng = np.random.default_rng(0)
     all_vals = []
     for c in range(len(SPEEDS)):
-        vals = units_df[units_df["condition"] == c]["t0_ms"].values.astype(float)
+        sub_c = units_df[units_df["condition"] == c]
+        if "participant" in sub_c.columns:      # fixed order -> fixed jitter
+            sub_c = sub_c.sort_values("participant", kind="mergesort")
+        vals = sub_c["t0_ms"].values.astype(float)
         if not vals.size:
             continue
         all_vals.append(vals)
@@ -416,10 +419,16 @@ def reciprobit(later_result: dict, df_eye: pd.DataFrame):
         ax.axis("off"); ax.text(0.5, 0.5, "Not enough saccadic data for LATER.", ha="center")
         return fig
 
-    reg_pool = pp[pp["express_frac"] < 0.05].sort_values("reciprobit_r2", ascending=False)
+    # Which two participants are shown must not depend on row order. Sorting on the
+    # participant id as a secondary key makes ties break the same way on every run
+    # and on every machine, which is what makes the figure reproducible.
+    pp = pp.sort_values("participant", kind="mergesort")
+    reg_pool = pp[pp["express_frac"] < 0.05].sort_values(
+        "reciprobit_r2", ascending=False, kind="mergesort")
     regular = (reg_pool.iloc[0] if len(reg_pool)
-               else pp.sort_values("express_frac").iloc[0])["participant"]
-    express = pp.sort_values("express_frac", ascending=False).iloc[0]["participant"]
+               else pp.sort_values("express_frac", kind="mergesort").iloc[0])["participant"]
+    express = pp.sort_values("express_frac", ascending=False,
+                             kind="mergesort").iloc[0]["participant"]
 
     fig, ax = plt.subplots(1, 3, figsize=(16, 5.2))
     _reciprobit_panel(ax[0], df_eye, regular, f"Regular saccades ({regular})\nlatencies fall on a straight line")
@@ -430,7 +439,10 @@ def reciprobit(later_result: dict, df_eye: pd.DataFrame):
 
     rng = np.random.default_rng(0)
     for c in range(len(SPEEDS)):
-        vals = per_cell[per_cell["condition"] == c]["median_lat_ms"].values.astype(float)
+        pc = per_cell[per_cell["condition"] == c]
+        if "participant" in pc.columns:         # fixed order -> fixed jitter
+            pc = pc.sort_values("participant", kind="mergesort")
+        vals = pc["median_lat_ms"].values.astype(float)
         if not vals.size:
             continue
         m, sd = vals.mean(), (vals.std(ddof=1) if vals.size > 1 else 0.0)
