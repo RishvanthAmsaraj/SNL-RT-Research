@@ -130,7 +130,12 @@ def load_trials(
             if col and col in df.columns:
                 f = pd.DataFrame({"participant": part, "effector": eff,
                                   "condition": cond, "speed": speed,
-                                  "rt": _to_seconds(df[col], rt_units)})
+                                  "rt": _to_seconds(df[col], rt_units),
+                                  # the source row is the trial: the hand and eye
+                                  # measurements on one row come from the same trial,
+                                  # and keeping that link is what lets paired analyses
+                                  # (the vincentile differences) match the pipeline
+                                  "trial": df.index.to_numpy()})
                 frames.append(f)
     else:                                              # long format
         if effector_col and effector_col in df.columns:
@@ -141,12 +146,13 @@ def load_trials(
             raise ValueError("Long format needs effector_col or effector_value.")
         frames.append(pd.DataFrame({"participant": part, "effector": eff_series,
                                     "condition": cond, "speed": speed,
-                                    "rt": _to_seconds(df[rt_col], rt_units)}))
+                                    "rt": _to_seconds(df[rt_col], rt_units),
+                                    "trial": df.index.to_numpy()}))
 
     out = pd.concat(frames, ignore_index=True)
     out = out.dropna(subset=["rt", "condition"]).reset_index(drop=True)
     out["condition"] = out["condition"].astype(int)
-    return out[["participant", "effector", "condition", "speed", "rt"]]
+    return out[["participant", "effector", "condition", "speed", "rt", "trial"]]
 
 
 # --------------------------------------------------------------------------- #

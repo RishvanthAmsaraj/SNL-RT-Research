@@ -469,21 +469,42 @@ def _vincentiles(rts, nbins=_NBINS):
 
 
 def _vincentile_shift(df):
-    """Per speed: (n_participants x nbins) array of hand-minus-eye vincentile differences.
+    """Per speed: (n_participants x nbins) array of vincentized HRT-SRT differences.
 
-    The tidy table carries no trial id, so hand and eye cannot be paired within a
-    trial; instead each effector is vincentized per participant and the vincentiles
-    are differenced (the standard vincentile shift function). Same quantity by bin.
+    This is the pipeline's quantity, from vincentile_figures.py: the difference is
+    taken *per trial* -- hand minus eye on the same trial, keeping only trials where
+    both measurements survived their own filter window -- and those per-trial
+    differences are then vincentized. Sorting happens on the differences.
+
+    That is not the same as vincentizing each effector and subtracting the results,
+    which sorts the two effectors independently and pairs the slowest hand trial
+    with the slowest eye trial. Both are defensible summaries, but they produce
+    visibly different curves, and only the first matches the published figures.
+
+    Falls back to the subtract-the-vincentiles form only when trial identity is
+    absent (a long-format file with no way to link the two effectors).
     """
     out = {}
+    paired = "trial" in df.columns
     for c in range(len(SPEEDS)):
         rows = []
         sub = df[df["condition"] == c]
         for pid, g in sub.groupby("participant"):
-            hv = _vincentiles(g[g["effector"] == "hand"]["rt"].values * 1000.0)
-            ev = _vincentiles(g[g["effector"] == "eye"]["rt"].values * 1000.0)
-            if hv is not None and ev is not None:
-                rows.append(hv - ev)
+            h = g[g["effector"] == "hand"]
+            e = g[g["effector"] == "eye"]
+            if paired:
+                m = h[["trial", "rt"]].merge(e[["trial", "rt"]], on="trial",
+                                             suffixes=("_h", "_e"))
+                if len(m) < _NBINS:
+                    continue
+                v = _vincentiles((m["rt_h"].values - m["rt_e"].values) * 1000.0)
+                if v is not None:
+                    rows.append(v)
+            else:
+                hv = _vincentiles(h["rt"].values * 1000.0)
+                ev = _vincentiles(e["rt"].values * 1000.0)
+                if hv is not None and ev is not None:
+                    rows.append(hv - ev)
         out[c] = np.array(rows)
     return out
 

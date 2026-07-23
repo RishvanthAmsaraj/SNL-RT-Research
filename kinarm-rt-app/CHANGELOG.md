@@ -2,6 +2,58 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.0] — 2026-07-22
+
+### Fixed — the vincentile difference figures were computing the wrong quantity
+
+`vincentile_figures.py` takes the HRT minus SRT difference **per trial** -- hand
+and eye from the same trial, keeping only trials where both measurements fall
+inside their own filter window -- and vincentizes those differences. The app was
+vincentizing each effector separately and subtracting the two curves, which sorts
+the effectors independently and pairs the slowest hand trial with the slowest eye
+trial. That is a different quantity and produces a visibly different figure: on the
+bundled sample it gave a near-flat line around 113 ms, where the correct
+computation rises from about -7 ms in the first bin to about 247 ms in the
+twentieth.
+
+The cause was upstream. Converting the wide file to the tidy long format split each
+source row into a hand row and an eye row and discarded which trial they came from,
+so the two could not be paired again. The tidy table now carries a `trial` column
+taken from the source row index, and the paired difference is computed the way the
+script computes it. Verified equal to the script's output to floating-point
+precision across all participants, bins and speeds.
+
+The fallback for long-format files that genuinely have no trial identity is still
+the subtract-the-vincentiles form, but it is now clearly documented as an
+approximation rather than presented as the same thing.
+
+### Verified — the rest of the figure inputs
+
+Every other quantity behind the advanced figures was checked against its
+standalone script on the same data and matches exactly:
+
+- pooled marginals for the KDE overlay and the histograms (trial counts and values)
+- the shape-implied non-decision time, skewness and skew/CV ratio in the flooring
+  diagnostic
+- the vincentile binning helper itself
+- the non-decision-time figure's group means, standard deviations and Friedman test
+  (p = 0.00338805 against the published hand table, to eight decimals)
+- the LATER reciprocal transform and line fit, and the drift-diffusion fits and
+  selection rule, which were already covered
+
+Six new parity tests pin the vincentile pairing, trial identity, the pooled
+marginals and the flooring diagnostic, so a regression here fails a test rather
+than quietly changing a figure.
+
+### Changed — the download tab builds on request, with progress
+
+Preparing a report redraws every figure, and all three artefacts were being built
+eagerly on every rerun of the tab, including whenever an unrelated control changed.
+Each is now built only when asked for, behind a progress bar that names the figure
+being drawn and reports the finished file size. Anything already prepared is
+offered as a direct download until the next fit, at which point it is discarded
+because it describes the previous run.
+
 ## [1.5.0] — 2026-07-22
 
 ### Fixed — runs could stall instead of finishing

@@ -21,7 +21,7 @@ import pytest
 from scipy import stats
 from scipy.optimize import differential_evolution, minimize
 
-from kinarm_rt import data, filters
+from kinarm_rt import data, filters, figures
 from kinarm_rt._speeds import (SPEEDS, PHYSIO_FLOOR, FILTER_WINDOWS, V_MAX, A_MAX,
                                P_CONTAM, MIX_SHIFT_FLOOR)
 from kinarm_rt.models import wald as W
@@ -411,3 +411,131 @@ def test_two_component_is_not_the_same_as_express():
     assert truly_express < len(mx), (
         "if every fast component were under the express cutoff the wording could "
         "safely say 'express'; it is not, so it must not")
+
+
+# --------------------------------------------------------------------------- #
+# Figure inputs against the standalone figure scripts
+# --------------------------------------------------------------------------- #
+def _ref_paired_diffs(path, nbins=20):
+    """Vincentized per-trial HRT-SRT differences, copied from vincentile_figures.py."""
+    d = pd.read_csv(path)
+    d = d[d["BlockType"] == "I"]
+    out = {}
+    for s in (0, 75, 150):
+        z = d[d["Speed_deg_per_s"] == s]
+        rows = []
+        for _pid, g in z.groupby("Participant"):
+            h = g["HandRT_ms"].values.astype(float)
+            r = g["GazeSRT_ms"].values.astype(float)
+            ok = ((~np.isnan(h)) & (~np.isnan(r)) & (h >= 150) & (h <= 800)
+                  & (r >= 80) & (r <= 600))
+            dif = np.sort(h[ok] - r[ok])
+            if len(dif) < nbins:
+                continue
+            idx = np.linspace(0, len(dif), nbins + 1).astype(int)
+            rows.append(np.array([dif[idx[i]:idx[i + 1]].mean() for i in range(nbins)]))
+        out[s] = np.array(rows)
+    return out
+
+
+@pytest.fixture(scope="module")
+def sample_kept():
+    """The bundled example dataset, loaded and filtered the way the app does."""
+    import os
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "sample_data", "example_pooled_data.csv")
+    if not os.path.exists(path):
+        pytest.skip("bundled sample data not found")
+    raw = data.read_table(path)
+    tidy = data.load_trials(raw, participant_col="Participant",
+                            hand_rt_col="HandRT_ms", eye_rt_col="GazeSRT_ms",
+                            speed_col="Speed_deg_per_s",
+                            blocktype_col="BlockType", blocktype_keep="I", rt_units="ms")
+    kept, _ = filters.apply_windows(tidy, FILTER_WINDOWS)
+    return path, kept
+
+
+def test_trial_identity_survives_reshaping(sample_kept):
+    """
+    Hand and eye measurements from one trial must stay linked.
+
+    The wide-to-long conversion splits each source row into a hand row and an eye
+    row. Without a trial column there is no way to pair them again, and the paired
+    vincentile difference below cannot be computed at all.
+    """
+    _path, kept = sample_kept
+    assert "trial" in kept.columns
+    h = kept[kept.effector == "hand"][["participant", "condition", "trial"]]
+    e = kept[kept.effector == "eye"][["participant", "condition", "trial"]]
+    paired = h.merge(e, on=["participant", "condition", "trial"])
+    # pairing keeps only trials where both measurements survived their own window,
+    # so it cannot exceed either effector's count, and should be close to both
+    assert 0 < len(paired) <= min(len(h), len(e))
+    assert len(paired) > 0.9 * min(len(h), len(e))
+
+
+def test_vincentile_differences_match_the_script(sample_kept):
+    """
+    The HRT-SRT vincentiles must reproduce vincentile_figures.py exactly.
+
+    The difference is taken per trial and those differences are then vincentized.
+    Vincentizing each effector separately and subtracting the results is a
+    different quantity -- it pairs the slowest hand trial with the slowest eye
+    trial -- and gives a visibly different curve.
+    """
+    path, kept = sample_kept
+    ref = _ref_paired_diffs(path)
+    got = figures._vincentile_shift(kept)
+    for i, s in enumerate((0, 75, 150)):
+        assert ref[s].shape == got[i].shape, f"{s} deg/s: participant count differs"
+        r = ref[s][np.lexsort(ref[s].T)]
+        a = got[i][np.lexsort(got[i].T)]
+        assert np.abs(r - a).max() < 1e-9, f"{s} deg/s: vincentile values differ"
+
+
+def test_vincentile_curve_rises_across_bins(sample_kept):
+    """
+    A sanity check on shape, independent of the reference above.
+
+    Per-trial differences span from fast-hand/slow-eye trials to slow-hand/fast-eye
+    trials, so the vincentized curve climbs steeply across bins. The subtract-the-
+    vincentiles form is far flatter, so this would catch a silent revert.
+    """
+    _path, kept = sample_kept
+    got = figures._vincentile_shift(kept)
+    for i in range(3):
+        mean_curve = got[i].mean(0)
+        assert mean_curve[-1] - mean_curve[0] > 100, "curve is too flat to be paired"
+        assert mean_curve[-1] > mean_curve[len(mean_curve) // 2] > mean_curve[0]
+
+
+def test_pooled_marginals_match_the_script(sample_kept):
+    """KDE overlay and histograms pool the same trials the script pools."""
+    path, kept = sample_kept
+    d = pd.read_csv(path)
+    d = d[d["BlockType"] == "I"]
+    for i, s in enumerate((0, 75, 150)):
+        z = d[d["Speed_deg_per_s"] == s]
+        for eff, col, lo, hi in (("hand", "HandRT_ms", 150, 800),
+                                 ("eye", "GazeSRT_ms", 80, 600)):
+            v = z[col].values.astype(float)
+            ref = np.sort(v[(~np.isnan(v)) & (v >= lo) & (v <= hi)])
+            got = np.sort(figures._rt_ms(kept, eff, i))
+            assert len(ref) == len(got), f"{eff} {s}: trial count differs"
+            assert np.abs(ref - got).max() < 1e-9
+
+
+def test_shape_implied_t0_matches_the_script(sample_kept):
+    """why_saccadic_t0_floors.py: implied t0 = mean - 3*SD/skew, on filtered trials."""
+    from scipy.stats import skew
+    path, kept = sample_kept
+    d = pd.read_csv(path)
+    d = d[d["BlockType"] == "I"]
+    for eff, col, lo, hi in (("hand", "HandRT_ms", 150, 800),
+                             ("eye", "GazeSRT_ms", 80, 600)):
+        v = d[col].values.astype(float)
+        v = v[(~np.isnan(v)) & (v >= lo) & (v <= hi)]
+        ref = v.mean() - 3 * v.std() / skew(v)
+        a = figures._rt_ms(kept, eff)
+        a = a[np.isfinite(a)]
+        assert abs(ref - (a.mean() - 3 * a.std() / skew(a))) < 1e-9
