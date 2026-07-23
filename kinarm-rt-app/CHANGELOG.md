@@ -2,6 +2,56 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] — 2026-07-22
+
+### Fixed — figures were rendering at their natural size
+
+The rule that fits an expanded figure to the viewport was written against
+`[data-testid="stFullScreenFrame"] img`. That wrapper is present whether or not a
+figure is expanded, so `width: auto !important` also applied inline and overrode
+`use_container_width`: a 1400-pixel-wide PNG rendered at 1400 pixels inside a
+960-pixel card and spilled out of it. The viewport-fitting rules are now scoped
+with `:has(button[aria-label="Close fullscreen"])`, which matches only the frame
+that is actually expanded. Inline figures are pinned to the column width.
+
+Expanded figures were also capped at their in-page width, because the wrappers
+between the frame and the image keep their column sizing; those are released in
+the expanded state so the figure uses the viewport (about 1400 x 505 in a
+1500 x 950 window, against 882 wide inline).
+
+The minimise control is 44 x 44 with a larger icon **in the expanded state only**.
+Enlarging it inline is what previously pushed it out from under its own toolbar and
+stopped clicks reaching it.
+
+Display resolution dropped from 150 to 110 dpi. At typical column widths that is
+still about twice the displayed pixel size, and a tab holding a dozen figures no
+longer ships several megabytes of PNG. Exported figures are unaffected — those are
+written at 300 dpi.
+
+### Fixed — no repeated work in Method B
+
+Method B ran the single-versus-two-component selection twice: once while deciding
+which cells need two components, and again in the Method A cross-check that
+follows. `fit_effector` now returns the selection it computed and `mle_preview`
+accepts it, which removes the most expensive step of the run from the second pass.
+Verified to give identical parameters, KS and model choice.
+
+### Changed — progress reporting
+
+Every stage of a run is listed before any of it starts, each with its own bar, plus
+an overall bar counting completed stages and elapsed time. Previously some stages
+had bars and others were plain text lines written between them, and the LATER stage
+created a bar it never updated, so it jumped straight from "starting" to "done".
+Status messages from the sampler now update their own stage's bar rather than
+appearing as separate lines.
+
+### Changed — spacing in the results section
+
+The results section holds seven tabs, each a stack of figures, tables and captions.
+The tab strip is now separated from its panel by a rule and more padding, stacked
+figures have room between them, and headings, tables and expanders have consistent
+margins.
+
 ## [1.3.0] — 2026-07-22
 
 ### Fixed — the minimise control in fullscreen

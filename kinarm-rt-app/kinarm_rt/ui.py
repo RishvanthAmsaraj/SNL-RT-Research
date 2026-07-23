@@ -217,10 +217,27 @@ footer{ visibility:hidden; }
   background:linear-gradient(135deg,var(--kx-primary),var(--kx-primary-2)) !important;
   box-shadow:none !important; border-bottom:none !important; }
 .stTabs [data-testid="stTab"] [data-testid="stMarkdownContainer"] p{ font-weight:600; margin:0; }
-/* consistent breathing room inside the results tabs */
-.stTabs [data-testid="stTabPanel"]{ padding-top:16px; }
-.stTabs [data-testid="stTabPanel"] h4{ margin:.5rem 0 .1rem !important; font-size:16px; }
-.stTabs [data-testid="stTabPanel"] [data-testid="stCaptionContainer"]{ margin-bottom:.2rem; }
+/* Breathing room inside the results tabs.
+   Section 4 holds seven tabs, each with a stack of figures, tables and captions.
+   Without explicit rhythm the panels read as one dense block, so the tab strip is
+   separated from its content, figures are spaced from each other, and headings get
+   room above them. */
+.stTabs [role="tablist"]{ gap:8px; padding:0 0 10px; margin-bottom:6px;
+  border-bottom:1px solid var(--kx-line) !important; }
+.stTabs [data-testid="stTabPanel"]{ padding-top:22px; padding-bottom:8px; }
+.stTabs [data-testid="stTabPanel"] h4{ margin:1.1rem 0 .35rem !important; font-size:16px; }
+.stTabs [data-testid="stTabPanel"] [data-testid="stCaptionContainer"]{ margin-bottom:.45rem; }
+/* space between stacked figures, and between a figure and whatever follows it */
+.stTabs [data-testid="stTabPanel"] [data-testid="stImage"]{ margin:10px 0 26px; }
+.stTabs [data-testid="stTabPanel"] [data-testid="stImage"] + [data-testid="stImage"]{
+  margin-top:4px; }
+/* tables and expanders inside a tab get the same rhythm */
+.stTabs [data-testid="stTabPanel"] [data-testid="stDataFrame"]{ margin-bottom:20px; }
+.stTabs [data-testid="stTabPanel"] [data-testid="stExpander"]{ margin:6px 0 20px; }
+.stTabs [data-testid="stTabPanel"] .kx-eyebrow{ margin-top:22px; }
+.stTabs [data-testid="stTabPanel"] > div > div > [data-testid="stVerticalBlock"]{ gap:.55rem; }
+/* the buttons in Advanced / Download sit closer to what they produce */
+.stTabs [data-testid="stTabPanel"] [data-testid="stButton"]{ margin-bottom:10px; }
 /* remove the sliding/underline indicators (the active tab is a filled pill instead) */
 .stTabs [role="tablist"]::after, .stTabs [role="tablist"]::before{ display:none !important; }
 .stTabs .react-aria-SelectionIndicator{ display:none !important; }
@@ -293,13 +310,45 @@ button[aria-label="Close fullscreen"]:hover{
 button[aria-label="Fullscreen"]:hover svg,
 button[aria-label="Close fullscreen"]:hover svg{ color:#fff !important; }
 
-/* In fullscreen, fit the figure to the viewport instead of letting it render at
-   its natural pixel size, which overflowed and made the scaling look wrong. */
+/* In fullscreen the control is the only thing on screen besides the figure, and
+   there is nothing beneath it to intercept clicks, so it can be made properly
+   large and obvious. It is deliberately NOT enlarged inline: forcing a bigger box
+   there pushed the button out from under its own toolbar and clicks stopped
+   landing on it, which is what left Escape as the only way out. */
+[data-testid="stFullScreenFrame"]:has(button[aria-label="Close fullscreen"])
+  [data-testid="stElementToolbar"]{
+  position:fixed !important; top:16px !important; right:20px !important; }
+button[aria-label="Close fullscreen"]{
+  width:44px !important; height:44px !important; padding:10px !important;
+  border-radius:12px !important; border-width:1.5px !important; }
+button[aria-label="Close fullscreen"] svg{ width:22px !important; height:22px !important; }
+
+/* Inline figures fill the column and never exceed it. The frame wrapper below is
+   present whether or not a figure is expanded, so any sizing rule written against
+   it alone also applies inline -- which is what let a 2400px-wide PNG render at its
+   natural size and overflow the section card. */
+[data-testid="stImage"] img,
 [data-testid="stFullScreenFrame"] img{
+  max-width:100% !important; height:auto !important; display:block; }
+
+/* Only the expanded figure is fitted to the viewport. The expanded frame is the one
+   holding a "Close fullscreen" button, so this cannot leak to the inline state. */
+[data-testid="stFullScreenFrame"]:has(button[aria-label="Close fullscreen"]) img{
   border-radius:8px; box-shadow:none; border:none;
-  max-width:calc(100vw - 32px) !important; max-height:calc(100vh - 32px) !important;
+  max-width:calc(100vw - 96px) !important; max-height:calc(100vh - 96px) !important;
   width:auto !important; height:auto !important;
-  object-fit:contain; margin:0 auto; display:block; }
+  object-fit:contain; margin:0 auto; }
+/* give the expanded figure a calm backdrop and room for the close control */
+[data-testid="stFullScreenFrame"]:has(button[aria-label="Close fullscreen"]){
+  background:var(--kx-bg) !important; padding:48px 24px 24px !important;
+  display:flex !important; align-items:center; justify-content:center; }
+/* the wrappers between the frame and the image keep their inline column width,
+   which would cap the expanded figure at its in-page size -- release them so the
+   figure can actually use the viewport */
+[data-testid="stFullScreenFrame"]:has(button[aria-label="Close fullscreen"]) > div,
+[data-testid="stFullScreenFrame"]:has(button[aria-label="Close fullscreen"]) [data-testid="stImage"]{
+  width:100% !important; max-width:none !important;
+  display:flex !important; align-items:center; justify-content:center; }
 
 /* ---------- dataframes / tables ---------- */
 [data-testid="stDataFrame"], [data-testid="stTable"]{ border-radius:12px; overflow:hidden;
@@ -414,12 +463,19 @@ class StepBar:
     def __init__(self, container, label: str, unit: str = "cells"):
         import time
         self._time = time
-        self.t0 = time.time()
+        self.t0 = None                      # started on the first update
         self.label = label
         self.unit = unit
-        self.bar = container.progress(0.0, text=f"{label} — starting…")
+        self.done = False
+        self.bar = container.progress(0.0, text=f"{label} — waiting")
+
+    def start(self, note: str = ""):
+        self.t0 = self._time.time()
+        self.bar.progress(0.0, text=f"{self.label} — running{('  ·  ' + note) if note else ''}")
 
     def __call__(self, done: int, total: int):
+        if self.t0 is None:
+            self.start()
         frac = (done / total) if total else 1.0
         elapsed = self._time.time() - self.t0
         eta = (elapsed / done) * (total - done) if done else None
@@ -428,7 +484,69 @@ class StepBar:
                           text=f"{self.label} — {done}/{total} {self.unit}"
                                + (f"  ·  {tail}" if tail else ""))
 
+    def note(self, msg: str):
+        """Show what this stage is doing without adding a separate line."""
+        if self.done:
+            return
+        if self.t0 is None:
+            self.start()
+        self.bar.progress(0.0, text=f"{self.label} — {msg}")
+
     def finish(self, note: str = ""):
+        if self.t0 is None:
+            self.t0 = self._time.time()
         elapsed = int(round(self._time.time() - self.t0))
+        self.done = True
         self.bar.progress(1.0, text=f"{self.label} — done in {elapsed}s"
                                     + (f"  ·  {note}" if note else ""))
+
+    def fail(self, msg: str = ""):
+        self.done = True
+        self.bar.progress(1.0, text=f"{self.label} — failed{('  ·  ' + msg) if msg else ''}")
+
+
+class RunProgress:
+    """
+    Progress for a whole run: every stage is listed up front, each with its own bar.
+
+    Listing the stages before any of them starts means the panel shows what the run
+    consists of and which part is currently moving, rather than lines appearing one
+    at a time with bars against some of them and not others.
+    """
+
+    def __init__(self, container, stages: list[tuple[str, str]]):
+        import time
+        self._time = time
+        self.t0 = time.time()
+        self.container = container
+        self.overall = container.progress(0.0, text=f"0 of {len(stages)} stages complete")
+        self.n = len(stages)
+        self.bars = {}
+        for key, label in stages:
+            unit = "cells"
+            if key.startswith("later"):
+                unit = "participants"
+            elif key.startswith("bayes"):
+                unit = "steps"
+            self.bars[key] = StepBar(container, label, unit=unit)
+
+    def __getitem__(self, key):
+        return self.bars[key]
+
+    def _refresh(self):
+        done = sum(1 for b in self.bars.values() if b.done)
+        elapsed = int(round(self._time.time() - self.t0))
+        self.overall.progress(done / self.n if self.n else 1.0,
+                              text=f"{done} of {self.n} stages complete  ·  {elapsed}s elapsed")
+
+    def finish_stage(self, key, note: str = ""):
+        self.bars[key].finish(note)
+        self._refresh()
+
+    def fail_stage(self, key, msg: str = ""):
+        self.bars[key].fail(msg)
+        self._refresh()
+
+    def finish(self):
+        elapsed = int(round(self._time.time() - self.t0))
+        self.overall.progress(1.0, text=f"All {self.n} stages complete  ·  {elapsed}s total")

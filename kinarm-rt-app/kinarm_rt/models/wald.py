@@ -314,7 +314,8 @@ def map_cells(items, n_jobs: int = -1, progress=None):
 
 
 def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
-                use_mixture: bool = True, n_jobs: int = -1, progress=None) -> dict:
+                use_mixture: bool = True, n_jobs: int = -1, progress=None,
+                selection: dict | None = None) -> dict:
     """
     Per-cell maximum-likelihood fit across participant x speed cells (no sampling).
 
@@ -336,7 +337,17 @@ def mle_preview(df: pd.DataFrame, effector: str, contamination: float = 0.0,
             continue
         items.append(((p, int(c)), rt, floor, contamination, mode))
 
-    fits = map_cells(items, n_jobs=n_jobs, progress=progress)
+    # Method B already ran this selection while deciding which cells need two
+    # components. Reusing it avoids repeating the most expensive step of the run.
+    if selection:
+        fits = {k: selection[k] for (k, *_ ) in items if k in selection}
+        missing = [it for it in items if it[0] not in fits]
+        if progress:
+            progress(len(fits), len(items))
+        if missing:
+            fits.update(map_cells(missing, n_jobs=n_jobs, progress=progress))
+    else:
+        fits = map_cells(items, n_jobs=n_jobs, progress=progress)
     rows = []
     for (p, c), sel in fits.items():
         if sel["model"] == "mixture":
@@ -508,6 +519,7 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
     sub = df[df["effector"] == effector]
 
     unit_rows, mixture_rows = [], []
+    selection = {}
     idata_store = {}
     rhats, divs = [], []
 
@@ -644,7 +656,8 @@ def fit_effector(df: pd.DataFrame, effector: str, draws=1000, tune=1000, chains=
     max_rhat = float(max(rhats)) if rhats else float("nan")
     n_div = int(sum(divs))
     converged = bool(rhats) and max_rhat < 1.01 and n_div == 0
-    return {"effector": effector, "units": units_df, "group": group,
+    return {"effector": effector, "selection": selection if effector != "hand" else {},
+            "units": units_df, "group": group,
             "mixture": pd.DataFrame(mixture_rows), "idata": idata_store,
             "convergence": {"max_rhat": max_rhat, "n_divergences": n_div,
                             "converged": converged}}

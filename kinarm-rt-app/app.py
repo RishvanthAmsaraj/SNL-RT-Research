@@ -61,7 +61,10 @@ def show_fig(fig):
     import matplotlib.pyplot as plt
     try:
         buf = io.BytesIO()
-        fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+        # 110 dpi keeps figures crisp at typical column widths (still about
+        # twice the displayed pixel size) without shipping several megabytes
+        # of PNG to the browser for a tab holding a dozen of them.
+        fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
         buf.seek(0)
         st.image(buf, use_container_width=True)
     except Exception as e:
@@ -330,54 +333,71 @@ if SS.filtered is not None:
         if st.button("Run analysis", type="primary", disabled=not chosen):
             results, errors = {}, []
             is_method_a = bool(mode and mode.startswith("Method A"))
-            box = st.status("Running…", expanded=True)
             n_jobs = wald.default_jobs()
+
+            # Lay out every stage before any of them starts, so the panel shows what
+            # the run consists of and which part is moving.
+            stages = []
+            if "eye" in chosen:
+                stages.append(("later", "LATER model — saccades"))
+            for eff in chosen:
+                name = "hand" if eff == "hand" else "saccade"
+                if is_method_a:
+                    stages.append((f"a_{eff}", f"Method A — {name}"))
+                else:
+                    stages.append((f"bayes_{eff}", f"Method B sampling — {name}"))
+                    stages.append((f"a_{eff}", f"Method A cross-check — {name}"))
+
+            box = st.status(f"Running {len(stages)} stages…", expanded=True)
             if n_jobs > 1:
-                box.write(f"Using {n_jobs} cores — cells are fitted independently, "
-                          f"so this does not change any result.")
+                box.caption(f"Fitting across {n_jobs} cores. Cells are independent and "
+                            f"seeded individually, so this does not change any result.")
+            prog = ui.RunProgress(box, stages)
 
             if "eye" in chosen:
                 try:
-                    lb = ui.StepBar(box, "LATER (saccades)", unit="participants")
+                    prog["later"].note("fitting reciprobit lines")
                     SS.later = later.fit_later(kept[kept.effector == "eye"])
-                    lb.finish()
+                    npp = len(SS.later.get("per_participant", []))
+                    prog.finish_stage("later", f"{npp} participants" if npp else "")
                 except Exception as e:
+                    prog.fail_stage("later", str(e)[:60])
                     errors.append(f"LATER: {e}")
 
-            if is_method_a:
-                for eff in chosen:
+            for eff in chosen:
+                if not is_method_a:
                     try:
-                        bar = ui.StepBar(box, f"Method A — {eff}")
-                        prev = wald.mle_preview(kept, eff, contamination,
-                                                use_mixture=use_mixture,
+                        bar = prog[f"bayes_{eff}"]
+                        res = wald.fit_effector(kept, eff, draws=draws, tune=tune, chains=chains,
+                                                cores=1, contamination=contamination,
+                                                use_mixture=use_mixture, status=bar.note,
                                                 n_jobs=n_jobs, progress=bar)
-                        nmix = int((prev["cell"]["model"] == "mixture").sum()) \
-                            if len(prev["cell"]) else 0
-                        bar.finish(f"{nmix} cells needed two components" if nmix else "")
+                        prog.finish_stage(f"bayes_{eff}")
+                        results[eff] = res
+                    except Exception as e:
+                        prog.fail_stage(f"bayes_{eff}", str(e)[:60])
+                        errors.append(f"{eff} Bayesian fit: {e}")
+                try:
+                    bar = prog[f"a_{eff}"]
+                    prev = wald.mle_preview(kept, eff, contamination, use_mixture=use_mixture,
+                                            n_jobs=n_jobs, progress=bar,
+                                            selection=(results.get(eff) or {}).get("selection"))
+                    nmix = int((prev["cell"]["model"] == "mixture").sum()) if len(prev["cell"]) else 0
+                    prog.finish_stage(f"a_{eff}",
+                                      f"{nmix} cells needed two components" if nmix else "")
+                    if is_method_a:
                         results[eff] = {"effector": eff, "preview": prev, "units": pd.DataFrame(),
                                         "group": prev["group"].assign(t0_floor_ms=prev["floor_ms"]),
                                         "mixture": pd.DataFrame(), "convergence": {}}
-                    except Exception as e:
-                        errors.append(f"{eff} Method A: {e}")
-            else:
-                for eff in chosen:
-                    try:
-                        sbar = ui.StepBar(box, f"Method B — {eff}", unit="steps")
-                        res = wald.fit_effector(kept, eff, draws=draws, tune=tune, chains=chains,
-                                                cores=1, contamination=contamination,
-                                                use_mixture=use_mixture, status=box.write,
-                                                n_jobs=n_jobs, progress=sbar)
-                        sbar.finish()
-                        pbar = ui.StepBar(box, f"Method A cross-check — {eff}")
-                        res["preview"] = wald.mle_preview(kept, eff, contamination,
-                                                          use_mixture=use_mixture,
-                                                          n_jobs=n_jobs, progress=pbar)
-                        pbar.finish()
-                        res["gof"] = diagnostics.goodness_of_fit(kept, eff, res["units"])
-                        results[eff] = res
-                    except Exception as e:
-                        errors.append(f"{eff} Bayesian fit: {e}")
+                    elif eff in results:
+                        results[eff]["preview"] = prev
+                        results[eff]["gof"] = diagnostics.goodness_of_fit(kept, eff,
+                                                                         results[eff]["units"])
+                except Exception as e:
+                    prog.fail_stage(f"a_{eff}", str(e)[:60])
+                    errors.append(f"{eff} Method A: {e}")
 
+            prog.finish()
             box.update(label="Analysis complete" if not errors else "Finished with errors",
                        state="complete" if not errors else "error", expanded=False)
             SS.results = results
