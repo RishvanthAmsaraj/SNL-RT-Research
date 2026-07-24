@@ -14,6 +14,7 @@ reciprobit model for saccades.
 
 from __future__ import annotations
 
+import io
 import os
 
 import pandas as pd
@@ -51,31 +52,95 @@ def _reset_downstream():
         SS.pop(k, None)
 
 
-def show_fig(fig):
-    """Render a Matplotlib figure as a PNG image and close it.
-
-    Using st.image (a core element) rather than st.pyplot avoids a frontend
-    module-loading error some setups hit after long runs, and closing the figure
-    keeps memory flat across many reruns. A render failure degrades to a caption
-    rather than breaking the page.
+def fig_to_png(fig) -> bytes:
     """
-    import io
+    Render a Matplotlib figure to PNG bytes and release it.
+
+    PNG through st.image rather than st.pyplot avoids a frontend module-loading
+    error some setups hit after long runs, and closing the figure keeps memory flat
+    across many reruns. 110 dpi stays crisp at typical column widths -- still about
+    twice the displayed pixel size -- without shipping megabytes to the browser.
+    """
     import matplotlib.pyplot as plt
     try:
         buf = io.BytesIO()
-        # 110 dpi keeps figures crisp at typical column widths (still about
-        # twice the displayed pixel size) without shipping several megabytes
-        # of PNG to the browser for a tab holding a dozen of them.
         fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
-        buf.seek(0)
-        st.image(buf, use_container_width=True)
-    except Exception as e:
-        st.caption(f"(figure could not be displayed: {e})")
+        return buf.getvalue()
     finally:
         try:
             plt.close(fig)
         except Exception:
             pass
+
+
+def show_fig(fig):
+    """Draw a figure straight away (used where caching would not help)."""
+    try:
+        st.image(fig_to_png(fig), use_container_width=True)
+    except Exception as e:
+        st.caption(f"(figure could not be displayed: {e})")
+
+
+def results_signature() -> str:
+    """
+    A fingerprint of everything the figures are drawn from.
+
+    Streamlit re-runs the whole script on every interaction and renders every tab
+    body, selected or not, so without this the figures are rebuilt each time a
+    slider moves -- several seconds of work for a result that has not changed.
+    """
+    import hashlib
+    parts = [str(len(SS.get("kept", []))), str(SS.get("win_hand")), str(SS.get("win_eye"))]
+    for eff in EFFECTORS:
+        r = (SS.results or {}).get(eff)
+        if not r:
+            continue
+        for k in ("group", "units", "mixture"):
+            v = r.get(k)
+            if isinstance(v, pd.DataFrame) and len(v):
+                parts.append(f"{eff}:{k}:{pd.util.hash_pandas_object(v, index=True).sum()}")
+        pv = r.get("preview") or {}
+        cell = pv.get("cell")
+        if isinstance(cell, pd.DataFrame) and len(cell):
+            parts.append(f"{eff}:prev:{pd.util.hash_pandas_object(cell, index=True).sum()}")
+    if SS.later:
+        parts.append(f"later:{SS.later.get('median_r2')}")
+    return hashlib.md5("|".join(parts).encode()).hexdigest()
+
+
+def cached_figs(name: str, build):
+    """
+    Render a group of figures once for a given set of results, then reuse them.
+
+    `build` returns a list of (label, figure). The rendered PNGs are kept until the
+    results change, at which point the whole cache is dropped so nothing stale can
+    survive a refit.
+    """
+    sig = results_signature()
+    store = SS.setdefault("_figcache", {})
+    if store.get("_sig") != sig:
+        store.clear()
+        store["_sig"] = sig
+    if name not in store:
+        store[name] = [(lab, fig_to_png(f)) for lab, f in build()]
+    return store[name]
+
+
+def df_key(df) -> str:
+    """A short fingerprint of a table, for keying a cached figure to its data."""
+    try:
+        return str(pd.util.hash_pandas_object(df, index=True).sum())
+    except Exception:
+        return str(len(df))
+
+
+def show_cached(name: str, build):
+    """Show a cached group of figures, drawing them only the first time."""
+    try:
+        for _lab, png in cached_figs(name, build):
+            st.image(png, use_container_width=True)
+    except Exception as e:
+        st.caption(f"(figures could not be displayed: {e})")
 
 
 # --------------------------------------------------------------------------- header
@@ -460,7 +525,8 @@ def advanced_tab():
                             f"(95% CI {b.get('ci95_ms', ['?','?'])[0]:.1f}, "
                             f"{b.get('ci95_ms', ['?','?'])[1]:.1f}); "
                             f"permutation p = {r['permutation'].get('p_value', float('nan')):.4f}")
-            show_fig(figures.dissociation_plot(SS["diss"]))
+            show_cached("diss:" + str(sorted(SS["diss"])),
+                        lambda: [("dissociation", figures.dissociation_plot(SS["diss"]))])
         if st.button("Parameter-recovery study", use_container_width=True):
             with st.spinner("Simulating from known parameters and refitting…"):
                 SS["recovery"] = analysis.parameter_recovery()
@@ -478,18 +544,19 @@ def advanced_tab():
             with st.spinner("Refitting at fixed t₀ = 50/70/90 ms…"):
                 SS["fixed_t0"] = analysis.fixed_t0_sensitivity(kept, "eye")
         if SS.get("fixed_t0") is not None and len(SS["fixed_t0"]):
-            show_fig(figures.fixed_t0_plot(SS["fixed_t0"], "eye"))
+            show_cached("fixedt0:" + df_key(SS["fixed_t0"]),
+                        lambda: [("fixed t0", figures.fixed_t0_plot(SS["fixed_t0"], "eye"))])
         if st.button("Identifiability sweep (saccades)", use_container_width=True):
             with st.spinner("Refitting every saccade cell at floors of 40–90 ms — "
                             "this is six full fits per cell, so give it a few minutes…"):
                 SS["ident"] = analysis.identifiability_sweep(kept, "eye")
         if SS.get("ident") is not None and len(SS["ident"]):
-            show_fig(figures.identifiability_plot(SS["ident"], "eye"))
+            show_cached("ident:" + df_key(SS["ident"]),
+                        lambda: [("identifiability", figures.identifiability_plot(SS["ident"], "eye"))])
         if st.button("Vincentiles (RT distributions)", use_container_width=True):
             SS["vinc"] = True
         if SS.get("vinc"):
-            for _lab, f in figures.vincentile_suite(kept):
-                show_fig(f)
+            show_cached("vincentiles", lambda: figures.vincentile_suite(kept))
 
 
 @st.fragment
@@ -566,11 +633,20 @@ if SS.results or SS.later:
         ui.section("Results & report", "Parameters, diagnostics, graphs, advanced analyses, "
                    "and a downloadable report.", "4", anchor="results")
         kept = SS.filtered; res_all = SS.results
-        tabs = st.tabs(["Parameters", "Diagnostics", "Graphs", "LATER",
-                        "Advanced", "Model comparison", "Download"])
+        # A selector rather than st.tabs, for two reasons. st.tabs resets to its first
+        # tab whenever anything on the page triggers a rerun, so pressing a button in
+        # the Download view threw you back to Parameters. And st.tabs renders every
+        # panel on every run whether or not it is showing, so the eleven figures in
+        # Graphs were redrawn each time any control moved. Keying the choice into
+        # session state keeps the view put, and only the chosen panel is built.
+        VIEWS = ["Parameters", "Diagnostics", "Graphs", "LATER",
+                 "Advanced", "Model comparison", "Download"]
+        st.segmented_control("Results view", VIEWS, key="sec4_view",
+                             default=VIEWS[0], label_visibility="collapsed")
+        view = SS.get("sec4_view") or VIEWS[0]
 
         # -------------------------------------------------- Parameters
-        with tabs[0]:
+        if view == "Parameters":
             ui.hint("Fitted model parameters as tables. Drift v, boundary a, and non-decision "
                     "time t₀ (ms) by target speed.")
             any_p = False
@@ -607,7 +683,7 @@ if SS.results or SS.later:
                 st.info("Run a fit to see parameters.")
 
         # -------------------------------------------------- Diagnostics
-        with tabs[1]:
+        if view == "Diagnostics":
             shown = False
             for eff in EFFECTORS:
                 r = res_all.get(eff)
@@ -630,33 +706,33 @@ if SS.results or SS.later:
                 st.info("Run the full Bayesian fit to see convergence and goodness-of-fit.")
 
         # -------------------------------------------------- Graphs
-        with tabs[2]:
-            ui.hint("Visual model checks and summaries, in the repository's house style.")
-            try:
-                # conceptual single-boundary diffusion schematics (one per speed)
-                for eff in EFFECTORS:
-                    r = res_all.get(eff)
-                    if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
-                        for _lab, f in figures.ddm_schematic_figs(kept, r["group"], eff):
-                            show_fig(f)
-                # pooled RT data with the fitted shifted-Wald density
-                for eff in EFFECTORS:
-                    r = res_all.get(eff)
-                    if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
-                        show_fig(figures.fit_overlay(kept, eff, r["group"]))
-                # non-decision time by speed (hand + eye, dots + mean on a zoomed axis)
-                if res_all:
-                    show_fig(figures.ndt_by_speed(res_all))
-                # why saccadic t0 floors — the distribution-shape diagnostic
-                show_fig(figures.why_floors(kept))
-                # LATER reciprobit for saccades
-                if SS.later is not None:
-                    show_fig(figures.reciprobit(SS.later, kept[kept.effector == "eye"]))
-            except Exception as e:
-                st.error(f"Figure error: {e}")
+        if view == "Graphs":
+            ui.hint("Visual model checks and summaries, in the repository's house style. "
+                    "Figures are drawn once per fit and kept, so moving around the app "
+                    "does not redraw them.")
 
-        # -------------------------------------------------- LATER
-        with tabs[3]:
+            def graph_figs():
+                out = []
+                for eff in EFFECTORS:
+                    r = res_all.get(eff)
+                    if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
+                        out += figures.ddm_schematic_figs(kept, r["group"], eff)
+                for eff in EFFECTORS:
+                    r = res_all.get(eff)
+                    if r and isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
+                        out.append((f"{eff.capitalize()} fit",
+                                    figures.fit_overlay(kept, eff, r["group"])))
+                if res_all:
+                    out.append(("Non-decision time by speed", figures.ndt_by_speed(res_all)))
+                out.append(("Why saccadic t0 floors", figures.why_floors(kept)))
+                if SS.later is not None:
+                    out.append(("LATER reciprobit",
+                                figures.reciprobit(SS.later, kept[kept.effector == "eye"])))
+                return out
+
+            show_cached("graphs", graph_figs)
+
+        if view == "LATER":
             if SS.later is not None:
                 lat = SS.later
                 cA, cB = st.columns(2)
@@ -669,13 +745,13 @@ if SS.results or SS.later:
                 st.info("LATER runs when saccadic (eye) trials are included.")
 
         # -------------------------------------------------- Advanced / Comparison (fragments)
-        with tabs[4]:
+        if view == "Advanced":
             advanced_tab()
-        with tabs[5]:
+        if view == "Model comparison":
             comparison_tab()
 
         # -------------------------------------------------- Download
-        with tabs[6]:
+        if view == "Download":
             ui.eyebrow("Report & figures")
             ui.hint("HTML report to read in a browser · a vector PDF of every figure · or a full "
                     "ZIP with the report, figures (PNG + PDF), and all tables as CSV. "
@@ -728,20 +804,22 @@ if SS.results or SS.later:
                         lambda c: report.build_zip_bundle(c)),
             }
 
+            # Built in place, without st.rerun(). A rerun restarts the script from the
+            # top, which resets the tab strip to its first tab -- so asking for a
+            # download used to throw you out of this tab and back into Parameters.
             cols = st.columns(3)
+            asked = None
             for col, key in zip(cols, ARTEFACTS):
-                label, fname, mime, builder = ARTEFACTS[key]
+                label, fname, mime, _builder = ARTEFACTS[key]
                 ready = SS.get(f"dl_{key}")
                 if ready is not None:
                     col.download_button(f"Download {label}", ready, file_name=fname,
                                         mime=mime, use_container_width=True, key=f"dlb_{key}")
                 elif col.button(f"Prepare {label}", use_container_width=True, key=f"prep_{key}"):
-                    SS["dl_pending"] = key
-                    st.rerun()
+                    asked = key
 
-            pending = SS.get("dl_pending")
-            if pending:
-                label, fname, mime, builder = ARTEFACTS[pending]
+            if asked:
+                label, fname, mime, builder = ARTEFACTS[asked]
                 panel = st.status(f"Building {label}…", expanded=True)
                 bar = ui.StepBar(panel, "Figures", unit="figures")
                 try:
@@ -749,15 +827,17 @@ if SS.results or SS.later:
                     bar.finish(f"{len(ctx['figures'])} figures")
                     wbar = ui.StepBar(panel, f"Assembling {label}", unit="steps")
                     wbar.note("writing file")
-                    SS[f"dl_{pending}"] = builder(ctx)
-                    wbar.finish(f"{len(SS[f'dl_{pending}']) / 1e6:.1f} MB")
+                    blob = builder(ctx)
+                    SS[f"dl_{asked}"] = blob
+                    wbar.finish(f"{len(blob) / 1e6:.1f} MB")
                     panel.update(label=f"{label} ready", state="complete", expanded=False)
+                    # offered right here, so nothing moves and no rerun is needed
+                    st.download_button(f"Download {label}", blob, file_name=fname, mime=mime,
+                                       use_container_width=True, key=f"dlnow_{asked}",
+                                       type="primary")
                 except Exception as e:
                     panel.update(label=f"{label} failed", state="error")
                     st.error(f"Could not build {label}: {e}")
-                finally:
-                    SS["dl_pending"] = None
-                st.rerun()
 
             try:
                 have_units = [e for e in EFFECTORS if res_all.get(e)

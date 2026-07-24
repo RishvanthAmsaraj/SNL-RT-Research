@@ -208,6 +208,23 @@ footer{ visibility:hidden; }
 [data-testid="stMetricLabel"]{ color:var(--kx-muted); font-weight:600; }
 
 /* ---------- tabs (correct selectors for this Streamlit build) ---------- */
+/* The results view selector is a segmented control rather than st.tabs (which loses
+   its selection on every rerun), so it is styled to read as the same tab strip. */
+[data-testid="stLayoutWrapper"]:has(.kx-sec) [data-testid="stButtonGroup"]{ gap:8px !important; padding:0 0 10px !important;
+  border-bottom:1px solid var(--kx-line); margin-bottom:6px; flex-wrap:wrap; }
+[data-testid="stLayoutWrapper"]:has(.kx-sec) [data-testid="stButtonGroup"] button{
+  border-radius:10px !important; padding:7px 15px !important; font-weight:600 !important;
+  color:var(--kx-muted) !important; background:transparent !important;
+  border:none !important; box-shadow:none !important;
+  transition:background .2s, color .2s; }
+[data-testid="stLayoutWrapper"]:has(.kx-sec) [data-testid="stButtonGroup"] button:hover{
+  color:var(--kx-ink) !important; background:var(--kx-glow-soft) !important; }
+[data-testid="stLayoutWrapper"]:has(.kx-sec) [data-testid="stButtonGroup"] button[aria-checked="true"],
+[data-testid="stLayoutWrapper"]:has(.kx-sec) [data-testid="stButtonGroup"] button[aria-pressed="true"],
+[data-testid="stLayoutWrapper"]:has(.kx-sec) [data-testid="stButtonGroup"] button[kind="segmented_controlActive"]{
+  color:#fff !important;
+  background:linear-gradient(135deg,var(--kx-primary),var(--kx-primary-2)) !important;
+  box-shadow:none !important; }
 .stTabs [role="tablist"]{ gap:6px; border-bottom:none !important; padding-bottom:4px; flex-wrap:wrap; }
 .stTabs [data-testid="stTab"]{ border-radius:10px !important; padding:7px 15px !important;
   font-weight:600; color:var(--kx-muted); background:transparent; border-bottom:none !important;

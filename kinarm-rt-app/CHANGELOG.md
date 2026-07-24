@@ -2,6 +2,55 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.0] — 2026-07-23
+
+### Fixed — asking for a download threw you out of the download view
+
+Pressing a button inside a tab reset the results section to its first tab, so
+preparing a report bounced back to Parameters mid-build. Removing the explicit
+`st.rerun()` calls was not enough: `st.tabs` loses its selection whenever anything
+on the page causes a rerun, and a button press always does.
+
+The results section now uses a selector backed by session state instead of
+`st.tabs`. The chosen view survives a rerun, so a build stays where it was started
+and the finished file is offered in place.
+
+### Fixed — the results section rebuilt everything on every interaction
+
+`st.tabs` renders every panel on each run whether or not it is showing, so the
+eleven figures in the graphs view were redrawn every time any control moved --
+about 4.7 seconds of work for a result that had not changed. Only the selected
+view is built now, and figures are cached against a fingerprint of the fit results
+and the filter windows: drawn once, reused until something they depend on actually
+changes, and dropped entirely on a refit so nothing stale can survive. The advanced
+figures are keyed to the tables they are drawn from, so recomputing one redraws
+only that figure.
+
+### Fixed — one code path for Method A
+
+`frequentist.fit_ddm`, behind the model-comparison view, still selected single
+versus two-component cell by cell while the rest of the app had moved to the
+two-pass form. The results were the same either way, but it left two paths where
+there should be one. It now calls the same function as everything else.
+
+### Audit
+
+Every module was checked for undefined names, unused imports, bare exception
+handlers and leftover markers. No undefined names, no bare excepts, nothing left
+half-finished. The remaining warnings are deliberate: imports that exist to test
+whether an optional package is installed, re-exports in `__init__`, and the
+`with pm.Model() as m:` idiom that PyMC requires.
+
+53 tests pass, 27 of them parity tests tied to the standalone scripts. The four
+that do not run here need PyMC and ArviZ, which are not installed in this
+environment.
+
+### Known
+
+`use_container_width` is deprecated in current Streamlit and will eventually be
+removed. It is used throughout and still works; replacing it with `width="stretch"`
+is a mechanical change worth making before an upgrade forces it.
+
 ## [1.7.0] — 2026-07-22
 
 ### Verified — the vincentile figures are correct, including the dip below zero

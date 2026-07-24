@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from ._speeds import SPEEDS, PHYSIO_FLOOR, P_CONTAM
-from .models.wald import ddm_fit_single, ddm_select_srt, map_cells, MIN_TRIALS
+from .models.wald import ddm_fit_single, map_cells, select_srt_cells, MIN_TRIALS
 
 
 def fit_single_cell(rts: np.ndarray, floor: float, contam: float = P_CONTAM):
@@ -53,7 +53,11 @@ def fit_ddm(df: pd.DataFrame, effector: str, contamination: float = P_CONTAM,
         items.append(((p, int(c)), rt, floor, contamination, mode))
 
     status(f"{effector}: fitting {len(items)} cells")
-    fits = map_cells(items, n_jobs=n_jobs, progress=progress)
+    # saccades go through the same two-pass selection the rest of the app uses, so
+    # Method A here and Method A in the main run are the same code on the same path
+    fits = (select_srt_cells(items, n_jobs=n_jobs, progress=progress, status=status)
+            if mode == "select" else
+            map_cells(items, n_jobs=n_jobs, progress=progress))
 
     counts = {k: int(len(df[(df.effector == effector) & (df.participant == k[0])
                             & (df.condition == k[1])])) for k in fits}

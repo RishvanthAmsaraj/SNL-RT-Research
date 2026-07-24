@@ -22,7 +22,6 @@ and LATER features) still work when PyMC is not installed.
 
 from __future__ import annotations
 
-import os
 
 import numpy as np
 import pandas as pd
