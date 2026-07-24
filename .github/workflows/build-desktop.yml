@@ -100,7 +100,7 @@ jobs:
       - name: Pack the environment
         working-directory: kinarm-rt-app
         run: |
-          conda pack -n kinarm-rt-desktop -o env.tar.gz --ignore-missing-files
+          conda-pack -n kinarm-rt-desktop -o env.tar.gz --ignore-missing-files
           ls -lh env.tar.gz
 
       - name: Assemble the bundle
