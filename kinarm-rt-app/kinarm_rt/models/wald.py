@@ -502,8 +502,7 @@ def fit_pooled_hierarchical(rt, uidx, minrt, n_units, floor, mu_z_mean=0.5,
         pm.Potential("lik", logp.sum())
         idata = pm.sample(draws, tune=tune, chains=chains, cores=cores,
                           target_accept=target_accept, random_seed=seed,
-                          progressbar=progressbar,
-                          idata_kwargs={"log_likelihood": False})
+                          progressbar=progressbar)
     po = idata.posterior
     arr = {
         "v": po["v"].mean(("chain", "draw")).values,
@@ -541,8 +540,7 @@ def fit_mixture_cell(rts, draws=1000, tune=1000, chains=4, target_accept=0.95,
         pm.Potential("lik", pt.sum(pm.math.logsumexp(pt.stack([lp1, lp2], axis=0), axis=0)))
         idata = pm.sample(draws, tune=tune, chains=chains, cores=cores,
                           target_accept=target_accept, random_seed=seed,
-                          progressbar=progressbar,
-                          idata_kwargs={"log_likelihood": False})
+                          progressbar=progressbar)
 
     po = idata.posterior
     div = int(idata.sample_stats["diverging"].sum()) if "diverging" in idata.sample_stats else 0

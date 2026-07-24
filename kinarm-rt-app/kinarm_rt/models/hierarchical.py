@@ -98,7 +98,7 @@ def fit_per_speed(df: pd.DataFrame, effector: str, correlated: bool = False,
 
         idata = pm.sample(draws, tune=tune, chains=chains, cores=cores,
                           target_accept=target_accept, random_seed=seed,
-                          progressbar=progressbar, idata_kwargs={"log_likelihood": False})
+                          progressbar=progressbar)
 
     # summarise group-level per speed with 94% credible intervals
     post = idata.posterior

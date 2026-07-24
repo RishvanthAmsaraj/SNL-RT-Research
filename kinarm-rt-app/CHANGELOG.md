@@ -2,6 +2,56 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.10.0] — 2026-07-24
+
+### Added — desktop applications for Windows and macOS, with nothing left out
+
+The app can now be packaged as something you double-click: no Python, no terminal,
+no `streamlit run`. It starts its server on a private local port, opens it in a
+window, and shuts down when the window closes.
+
+Every analysis is included and none of them is slower than running from the conda
+environment: Method A, the hierarchical Bayesian fit with NUTS, the LATER model,
+all figures and diagnostics, and the full report.
+
+**The app ships a complete conda environment, including a C++ compiler.** This is
+the reason it is about a gigabyte, and the reason was worth measuring rather than
+assuming. PyMC runs on PyTensor, which generates C++ for the model's log-likelihood
+and compiles it against the Python headers on first use. Without a compiler it does
+not fail — it quietly drops to a pure-Python path. On a short test fit that took
+248 seconds instead of 27, roughly nine times slower, and the sampler did not reach
+the same estimates (t0 181.25 ms against 181.5 ms), because the two paths take
+different routes through the same arithmetic. A frozen executable cannot fix that:
+PyInstaller bundles compiled libraries but neither a compiler nor the headers
+PyTensor compiles against. So the toolchain travels with the app.
+
+- `desktop/launcher.py` — the entry point. It puts the bundled toolchain on PATH so
+  PyTensor compiles rather than falling back, points the compile cache at the user's
+  application data so it works from a read-only install, and reports on startup
+  whether the Bayesian fit is available. It runs as two processes on purpose:
+  Streamlit installs signal handlers, which only works on a process's main thread,
+  and on macOS the window toolkit demands the main thread as well.
+- `desktop/stub.py` and `desktop/mac_launch.sh` — the double-clickable front doors
+  that find the packed environment and start the app with it.
+- `desktop/smoke_test.py` — runs a finished bundle, checks it serves the app, and
+  **fails the build if the app reports that the Bayesian fit is unavailable**, so a
+  bundle missing PyMC or a compiler cannot be published.
+- `environment-desktop.yml` and `.github/workflows/build-desktop.yml` — build on
+  hosted Windows, Intel macOS and Apple Silicon runners. Each build proves PyTensor
+  can compile before packaging, runs the whole test suite, and smoke-tests the
+  result.
+
+### Fixed
+
+`pm.sample` was passing `log_likelihood` through `idata_kwargs`, which current PyMC
+deprecates. The quantity was never used; the argument is gone.
+
+### Tests
+
+Installing PyMC made the four previously skipped tests runnable for the first time.
+All of them pass: **57 tests, no failures**, covering the hierarchical fits, the
+per-speed and LKJ models, and the two-component saccade mixture.
+
 ## [1.9.0] — 2026-07-23
 
 ### Fixed — enabling multiple cores briefly duplicated the interface

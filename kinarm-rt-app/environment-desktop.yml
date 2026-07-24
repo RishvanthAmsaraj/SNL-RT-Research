@@ -1,0 +1,37 @@
+# Conda environment for the packaged desktop apps.
+#
+# This is environment.yml plus the pieces a bundled app cannot borrow from the
+# user's machine. PyMC runs on PyTensor, which generates C++ at runtime and
+# compiles it against the Python headers; without a compiler it falls back to a
+# pure-Python path that is roughly nine times slower and does not reproduce the
+# same numbers, so the toolchain is shipped rather than assumed.
+#
+# The compiler itself is installed per platform by the build workflow, not listed
+# here: environment.yml has no conditional syntax (the `# [win]` selectors used in
+# conda recipes are ignored here and would install the Windows toolchain on macOS).
+#
+# Built by .github/workflows/build-desktop.yml and packed with conda-pack. Use
+# environment.yml for ordinary development.
+name: kinarm-rt-desktop
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  # analysis
+  - pymc>=5.10
+  - arviz>=0.17
+  - numpy>=1.24
+  - scipy>=1.10
+  - pandas>=2.0
+  - matplotlib>=3.7
+  - scikit-learn>=1.0
+  - joblib>=1.3
+  # packaging
+  - conda-pack
+  - pip
+  - pip:
+      - streamlit>=1.30
+      - diptest>=0.7
+      - pyyaml>=6.0
+      - pywebview>=4.4
+      - pytest>=7.0

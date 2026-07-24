@@ -1,0 +1,237 @@
+name: Build desktop apps
+
+# Builds the Windows and macOS applications.
+#
+# These must be built on the systems they target: PyInstaller and conda-pack both
+# bundle the host's Python runtime and compiled libraries, and neither
+# cross-compiles. That is what this workflow is for -- it borrows a real Windows
+# machine and real Macs from GitHub's hosted runners.
+#
+# The app ships a complete conda environment rather than a frozen executable. PyMC
+# runs on PyTensor, which generates C++ at runtime and compiles it against the
+# Python headers. Without a compiler it falls back to a pure-Python path measured
+# at roughly nine times slower that does not reproduce the same estimates, so the
+# toolchain and headers travel with the app. That costs about a gigabyte and buys a
+# build with no analysis missing and no performance penalty.
+#
+# Run it from the Actions tab, or push a tag like v1.10.0 for a draft release.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash -el {0}          # -l so conda's shell hook is loaded
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false           # one platform failing should not hide the others
+      matrix:
+        include:
+          - os: windows-latest
+            label: Windows (x64)
+            artifact: KINARM-RT-windows-x64
+          - os: macos-13
+            label: macOS (Intel)
+            artifact: KINARM-RT-macos-intel
+          - os: macos-14
+            label: macOS (Apple Silicon)
+            artifact: KINARM-RT-macos-apple-silicon
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: kinarm-rt-desktop
+          environment-file: kinarm-rt-app/environment-desktop.yml
+          auto-activate-base: false
+
+      - name: Add the C++ toolchain
+        run: |
+          # Installed here rather than in the environment file, which has no way to
+          # express a per-platform dependency.
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            conda install -y -n kinarm-rt-desktop -c conda-forge m2w64-toolchain libpython
+          else
+            conda install -y -n kinarm-rt-desktop -c conda-forge compilers
+          fi
+
+      - name: Confirm PyMC compiles rather than falling back
+        working-directory: kinarm-rt-app
+        run: |
+          python - <<'PY'
+          import shutil, sys, numpy as np
+          import pytensor, pytensor.tensor as pt
+          compiler = shutil.which("g++") or shutil.which("clang++") or shutil.which("cl")
+          print("compiler:", compiler)
+          print("pytensor cxx:", repr(pytensor.config.cxx))
+          if not compiler or not pytensor.config.cxx:
+              sys.exit("no C++ compiler: this build would ship the slow fallback")
+          x = pt.dvector("x")
+          f = pytensor.function([x], (x ** 2).sum())
+          assert abs(float(f(np.array([1.0, 2.0, 3.0]))) - 14.0) < 1e-9
+          print("PyTensor compiled and ran a function successfully")
+          PY
+
+      - name: Run the test suite
+        working-directory: kinarm-rt-app
+        run: |
+          # With PyMC present the Bayesian tests run too, so this is the whole suite
+          # rather than the subset that can run without it.
+          python -m pytest -q
+
+      - name: Pack the environment
+        working-directory: kinarm-rt-app
+        run: |
+          conda pack -n kinarm-rt-desktop -o env.tar.gz --ignore-missing-files
+          ls -lh env.tar.gz
+
+      - name: Assemble the bundle
+        working-directory: kinarm-rt-app
+        run: |
+          rm -rf staging && mkdir -p staging/env staging/app
+          tar -xzf env.tar.gz -C staging/env
+          # rewrite the absolute paths conda-pack leaves behind
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            ./staging/env/Scripts/conda-unpack.exe
+          else
+            ./staging/env/bin/conda-unpack
+          fi
+          for item in app.py kinarm_rt sample_data desktop .streamlit \
+                      README.md CHANGELOG.md requirements.txt environment.yml; do
+            if [ -e "$item" ]; then cp -R "$item" staging/app/; fi
+          done
+          rm -rf staging/app/desktop/__pycache__
+
+      - name: Build the launcher stub (Windows)
+        if: runner.os == 'Windows'
+        working-directory: kinarm-rt-app
+        run: |
+          # A separate, dependency-free build: this only starts the packed
+          # environment and must not pull the scientific stack in a second time.
+          pip install pyinstaller
+          ICON=""
+          if [ -f desktop/icon.ico ]; then ICON="--icon desktop/icon.ico"; fi
+          pyinstaller desktop/stub.py --onefile --noconsole --name "KINARM RT" \
+            --distpath stubdist --workpath stubbuild --specpath stubspec $ICON
+          cp "stubdist/KINARM RT.exe" "staging/KINARM RT.exe"
+
+      - name: Build the app bundle (macOS)
+        if: runner.os == 'macOS'
+        working-directory: kinarm-rt-app
+        run: |
+          APP="dist/KINARM RT.app"
+          rm -rf dist && mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+          cp -R staging/env "$APP/Contents/Resources/env"
+          cp -R staging/app "$APP/Contents/Resources/app"
+          cp desktop/mac_launch.sh "$APP/Contents/MacOS/KINARM RT"
+          chmod +x "$APP/Contents/MacOS/KINARM RT"
+          if [ -f desktop/icon.icns ]; then cp desktop/icon.icns "$APP/Contents/Resources/icon.icns"; fi
+          python - "$APP/Contents/Info.plist" <<'PY'
+          import sys
+          open(sys.argv[1], "w").write("""<?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key><string>KINARM RT</string>
+            <key>CFBundleDisplayName</key><string>KINARM RT</string>
+            <key>CFBundleExecutable</key><string>KINARM RT</string>
+            <key>CFBundleIdentifier</key><string>org.snl.kinarm-rt</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>CFBundleShortVersionString</key><string>1.10.0</string>
+            <key>CFBundleVersion</key><string>1.10.0</string>
+            <key>CFBundleIconFile</key><string>icon</string>
+            <key>NSHighResolutionCapable</key><true/>
+            <key>LSMinimumSystemVersion</key><string>11.0</string>
+            <key>NSAppTransportSecurity</key>
+            <dict><key>NSAllowsLocalNetworking</key><true/></dict>
+          </dict>
+          </plist>
+          """)
+          PY
+
+      - name: Smoke-test the bundle (Windows)
+        if: runner.os == 'Windows'
+        working-directory: kinarm-rt-app
+        run: python desktop/smoke_test.py "staging/env/python.exe" --script "staging/app/desktop/launcher.py"
+
+      - name: Smoke-test the bundle (macOS)
+        if: runner.os == 'macOS'
+        working-directory: kinarm-rt-app
+        run: |
+          RES="dist/KINARM RT.app/Contents/Resources"
+          python desktop/smoke_test.py "$RES/env/bin/python" --script "$RES/app/desktop/launcher.py"
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        working-directory: kinarm-rt-app
+        run: |
+          rm -rf out && mkdir -p "out/KINARM RT"
+          cp -R staging/. "out/KINARM RT/"
+          7z a -tzip -mx=5 "${{ matrix.artifact }}.zip" "./out/KINARM RT"
+
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        working-directory: kinarm-rt-app
+        run: |
+          # An ad-hoc signature makes Gatekeeper report an unsigned app rather than
+          # a damaged one. A real signature needs a paid Developer ID.
+          codesign --force --deep --sign - "dist/KINARM RT.app" || true
+          ditto -c -k --sequesterRsrc --keepParent "dist/KINARM RT.app" "${{ matrix.artifact }}.zip"
+
+      - name: Report the size
+        working-directory: kinarm-rt-app
+        run: ls -lh "${{ matrix.artifact }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: kinarm-rt-app/${{ matrix.artifact }}.zip
+          retention-days: 30
+          compression-level: 0        # the zip is already compressed
+
+  release:
+    name: Draft release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: artifacts/**/*.zip
+          body: |
+            Desktop builds of the KINARM RT app.
+
+            Every analysis is included, with no performance or accuracy compromise:
+            Method A, the hierarchical Bayesian fit with NUTS, the LATER model, all
+            figures and diagnostics, and the full report. The app carries its own
+            Python and C++ toolchain, so PyMC compiles at native speed rather than
+            dropping to a slower path that does not reproduce the same numbers.
+
+            These are large -- roughly a gigabyte -- because that toolchain is what
+            makes the Bayesian fit both correct and fast.
+
+            **Windows** -- unzip and run `KINARM RT.exe`. SmartScreen warns on first
+            launch because the app is not code-signed: More info -> Run anyway.
+
+            **macOS** -- unzip, drag to Applications, then **right-click -> Open**
+            the first time. Double-clicking will not offer the option for an
+            unsigned app.
+
+            The first hierarchical fit is slower than later ones while PyTensor
+            compiles and caches the model.

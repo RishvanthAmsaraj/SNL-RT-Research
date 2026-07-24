@@ -13,6 +13,7 @@ diptest>=0.7
 scikit-learn>=1.0
 
 # App
+pywebview>=4.4      # native desktop window; the app falls back to a browser without it
 pyyaml>=6.0
 streamlit>=1.30
 
