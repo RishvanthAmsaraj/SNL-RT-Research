@@ -92,8 +92,8 @@ jobs:
           # rather than the subset that can run without it.
           python -m pytest -q
 
-      - name: Install conda-pack
-        run: conda install -y -n kinarm-rt-desktop -c conda-forge conda-pack
+      - name: Install conda-pack (base env — it's a conda subcommand)
+        run: conda install -y -c conda-forge conda-pack
 
       - name: Pack the environment
         working-directory: kinarm-rt-app
