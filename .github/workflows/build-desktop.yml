@@ -55,7 +55,8 @@ jobs:
           miniforge-version: latest
           activate-environment: kinarm-rt-desktop
           environment-file: kinarm-rt-app/environment-desktop.yml
-          auto-activate-base: false
+          auto-activate: base
+          conda-remove-defaults: true
 
       - name: Add the C++ toolchain
         run: |
@@ -90,6 +91,9 @@ jobs:
           # With PyMC present the Bayesian tests run too, so this is the whole suite
           # rather than the subset that can run without it.
           python -m pytest -q
+
+      - name: Install conda-pack
+        run: conda install -y -n kinarm-rt-desktop -c conda-forge conda-pack
 
       - name: Pack the environment
         working-directory: kinarm-rt-app

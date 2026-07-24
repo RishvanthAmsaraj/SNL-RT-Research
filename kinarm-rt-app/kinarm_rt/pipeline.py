@@ -165,7 +165,7 @@ def run_pipeline(config: dict, status=print) -> dict:
            "filter_report": frep, "cell_summary": data.cell_summary(kept),
            "results": results, "gof": {e: results[e].get("gof") for e in results if results[e].get("gof")},
            "later": lat, "figures": ctx_figs}
-    with open(os.path.join(cfg["out"], "report.html"), "w") as f:
+    with open(os.path.join(cfg["out"], "report.html"), "w", encoding="utf-8") as f:
         f.write(report.build_html_report(ctx))
     status(f"Done. Outputs in {cfg['out']}/")
     return {"out": cfg["out"], "n_trials": len(kept), "effectors": list(results.keys())}
