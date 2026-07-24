@@ -10,7 +10,6 @@ the step indicator, section headers, and callouts.
 from __future__ import annotations
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 # Per-theme design tokens.
 _LIGHT = {
@@ -433,52 +432,10 @@ def stepper(labels: list[str], current: int):
     st.markdown(f"<div class='kx-steps'>{''.join(cells)}</div>", unsafe_allow_html=True)
 
 
-def section(title: str, desc: str = "", icon: str = "•", anchor: str | None = None):
+def section(title: str, desc: str = "", icon: str = "•"):
     d = f"<div class='d'>{desc}</div>" if desc else ""
-    a = f" id='kx-anchor-{anchor}'" if anchor else ""
-    st.markdown(f"<div class='kx-sec'{a}><div class='ico'>{icon}</div>"
+    st.markdown(f"<div class='kx-sec'><div class='ico'>{icon}</div>"
                 f"<div><div class='t'>{title}</div>{d}</div></div>", unsafe_allow_html=True)
-
-
-def reveal(anchor: str):
-    """
-    Bring a newly opened section into view, once.
-
-    A section appears below the fold when the one above it is finished, so without
-    this the page looks unchanged until you scroll. It fires only the first time a
-    given section appears, so the view is never yanked around while someone is
-    reading or adjusting settings further up. The delay lets the entrance animation
-    start first, so the section is seen arriving rather than already in place.
-    """
-    seen = st.session_state.setdefault("_kx_revealed", set())
-    if anchor in seen:
-        return
-    seen.add(anchor)
-    components.html(
-        "<script>"
-        "const doc = window.parent.document;"
-        "const GAP = 84, TOL = 26;"
-        "const main = () => doc.querySelector('[data-testid=\"stMain\"]')"
-        "               || doc.querySelector('section.main') || doc.scrollingElement;"
-        f"const anchorEl = () => doc.getElementById('kx-anchor-{anchor}');"
-        # The section keeps rendering after it first appears and the step above it
-        # collapses, so the target keeps moving. Rather than scrolling once and
-        # hoping, the position is corrected until the header settles near the top,
-        # then left alone.
-        "let steady = 0, tries = 0;"
-        "const settle = () => {"
-        "  const el = anchorEl(), m = main();"
-        "  if (el && m) {"
-        "    const off = el.getBoundingClientRect().top - GAP;"
-        "    if (Math.abs(off) <= TOL) { steady++; } else {"
-        "      steady = 0;"
-        "      m.scrollTo({top: Math.max(m.scrollTop + off, 0), behavior: 'smooth'});"
-        "    }"
-        "  }"
-        "  if (steady < 2 && tries++ < 24) setTimeout(settle, 160);"
-        "};"
-        "setTimeout(settle, 280);"
-        "</script>", height=0)
 
 
 def eyebrow(text: str):

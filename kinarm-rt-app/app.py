@@ -15,7 +15,6 @@ reciprobit model for saccades.
 from __future__ import annotations
 
 import io
-import os
 
 import pandas as pd
 import streamlit as st
@@ -76,7 +75,7 @@ def fig_to_png(fig) -> bytes:
 def show_fig(fig):
     """Draw a figure straight away (used where caching would not help)."""
     try:
-        st.image(fig_to_png(fig), use_container_width=True)
+        st.image(fig_to_png(fig), width="stretch")
     except Exception as e:
         st.caption(f"(figure could not be displayed: {e})")
 
@@ -138,7 +137,7 @@ def show_cached(name: str, build):
     """Show a cached group of figures, drawing them only the first time."""
     try:
         for _lab, png in cached_figs(name, build):
-            st.image(png, use_container_width=True)
+            st.image(png, width="stretch")
     except Exception as e:
         st.caption(f"(figures could not be displayed: {e})")
 
@@ -163,13 +162,13 @@ if not HAVE_PYMC:
 # --------------------------------------------------------------------------- Step 1
 with st.container(border=True):
     ui.section("Load your trial data", "Upload a file or try the example. "
-               "The repository's wide pooled_data.csv works directly.", "1", anchor="load")
+               "The repository's wide pooled_data.csv works directly.", "1")
     left, right = st.columns([2, 1], vertical_alignment="center")
     with left:
         uploaded = st.file_uploader("Trial file (CSV / TSV), one row per trial",
                                     type=["csv", "tsv", "txt"], label_visibility="collapsed")
     with right:
-        if st.button("Load example dataset", use_container_width=True):
+        if st.button("Load example dataset", width="stretch"):
             SS.raw = data.simulate_dataset(); SS.example = True; _reset_downstream()
 
     if uploaded is not None:
@@ -181,7 +180,7 @@ with st.container(border=True):
     raw = SS.raw
     if raw is not None:
         st.caption(f"Preview — {raw.shape[0]:,} rows × {raw.shape[1]} columns")
-        st.dataframe(raw.head(6), use_container_width=True, height=230)
+        st.dataframe(raw.head(6), width="stretch", height=230)
 
         st.divider()
         ui.eyebrow("Map your columns")
@@ -306,9 +305,8 @@ with st.container(border=True):
 # --------------------------------------------------------------------------- Step 2
 if SS.tidy is not None:
     with st.container(border=True):
-        ui.reveal("filter")
         ui.section("Inclusion windows", "Keep trials within physiological limits "
-                   "(hand 150–800 ms, saccades 80–600 ms).", "2", anchor="filter")
+                   "(hand 150–800 ms, saccades 80–600 ms).", "2")
         tidy = SS.tidy
         issues = data.validate(tidy)
         if issues:
@@ -332,20 +330,19 @@ if SS.tidy is not None:
         SS.filtered, SS.filter_report = kept, frep
 
         ui.eyebrow("Kept after filtering")
-        st.dataframe(frep.round(1), use_container_width=True, hide_index=True)
+        st.dataframe(frep.round(1), width="stretch", hide_index=True)
         with st.expander("Distribution shape by condition — why saccadic t₀ floors"):
             ui.hint("skew / CV near <b>3</b> means near-symmetric for the spread — a shifted Wald "
                     "cannot lift t₀ above the floor. Values well above 3 (typically the hand) "
                     "support an identified t₀.")
-            st.dataframe(data.cell_summary(kept).round(2), use_container_width=True, hide_index=True)
+            st.dataframe(data.cell_summary(kept).round(2), width="stretch", hide_index=True)
 
 
 # --------------------------------------------------------------------------- Step 3
 if SS.filtered is not None:
     with st.container(border=True):
-        ui.reveal("fit")
         ui.section("Fit the models", "A fast preview in seconds, or the full hierarchical "
-                   "Bayesian fit in minutes.", "3", anchor="fit")
+                   "Bayesian fit in minutes.", "3")
         kept = SS.filtered
         avail = sorted(kept["effector"].unique())
         c1, c2 = st.columns(2)
@@ -398,31 +395,12 @@ if SS.filtered is not None:
                                            "off, which matches the repository's Bayesian setup; a few "
                                            "percent makes the fit more robust to outliers.")
 
-            use_parallel = st.toggle("Fit cells across multiple cores", value=False,
-                                     help=("Each participant x speed cell is fitted on its own and the "
-                                           "optimiser is seeded per cell, so spreading them across cores "
-                                           "cannot change any result — only how long the run takes. It is "
-                                           "off by default because the worker processes have been seen to "
-                                           "stall under Streamlit on Windows, and a run that finishes "
-                                           "slowly beats one that hangs. The app checks that workers "
-                                           "actually start before using them, and falls back to a single "
-                                           "core if they do not."))
-            if use_parallel:
-                # probed once per session: the check itself starts worker processes,
-                # which is the thing that can stall on Windows
-                if "parallel_ok" not in SS:
-                    SS["parallel_ok"] = wald.parallel_probe(2)
-                _ok, _why = SS["parallel_ok"]
-                st.caption(f"Multiple cores available — {os.cpu_count()} detected."
-                           if _ok else
-                           f"Multiple cores unavailable ({_why}); the run will use one core.")
 
         chosen = chosen or []
         if st.button("Run analysis", type="primary", disabled=not chosen):
             results, errors = {}, []
             is_method_a = bool(mode and mode.startswith("Method A"))
-            n_jobs = (max(2, (os.cpu_count() or 2) - 1)
-                      if (use_parallel and SS.get("parallel_ok", (False, ""))[0]) else 1)
+            n_jobs = wald.default_jobs()
 
             # Lay out every stage before any of them starts, so the panel shows what
             # the run consists of and which part is moving.
@@ -438,10 +416,9 @@ if SS.filtered is not None:
                     stages.append((f"a_{eff}", f"Method A cross-check — {name}"))
 
             box = st.status(f"Running {len(stages)} stages…", expanded=True)
-            if n_jobs > 1:
-                box.caption(f"Fitting on {n_jobs} core{'s' if n_jobs > 1 else ''}. Cells are "
-                            f"independent and seeded individually, so this affects only how "
-                            f"long the run takes, never the result.")
+            box.caption(f"Fitting cells on {n_jobs} worker thread{'s' if n_jobs > 1 else ''}. "
+                        f"Cells are independent and seeded individually, so this affects only "
+                        f"how long the run takes, never the result.")
             prog = ui.RunProgress(box, stages)
 
             if "eye" in chosen:
@@ -508,7 +485,7 @@ def advanced_tab():
     a1, a2 = st.columns(2)
     with a1:
         ui.eyebrow("Statistics")
-        if st.button("Non-decision-time dissociation", use_container_width=True):
+        if st.button("Non-decision-time dissociation", width="stretch"):
             uh = (res_all.get("hand", {}) or {}).get("units")
             ue = (res_all.get("eye", {}) or {}).get("units")
             if uh is None or (isinstance(uh, pd.DataFrame) and uh.empty):
@@ -527,33 +504,33 @@ def advanced_tab():
                             f"permutation p = {r['permutation'].get('p_value', float('nan')):.4f}")
             show_cached("diss:" + str(sorted(SS["diss"])),
                         lambda: [("dissociation", figures.dissociation_plot(SS["diss"]))])
-        if st.button("Parameter-recovery study", use_container_width=True):
+        if st.button("Parameter-recovery study", width="stretch"):
             with st.spinner("Simulating from known parameters and refitting…"):
                 SS["recovery"] = analysis.parameter_recovery()
         if SS.get("recovery"):
             ui.hint("Hand t₀ recovers; saccadic t₀ (true ≈ 30 ms) cannot be recovered and pins at the floor.")
             for eff, tb in SS["recovery"].items():
-                st.markdown(f"**{eff}**"); st.dataframe(tb, use_container_width=True, hide_index=True)
-        if st.button("Mixture-threshold sensitivity", use_container_width=True):
+                st.markdown(f"**{eff}**"); st.dataframe(tb, width="stretch", hide_index=True)
+        if st.button("Mixture-threshold sensitivity", width="stretch"):
             SS["mix_sens"] = analysis.mixture_threshold_sensitivity(kept)
         if SS.get("mix_sens") is not None and len(SS["mix_sens"]):
-            st.dataframe(SS["mix_sens"], use_container_width=True, hide_index=True)
+            st.dataframe(SS["mix_sens"], width="stretch", hide_index=True)
     with a2:
         ui.eyebrow("Graphs")
-        if st.button("Fixed-t₀ sensitivity (saccades)", use_container_width=True):
+        if st.button("Fixed-t₀ sensitivity (saccades)", width="stretch"):
             with st.spinner("Refitting at fixed t₀ = 50/70/90 ms…"):
                 SS["fixed_t0"] = analysis.fixed_t0_sensitivity(kept, "eye")
         if SS.get("fixed_t0") is not None and len(SS["fixed_t0"]):
             show_cached("fixedt0:" + df_key(SS["fixed_t0"]),
                         lambda: [("fixed t0", figures.fixed_t0_plot(SS["fixed_t0"], "eye"))])
-        if st.button("Identifiability sweep (saccades)", use_container_width=True):
+        if st.button("Identifiability sweep (saccades)", width="stretch"):
             with st.spinner("Refitting every saccade cell at floors of 40–90 ms — "
                             "this is six full fits per cell, so give it a few minutes…"):
                 SS["ident"] = analysis.identifiability_sweep(kept, "eye")
         if SS.get("ident") is not None and len(SS["ident"]):
             show_cached("ident:" + df_key(SS["ident"]),
                         lambda: [("identifiability", figures.identifiability_plot(SS["ident"], "eye"))])
-        if st.button("Vincentiles (RT distributions)", use_container_width=True):
+        if st.button("Vincentiles (RT distributions)", width="stretch"):
             SS["vinc"] = True
         if SS.get("vinc"):
             show_cached("vincentiles", lambda: figures.vincentile_suite(kept))
@@ -572,7 +549,7 @@ def comparison_tab():
     c1, c2 = st.columns(2)
     with c1:
         ui.eyebrow("Cross-validation")
-        if st.button("Compare estimated vs fixed t₀ (LOO)", use_container_width=True):
+        if st.button("Compare estimated vs fixed t₀ (LOO)", width="stretch"):
             box = st.status("Fitting both models for LOO…", expanded=True)
             try:
                 SS["loo"] = compare.compare_t0_modes(kept, eff_cmp, draws=500, tune=500,
@@ -582,11 +559,11 @@ def comparison_tab():
                 box.update(label="LOO failed", state="error"); st.error(str(e))
         if SS.get("loo"):
             st.markdown(f"Preferred model: **{SS['loo']['preferred']}**")
-            st.dataframe(SS["loo"]["table"].round(2), use_container_width=True, hide_index=True)
+            st.dataframe(SS["loo"]["table"].round(2), width="stretch", hide_index=True)
             st.caption(SS["loo"]["note"])
     with c2:
         ui.eyebrow("Frequentist check")
-        if st.button("Method A (differential evolution)", use_container_width=True):
+        if st.button("Method A (differential evolution)", width="stretch"):
             box = st.status(f"Frequentist MLE for {eff_cmp}…", expanded=True)
             try:
                 SS["freq"] = frequentist.fit_ddm(kept, eff_cmp, status=box.write)
@@ -595,7 +572,7 @@ def comparison_tab():
                 box.update(label="Frequentist fit failed", state="error"); st.error(str(e))
         if SS.get("freq"):
             st.caption(f"Method A group parameters — {eff_cmp}")
-            st.dataframe(SS["freq"]["group"].round(2), use_container_width=True, hide_index=True)
+            st.dataframe(SS["freq"]["group"].round(2), width="stretch", hide_index=True)
 
     st.divider()
     ui.eyebrow("Per-speed hierarchical model (group parameters with credible intervals)")
@@ -603,7 +580,7 @@ def comparison_tab():
             "group-level v, a, and t₀ per speed <b>with</b> uncertainty — and optionally "
             "correlated participant effects (LKJ).")
     correlated = st.toggle("Model correlated participant effects (LKJ)", value=False)
-    if st.button("Fit per-speed hierarchical model", use_container_width=True):
+    if st.button("Fit per-speed hierarchical model", width="stretch"):
         box = st.status(f"Fitting per-speed model for {eff_cmp}…", expanded=True)
         try:
             box.write("sampling (this treats speed as a factor)…")
@@ -617,11 +594,11 @@ def comparison_tab():
     if SS.get("perspeed"):
         ps = SS["perspeed"]
         st.caption(f"Group-level parameters by speed — {ps['effector']} (mean, 94% CI)")
-        st.dataframe(ps["group"].round(2), use_container_width=True, hide_index=True)
+        st.dataframe(ps["group"].round(2), width="stretch", hide_index=True)
         show_fig(figures.group_ci_plot(ps["group"], ps["effector"], "t0_ms"))
         if ps["corr"] is not None:
             st.caption("Participant-effect correlation matrix (LKJ)")
-            st.dataframe(ps["corr"], use_container_width=True)
+            st.dataframe(ps["corr"], width="stretch")
             ui.hint("Off-diagonal terms show how participants' parameters covary — "
                     "structure the independent-effects model cannot represent.")
 
@@ -629,9 +606,8 @@ def comparison_tab():
 # --------------------------------------------------------------------------- Step 4
 if SS.results or SS.later:
     with st.container(border=True):
-        ui.reveal("results")
         ui.section("Results & report", "Parameters, diagnostics, graphs, advanced analyses, "
-                   "and a downloadable report.", "4", anchor="results")
+                   "and a downloadable report.", "4")
         kept = SS.filtered; res_all = SS.results
         # A selector rather than st.tabs, for two reasons. st.tabs resets to its first
         # tab whenever anything on the page triggers a rerun, so pressing a button in
@@ -658,10 +634,10 @@ if SS.results or SS.later:
                 st.markdown(f"#### {eff.capitalize()}")
                 if isinstance(r.get("group"), pd.DataFrame) and len(r["group"]):
                     ui.eyebrow("Group parameters by speed")
-                    st.dataframe(r["group"].round(2), use_container_width=True, hide_index=True)
+                    st.dataframe(r["group"].round(2), width="stretch", hide_index=True)
                 if isinstance(r.get("units"), pd.DataFrame) and len(r["units"]):
                     with st.expander(f"{eff} — per-participant × speed estimates"):
-                        st.dataframe(r["units"], use_container_width=True, hide_index=True)
+                        st.dataframe(r["units"], width="stretch", hide_index=True)
                 if isinstance(r.get("mixture"), pd.DataFrame) and len(r["mixture"]):
                     ui.eyebrow("Two-component saccade cells")
                     mixtbl = r["mixture"].copy()
@@ -673,7 +649,7 @@ if SS.results or SS.later:
                                                      "express_mode", "reg_mode",
                                                      "fast mode < 130 ms"]
                                          if c in mixtbl.columns]].round(2),
-                                 use_container_width=True, hide_index=True)
+                                 width="stretch", hide_index=True)
                     n_true = int((mixtbl["express_mode"] < 130).sum()) if "express_mode" in mixtbl else 0
                     ui.hint(f"{len(mixtbl)} cells needed two components; in {n_true} of them the "
                             f"faster component is actually in express territory (under 130 ms). "
@@ -701,7 +677,7 @@ if SS.results or SS.later:
                 else:
                     st.warning("Not fully converged — raise the sampler effort for a final run.")
                 if g and isinstance(g.get("by_condition"), pd.DataFrame) and len(g["by_condition"]):
-                    st.dataframe(g["by_condition"].round(3), use_container_width=True, hide_index=True)
+                    st.dataframe(g["by_condition"].round(3), width="stretch", hide_index=True)
             if not shown:
                 st.info("Run the full Bayesian fit to see convergence and goodness-of-fit.")
 
@@ -740,7 +716,7 @@ if SS.results or SS.later:
                 cB.metric("Express-dominant participants",
                           f"{int(lat['per_participant']['express_dominant'].sum())} / "
                           f"{len(lat['per_participant'])}")
-                st.dataframe(lat["per_participant"].round(3), use_container_width=True, hide_index=True)
+                st.dataframe(lat["per_participant"].round(3), width="stretch", hide_index=True)
             else:
                 st.info("LATER runs when saccadic (eye) trials are included.")
 
@@ -814,8 +790,8 @@ if SS.results or SS.later:
                 ready = SS.get(f"dl_{key}")
                 if ready is not None:
                     col.download_button(f"Download {label}", ready, file_name=fname,
-                                        mime=mime, use_container_width=True, key=f"dlb_{key}")
-                elif col.button(f"Prepare {label}", use_container_width=True, key=f"prep_{key}"):
+                                        mime=mime, width="stretch", key=f"dlb_{key}")
+                elif col.button(f"Prepare {label}", width="stretch", key=f"prep_{key}"):
                     asked = key
 
             if asked:
@@ -833,7 +809,7 @@ if SS.results or SS.later:
                     panel.update(label=f"{label} ready", state="complete", expanded=False)
                     # offered right here, so nothing moves and no rerun is needed
                     st.download_button(f"Download {label}", blob, file_name=fname, mime=mime,
-                                       use_container_width=True, key=f"dlnow_{asked}",
+                                       width="stretch", key=f"dlnow_{asked}",
                                        type="primary")
                 except Exception as e:
                     panel.update(label=f"{label} failed", state="error")
@@ -853,6 +829,6 @@ if SS.results or SS.later:
                         csv = (exports.to_hrt_fits_csv(res_all[eff]) if eff == "hand"
                                else exports.to_srt_fits_csv(res_all[eff])).to_csv(index=False)
                         col.download_button(fn, csv, file_name=fn, mime="text/csv",
-                                            use_container_width=True)
+                                            width="stretch")
             except Exception as e:
                 st.error(f"Report error: {e}")

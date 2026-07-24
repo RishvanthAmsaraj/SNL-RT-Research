@@ -22,6 +22,8 @@ and LATER features) still work when PyMC is not installed.
 
 from __future__ import annotations
 
+import os
+
 
 import numpy as np
 import pandas as pd
@@ -270,51 +272,22 @@ def _cell_worker(item):
                  "ks": ks, "ks_single": ks, "nll": nll, "mixture": None}
 
 
-def _ping(x):
-    """Trivial task used to check that worker processes actually start."""
-    return x
-
-
-PARALLEL_PROBE_TIMEOUT = 30.0     # seconds to confirm workers can start
-PARALLEL_TASK_TIMEOUT = 300.0     # seconds to wait for any single cell
-
-
 def default_jobs() -> int:
     """
-    One by default: fitting runs in this process.
+    How many workers to fit cells with.
 
-    Cell fits are independent and could be spread across cores, but joblib's
-    process backend starts fresh interpreters that re-import this module, and under
-    `streamlit run` that has been seen to hang rather than fail cleanly -- on
-    Windows especially, where spawning is the only option. The same concern is why
-    the sampler runs its chains with cores=1. A run that finishes slowly is worth
-    more than one that stalls, so parallelism is opt-in via the interface and
-    guarded by the checks below.
+    Threads, not processes. Cell fits are independent, so they parallelise cleanly,
+    but joblib's process backend starts fresh interpreters that re-import the main
+    module -- and under `streamlit run` on Windows that re-runs the app script
+    inside each worker, which has been seen both to hang a run and to briefly
+    duplicate the interface. Threads cannot do either. Much of the optimiser's time
+    is inside NumPy and SciPy, which release the interpreter lock, so threads still
+    help; the result is identical to running the cells one after another.
     """
-    return 1
-
-
-def parallel_probe(n_jobs: int = 2) -> tuple[bool, str]:
-    """
-    Check that worker processes really start, without risking a long stall.
-
-    Returns (ok, reason). A couple of trivial tasks answer the question in about a
-    second when the backend is healthy, and give up quickly when it is not.
-    """
-    if n_jobs < 2:
-        return False, "single core requested"
     try:
-        from joblib import Parallel, delayed
-    except Exception as e:
-        return False, f"joblib unavailable ({type(e).__name__})"
-    try:
-        got = Parallel(n_jobs=2, timeout=PARALLEL_PROBE_TIMEOUT)(
-            delayed(_ping)(i) for i in (1, 2))
-        if got == [1, 2]:
-            return True, "workers started"
-        return False, "workers returned unexpected results"
-    except Exception as e:
-        return False, f"workers did not start ({type(e).__name__})"
+        return max(1, min(8, (os.cpu_count() or 1)))
+    except Exception:
+        return 1
 
 
 def map_cells(items, n_jobs: int = -1, progress=None, offset: int = 0,
@@ -326,10 +299,8 @@ def map_cells(items, n_jobs: int = -1, progress=None, offset: int = 0,
     caller report against a larger span than this batch, so a bar does not restart
     when work is split into several calls.
 
-    Parallel execution is attempted only when asked for, only after `parallel_probe`
-    confirms workers start, and with a per-result timeout so a stalled worker falls
-    back to running in this process instead of hanging the run. Cells are
-    independent and seeded individually, so the schedule never affects the result.
+    Cells are independent and seeded individually, so how the work is scheduled
+    never affects the result; any failure falls back to running them in order.
     """
     items = list(items)
     total = len(items)
@@ -340,11 +311,11 @@ def map_cells(items, n_jobs: int = -1, progress=None, offset: int = 0,
     if n_jobs is None or n_jobs < 0:
         n_jobs = default_jobs()
 
-    if n_jobs > 1 and total > 1 and parallel_probe(n_jobs)[0]:
+    if n_jobs > 1 and total > 1:
         try:
             from joblib import Parallel, delayed
             done = 0
-            gen = Parallel(n_jobs=min(n_jobs, total), timeout=PARALLEL_TASK_TIMEOUT,
+            gen = Parallel(n_jobs=min(n_jobs, total), prefer="threads",
                            return_as="generator_unordered")(
                 delayed(_cell_worker)(it) for it in items)
             for key, res in gen:
@@ -354,10 +325,9 @@ def map_cells(items, n_jobs: int = -1, progress=None, offset: int = 0,
                     progress(offset + done, span)
             if len(out) == total:
                 return out
-            # partial result: finish the remainder in this process
             items = [it for it in items if it[0] not in out]
         except Exception:
-            out = {}                      # fall back to running here
+            out = {}
 
     done = len(out)
     for it in items:

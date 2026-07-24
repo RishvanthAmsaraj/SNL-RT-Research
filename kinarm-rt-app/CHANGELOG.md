@@ -2,6 +2,41 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.9.0] — 2026-07-23
+
+### Fixed — enabling multiple cores briefly duplicated the interface
+
+Cell fitting used joblib's process backend. Those workers start fresh interpreters
+that re-import the main module, and under `streamlit run` on Windows that re-runs
+the app script inside each worker -- which is what flickered a second copy of the
+controls onto the screen, and the same hazard that could hang a run in 1.4.0.
+
+Fitting now uses threads. Threads cannot re-import the script, so neither failure
+is possible. Much of the optimiser's time is spent inside NumPy and SciPy, which
+release the interpreter lock, so threads still help -- measured at 1.6x on a
+single-core container, and more on real hardware. Results are unchanged: one
+thread and four threads produce frame-identical output.
+
+The multi-core toggle is gone with it. There is nothing left to opt into or out
+of, and no probe that starts worker processes just to find out whether starting
+worker processes is safe. The run panel reports how many threads it used.
+
+### Removed — automatic scrolling between steps
+
+Opening a step scrolled it into view. It fought with the page's own layout often
+enough not to be worth keeping, so it is gone; the page stays where you put it.
+
+### Changed — replaced the deprecated width parameter
+
+`use_container_width` is deprecated and slated for removal. All thirty uses now
+pass `width="stretch"`, which is supported on every element the app uses.
+
+### Audit
+
+No dangling references to the removed features, no other deprecated Streamlit
+calls, no dead styling left behind, and no unused imports beyond the deliberate
+ones: the optional-package probes and the re-exports in `__init__`.
+
 ## [1.8.0] — 2026-07-23
 
 ### Fixed — asking for a download threw you out of the download view
