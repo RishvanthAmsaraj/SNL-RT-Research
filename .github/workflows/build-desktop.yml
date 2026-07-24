@@ -55,7 +55,7 @@ jobs:
           miniforge-version: latest
           activate-environment: kinarm-rt-desktop
           environment-file: kinarm-rt-app/environment-desktop.yml
-          auto-activate: base
+          auto-activate: true
           conda-remove-defaults: true
 
       - name: Add the C++ toolchain
@@ -93,7 +93,9 @@ jobs:
           python -m pytest -q
 
       - name: Install conda-pack (base env — it's a conda subcommand)
-        run: conda install -y -c conda-forge conda-pack
+        run: |
+          conda deactivate 2>/dev/null || true
+          conda install -y -c conda-forge conda-pack
 
       - name: Pack the environment
         working-directory: kinarm-rt-app
