@@ -18,15 +18,18 @@ than a frozen executable, so the interpreter and the script are given separately
 from __future__ import annotations
 
 import os
+import queue
 import re
 import subprocess
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
 
 STARTUP_TIMEOUT = 180.0     # cold start on a CI runner is slow
 RENDER_TIMEOUT = 120.0
+READ_TIMEOUT = 30.0         # max seconds to wait for a single line before giving up
 URL_PATTERN = re.compile(r"http://127\.0\.0\.1:\d+")
 
 
@@ -63,8 +66,29 @@ def main() -> int:
     url = None
     bayesian_line = None          # True/False once the launcher reports it
     deadline = time.time() + STARTUP_TIMEOUT
-    while time.time() < deadline:
+
+    # readline() can block forever if the child hangs; wrap in a thread with a
+    # timeout so a stuck process is detected instead of leaving CI spinning.
+    lines: queue.Queue = queue.Queue()
+
+    def _enqueue_line() -> None:
         line = proc.stdout.readline()
+        lines.put(line)
+
+    def _next_line(timeout: float = READ_TIMEOUT) -> str | None:
+        t = threading.Thread(target=_enqueue_line, daemon=True)
+        t.start()
+        try:
+            return lines.get(timeout=timeout)
+        except queue.Empty:
+            return None
+
+    while time.time() < deadline:
+        line = _next_line()
+        if line is None:
+            print(f"   (no output for {READ_TIMEOUT:.0f}s — app appears hung)",
+                  file=sys.stderr)
+            break
         if not line:
             break
         print("   ", line.rstrip())
