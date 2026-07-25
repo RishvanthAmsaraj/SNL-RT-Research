@@ -1,203 +1,157 @@
-# KINARM reaction-time analysis app
+# SNL RT Research
 
-A point-and-click app that reproduces the SNL-RT-Research reaction-time pipeline.
-Upload a trial file, map the columns, choose a fitting mode, and download a report
-with every table and figure. No IDE, no editing scripts.
+**Hierarchical Bayesian drift-diffusion modeling of hand and saccadic reaction times from a KINARM interception task.**
 
-The interface is a modern, themed single page — a guided four-step flow (Load →
-Filter → Fit → Results) with an animated progress indicator, card-based sections,
-and smooth transitions. Theme and layout live in `.streamlit/config.toml` and
-`kinarm_rt/ui.py`.
-
-It fits the same models as the repository:
-
-- a **single-boundary shifted-Wald** (drift *v*, boundary *a*, non-decision time
-  *t₀*), estimated hierarchically with partial pooling across participant × speed
-  units, using the exact likelihood, priors, and bounds from `CODE_REFERENCE.md`;
-- an **express/regular two-component Wald mixture** for bimodal saccade cells,
-  flagged by Hartigan's dip test (with a Gaussian-mixture fallback);
-- the **LATER reciprobit model** for saccades (no non-decision parameter, so
-  nothing can floor).
-
-It also adds analyses beyond the basic fit:
-
-- a **non-decision-time dissociation** battery (Friedman, participant bootstrap,
-  and permutation tests) for the hand-vs-eye speed effect;
-- **fixed-t₀ sensitivity** and an **identifiability sweep** for saccades;
-- **mixture-threshold sensitivity** and model-free **vincentiles**;
-- a **parameter-recovery study** that shows hand *t₀* is recovered while saccadic
-  *t₀* is not;
-- **model comparison** by PSIS-LOO (estimated vs fixed *t₀*) and a **frequentist
-  Method A** fit (differential evolution) for a Method-A-vs-B check;
-- a **per-speed hierarchical model** (group parameters per speed with credible
-  intervals) and an optional **LKJ correlated-effects** version that reveals how
-  participants' drift, boundary, and non-decision time covary;
-- **repo-format CSV export** (`Bayesian_hrt_fits.csv`, `Bayesian_srt_fits.csv`)
-  that drops straight into the pipeline's downstream scripts.
-
-The core fit is **validated against the real `pooled_data.csv`**: it reproduces
-`Bayesian_hrt_fits.csv` with per-cell t₀ correlation r = 0.999 (mean difference
-0.4 ms) and LATER median r² = 0.971, matching the published values.
-
-Hand *t₀* is identified above the 130 ms floor; saccadic *t₀* floors at 70 ms and
-is reported as fixed — the app reproduces that diagnosis rather than hiding it.
+A research project from the Penn State Sensorimotor Neuroscience Lab (ReSESENSE Labs). Fits single-boundary shifted-Wald models to reaction-time data from 16 participants performing an interception task at three target speeds (0, 75, 150 deg/s) — 7,676 trials total. The headline finding is a **dissociation in non-decision time**: hand t₀ decreases with target speed while saccadic t₀ does not.
 
 ---
 
-## Run it — three ways
+## The Model
 
-You only need one. **Docker is the most robust and is identical on macOS and
-Windows.** Conda is best if you already use it. Pip works but PyMC can be fiddly
-to build on Windows.
+The KINARM interception task is *go-type* — participants initiate a movement when the target appears, with no binary choice. The correct descriptive model is the **single-boundary diffusion**, whose first-passage-time density is the **shifted Wald** (inverse Gaussian with temporal shift t₀).
 
-### Option A — Docker (most robust, same on every OS)
+| Parameter | Symbol | Meaning |
+|---|---|---|
+| Drift rate | *v* | Rate of evidence accumulation toward the action threshold |
+| Boundary separation | *a* | Evidence required before response initiation |
+| Non-decision time | *t₀* | Sensory + motor time outside the decision process |
 
-Install Docker Desktop, then from this folder:
+**Two estimation methods:**
 
-```bash
-docker build -t kinarm-rt .
-docker run -p 8501:8501 kinarm-rt
+- **Method A (frequentist MLE).** Maximum likelihood via differential evolution with a 95% Wald + 5% uniform contamination mixture (Ratcliff & Tuerlinckx, 2002).
+- **Method B (hierarchical Bayesian).** Partial pooling across participant × speed units using PyMC/NUTS, with non-centered parametrization and R-hat convergence diagnostics (Wiecki et al., 2013; Gelman et al., 2013).
+
+Additional components: **express/regular two-component Wald mixture** for bimodal saccade cells (flagged by Hartigan's dip test), and the **LATER reciprobit model** as a complementary saccade-native analysis (Carpenter & Williams, 1995).
+
+---
+
+## Key Findings
+
+### The Dissociation
+
+| Speed | Hand t₀ (95% CI) | Saccadic t₀ |
+|---|---|---|
+| 0 deg/s | 170 ms (154–182) | Fixed at 70 ms |
+| 75 deg/s | 158 ms (139–174) | Fixed at 70 ms |
+| 150 deg/s | 148 ms (130–162) | Fixed at 70 ms |
+| **Friedman p** | **0.003** | Not testable (fixed) |
+
+- **Hand t₀ decreases with target speed** — participants initiate hand responses faster when the target moves faster. The effect is triangulated by Friedman, participant-resampling bootstrap, and within-participant permutation tests.
+- **Saccadic t₀ is not identifiable above the physiological floor.** The data cannot separate non-decision time from sensory/motor conduction in saccades. The model collapses to 70 ms for all participants when estimated at the participant level — a diagnosis, not a bug.
+- **The saccadic floor-piling has a mechanism.** Saccadic latencies have low skew/CV (~3.4), which forces an implied t₀ of ~20–30 ms — below the 70 ms physiological minimum. Hand latencies have high skew/CV (~12.9), which pushes implied t₀ to ~191 ms — well above the 130 ms floor and identifiable.
+- **LATER confirms the picture.** Saccadic latencies fall on straight reciprobit lines (median r² = 0.98). LATER has no non-decision-time parameter, so the floor question never arises.
+
+### Parameter Bounds (Literature-Anchored, Phase 2)
+
+| Bound | Value | Source |
+|---|---|---|
+| Drift cap V<sub>max</sub> | 20 | Tran et al. (2020) systematic review |
+| Hand t₀ floor | 130 ms | Haith et al. (2016), reach-preparation minimum |
+| HRT data filter | 150–800 ms | Whelan (2008) + Luce (1986) |
+| SRT data filter | 80–600 ms | Fischer & Weber (1993) + Luce (1986) |
+| Saccadic t₀ floor | 70 ms | Bompas & Sumner (2011); reported as fixed |
+
+---
+
+## Repository Structure
+
+```
+SNL-RT-Research/
+│
+├── Current Pipeline/              ← Active production pipeline (v2.0+)
+│   ├── Code/
+│   │   ├── Bayesian/              Hierarchical Bayesian fits (NUTS)
+│   │   ├── DDM/                   Frequentist MLE fits (diagnostic/comparison)
+│   │   ├── LATER Model/           Saccade-native reciprobit analysis
+│   │   ├── NDT/                   Non-decision time bar charts
+│   │   ├── SRT Analysis/          Identifiability checks, sensitivity sweeps
+│   │   ├── Vincentile/            Model-free raw-RT distribution figures
+│   │   └── CODE_REFERENCE.md      Canonical model specification & run order
+│   ├── Documents/                 Reports, justification PDFs, RUN_GUIDE
+│   ├── Figures/                   All generated figures (PDF + PNG)
+│   └── ISSUES_AND_IMPROVEMENTS.md
+│
+├── Deprecated Pipelines/          ← Preserved historical versions
+│   ├── Deprecated Ver 1/          Phase 0: PyDDM prototypes, synthetic data
+│   ├── Deprecated Ver 2/          Phase 0: Native MLE, first real pipeline
+│   ├── Deprecated Ver 2.5/        Phase 1: Early Bayesian refinement
+│   └── Deprecated Ver 3/          Phase 1–1.5: Full hierarchical, dissociation
+│
+├── kinarm-rt-app/                 ← Streamlit GUI + headless CLI
+│   ├── app.py                     Interactive point-and-click interface
+│   ├── run_pipeline.py            Batch mode (config-driven, no GUI)
+│   ├── Dockerfile                 Reproducible container (conda-forge PyMC)
+│   └── README.md                  App user guide — installation, usage, deployment
+│
+├── DEVELOPMENT_HISTORY.md         Complete project evolution narrative
+├── CHANGELOG.md                   Keep a Changelog format with version-to-folder mapping
+├── REFERENCES.md                  Organized bibliography by topic with species/task context
+├── REFERENCES.bib                 BibTeX references
+└── LICENSE                        MIT
 ```
 
-Open <http://localhost:8501>. This uses the conda-forge PyMC build, so there is
-no compiler setup on any operating system.
+Each deprecated version carries its own `ISSUES_AND_IMPROVEMENTS.md` documenting why it was superseded. See [DEVELOPMENT_HISTORY.md](DEVELOPMENT_HISTORY.md) for the full narrative arc.
 
-### Option B — conda (recommended for local use)
+---
+
+## Documentation Index
+
+| Document | What it covers |
+|---|---|
+| [`CODE_REFERENCE.md`](Current%20Pipeline/Code/CODE_REFERENCE.md) | Model specification, parameters, bounds, priors, run order, DOIs |
+| [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md) | Full evolution from PyDDM toy → literature-anchored Bayesian pipeline |
+| [`CHANGELOG.md`](CHANGELOG.md) | Version history with repo folder mapping, per-version changes, migration guide |
+| [`REFERENCES.md`](REFERENCES.md) | Citations organized by role (Tier 1 core / Tier 2 context / Tier 3 general) |
+| [`Current Pipeline/ISSUES_AND_IMPROVEMENTS.md`](Current%20Pipeline/ISSUES_AND_IMPROVEMENTS.md) | Known limitations, resolved items, future roadmap |
+| [`Current Pipeline/Documents/RUN_GUIDE.md`](Current%20Pipeline/Documents/RUN_GUIDE.md) | Installation and execution order for the research pipeline |
+
+---
+
+## The App
+
+The [`kinarm-rt-app/`](kinarm-rt-app/) directory contains a point-and-click Streamlit application and a headless CLI that reproduce the full pipeline. It fits the same models (shifted-Wald hierarchical Bayesian, MLE with contamination, express/regular mixtures, LATER reciprobit) and adds analyses beyond the basic fit — dissociation test battery, parameter recovery, sensitivity sweeps, PSIS-LOO model comparison, and per-speed hierarchical models with LKJ correlated effects.
+
+The app is the recommended entry point for anyone who wants to explore the models without writing code. It is validated against the real `pooled_data.csv`: hand t₀ per-cell correlation r = 0.999, LATER median r² = 0.971.
+
+→ **[kinarm-rt-app/README.md](kinarm-rt-app/README.md)** — installation, usage, data format, and deployment options
+
+---
+
+## Quick Start
 
 ```bash
-conda env create -f environment.yml
-conda activate kinarm-rt
-streamlit run app.py
-```
+git clone https://github.com/RishvanthAmsaraj/SNL-RT-Research.git
+cd SNL-RT-Research
 
-### Option C — pip
+# Pipeline (requires Python + PyMC — see RUN_GUIDE.md):
+cd "Current Pipeline/Code"
+# Run order: fits → figures → diagnostics
 
-```bash
-python -m venv .venv
-# macOS/Linux:
-source .venv/bin/activate
-# Windows:
-.venv\Scripts\activate
-
+# App (no coding required):
+cd kinarm-rt-app
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-If PyMC fails to build under pip on Windows, use Option A or B — both avoid the
-C-compiler step. The app still runs the **fast preview** and the **LATER model**
-even if PyMC is missing; only the full Bayesian fit needs it.
+---
 
-### One-click launchers
+## Key References
 
-- macOS / Linux: `./run_app.sh` (run `chmod +x run_app.sh` once)
-- Windows: double-click `run_app.bat`
+- Anders, R., Alario, F.-X., & Van Maanen, L. (2016). The shifted Wald distribution for response time data analysis. *Psychological Methods*, 21(3), 309–327.
+- Wiecki, T. V., Sofer, I., & Frank, M. J. (2013). HDDM: Hierarchical Bayesian estimation of the drift-diffusion model in Python. *Frontiers in Neuroinformatics*, 7, 14.
+- Tran, N., van Maanen, L., Heathcote, A., & Matzke, D. (2020). Systematic parameter reviews in cognitive modeling. *Frontiers in Psychology*, 11, 608287.
+- Haith, A. M., Pakpoor, J., & Krakauer, J. W. (2016). Independence of movement preparation and movement initiation. *Journal of Neuroscience*, 36(10), 3007–3015.
+- Carpenter, R. H. S., & Williams, M. L. L. (1995). Neural computation of log likelihood in control of saccadic eye movements. *Nature*, 377, 59–62.
+- Ratcliff, R., & Tuerlinckx, F. (2002). Estimating parameters of the diffusion model. *Psychonomic Bulletin & Review*, 9(3), 438–481.
 
-They start the app if it is set up, and print setup instructions if it is not.
+Full bibliography: [`REFERENCES.md`](REFERENCES.md) | [`REFERENCES.bib`](REFERENCES.bib)
 
 ---
 
-## Using the app
+## License
 
-Four steps on the page: **Load → Filter → Fit → Results**.
-
-- **Load.** Upload a trial file or load the built-in example. The repository's
-  wide `pooled_data.csv` works directly — map the hand and saccade RT columns,
-  the speed column, and set the BlockType filter to `I`.
-- **Filter.** Inclusion windows default to the physiology (hand 150–800 ms,
-  saccades 80–600 ms) and are editable.
-- **Fit.** Pick effectors and a mode. The **preview** (maximum likelihood)
-  returns in seconds. The **full Bayesian** fit runs NUTS and takes a few minutes
-  for a full dataset; the page updates when it finishes.
-- **Results.** Parameter tables (including express/regular mixture cells),
-  convergence and KS diagnostics, figures in the house style, and a one-click
-  report download (HTML plus a ZIP of figures and CSVs).
-
-**Timing.** Use the "Fast" sampler preset while setting up, then "Standard" or
-"Thorough" (1500/1500/4, matching the repo) for numbers you will report.
-
-The **Advanced analyses** and **Model comparison** tabs hold the dissociation
-tests, sensitivity analyses, vincentiles, parameter recovery, LOO comparison, and
-the frequentist Method A fit. The fast analyses run on demand from the filtered
-data; the comparison and Method A fits refit models, so they take a little time.
+MIT — see [LICENSE](LICENSE).
 
 ---
 
-## Run the whole thing from the command line (no GUI)
-
-For batch or cluster use:
-
-```bash
-python run_pipeline.py                          # example data, defaults
-python run_pipeline.py --data pooled_data.csv   # your data
-python run_pipeline.py --config config.example.yaml
-python run_pipeline.py --preview                # fast MLE, no NUTS
-```
-
-It writes repo-format CSVs, all figures, the analysis tables, and an HTML report
-to the output folder. Edit `config.example.yaml` to control the mapping, windows,
-sampler settings, and which analyses to run.
-
----
-
-## Give it to someone who will not install anything
-
-- **Docker** (above) — hand them the folder and two commands.
-- **Streamlit Community Cloud** — push to a GitHub repo and deploy for free at
-  share.streamlit.io; users get a URL. The free tier is slow for NUTS, so the
-  preview mode is the better default there.
-
----
-
-## Data format
-
-The app accepts the repository's **wide** layout (one row per trial with both
-RTs) or a **long** layout (one RT column plus an effector column). Columns can be
-named anything; you map them in the app. Recognised repository columns:
-
-| meaning            | repository column            |
-|--------------------|------------------------------|
-| participant id     | `Participant`                |
-| hand RT (ms)       | `HandRT_ms`                  |
-| saccade RT (ms)    | `GazeSRT_ms`                 |
-| speed              | `Speed_deg_per_s` or `SpeedCode` (1/2/3) |
-| interception trials| `BlockType` == `I`           |
-
-RT units are auto-detected (ms vs s) or you can set them explicitly.
-
----
-
-## What runs without PyMC
-
-| Feature                          | Needs PyMC? |
-|----------------------------------|-------------|
-| Loading, filtering, data checks  | no          |
-| MLE preview (v, a, t₀)           | no          |
-| LATER reciprobit + figures       | no          |
-| Report / bundle export           | no          |
-| Full hierarchical Bayesian fit   | **yes**     |
-| Express/regular Bayesian mixture | **yes**     |
-
-`diptest` is recommended (it is the repository's bimodality test); without it the
-app falls back to a Gaussian-mixture BIC comparison.
-
----
-
-## Project layout
-
-```
-app.py                     the Streamlit GUI
-kinarm_rt/
-  _speeds.py               constants (bounds, filters, floors) from CODE_REFERENCE.md
-  data.py                  loading (wide/long), validation, synthetic data
-  filters.py               physiological inclusion windows
-  models/wald.py           shifted-Wald: pooled hierarchical + mixture + MLE preview
-  models/later.py          LATER reciprobit model
-  diagnostics.py           goodness of fit, convergence summary
-  figures.py               publication-style figures (repo palette)
-  report.py                HTML / ZIP export
-sample_data/               a ready-to-load example (repository's wide shape)
-tests/                     smoke tests (pytest)
-environment.yml            conda environment
-Dockerfile                 reproducible container
-RESEARCH_AND_ROADMAP.md    review + improvements aligned to the repo's own roadmap
-```
+*Research conducted at **ReSESENSE Labs**, Department of Informatics and Intelligent Systems, Penn State University. For questions about the pipeline or the KINARM dataset, contact the repository owner.*

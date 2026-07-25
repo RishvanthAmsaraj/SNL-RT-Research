@@ -37,3 +37,8 @@ kinarm-rt-app/output/
 kinarm-rt-app/*.zip
 kinarm-rt-app/__pycache__/
 kinarm-rt-app/.venv/
+kinarm-rt-app/env.tar.gz
+kinarm-rt-app/staging/
+kinarm-rt-app/stubdist/
+kinarm-rt-app/stubbuild/
+kinarm-rt-app/stubspec/
