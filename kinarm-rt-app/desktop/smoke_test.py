@@ -27,7 +27,11 @@ import time
 import urllib.error
 import urllib.request
 
-STARTUP_TIMEOUT = 180.0     # cold start on a CI runner is slow
+# On Windows CI runners the first import of the scientific stack from a
+# cold conda-packed environment can take several minutes.  The timeout is
+# generous so a slow machine is not mistaken for a hung one.
+_STARTUP_DEFAULT = 600.0
+STARTUP_TIMEOUT = float(os.environ.get("KINARM_SMOKE_STARTUP_TIMEOUT", _STARTUP_DEFAULT))
 RENDER_TIMEOUT = 120.0
 READ_TIMEOUT = 30.0         # max seconds to wait for a single line before giving up
 URL_PATTERN = re.compile(r"http://127\.0\.0\.1:\d+")
@@ -60,6 +64,7 @@ def main() -> int:
     print(f"launching {' '.join(cmd)}")
     env = dict(os.environ)
     env.pop("DISPLAY", None)        # force the browser fallback: CI has no desktop
+    env["PYTHONUNBUFFERED"] = "1"   # get output immediately, not after buffer fills
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, env=env)
 
