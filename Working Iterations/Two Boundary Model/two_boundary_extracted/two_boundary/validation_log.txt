@@ -1,0 +1,49 @@
+
+1. QUADRATURE -- density integrates to the analytic barrier probability
+  [PASS] v=  2.0 a=1.2 w=0.50  (unbiased, moderate drift)  P(up)=0.916827 vs 0.916827, total=1.000000
+  [PASS] v=  0.0 a=1.0 w=0.50  (zero drift, unbiased -> 50/50)  P(up)=0.500000 vs 0.500000, total=1.000000
+  [PASS] v= -1.5 a=1.5 w=0.50  (negative drift)  P(up)=0.095349 vs 0.095349, total=1.000000
+  [PASS] v=  1.0 a=1.0 w=0.30  (start point biased low)  P(up)=0.521807 vs 0.521807, total=1.000000
+  [PASS] v=  1.0 a=1.0 w=0.70  (start point biased high)  P(up)=0.871324 vs 0.871324, total=1.000000
+  [PASS] v=  6.0 a=1.0 w=0.50  (fast drift, few errors)  P(up)=0.997527 vs 0.997527, total=1.000000
+  [PASS] v=  0.5 a=2.5 w=0.55  (wide boundary, slow)  P(up)=0.813976 vs 0.813976, total=1.000000
+  [PASS] v=  3.0 a=0.6 w=0.45  (narrow boundary, fast)  P(up)=0.824633 vs 0.824633, total=1.000000
+  [PASS] v= 10.0 a=1.0 w=0.50  (very fast drift (~no errors))  P(up)=0.999955 vs 0.999955, total=1.000000
+
+2. SIMULATION -- density matches Monte-Carlo (KS on upper-barrier RTs)
+  [PASS] v=  2.0 a=1.2 w=0.50  (unbiased, moderate drift)  n_up= 7379  KS D=0.0229 (crit 0.0424); P(up) sim=0.9224 vs 0.9168
+  [PASS] v=  0.0 a=1.0 w=0.50  (zero drift, unbiased -> 50/50)  n_up= 3986  KS D=0.0191 (crit 0.0505); P(up) sim=0.4983 vs 0.5000
+  [PASS] v= -1.5 a=1.5 w=0.50  (negative drift)  n_up=  754  KS D=0.0663 (crit 0.0900); P(up) sim=0.0943 vs 0.0953
+  [PASS] v=  1.0 a=1.0 w=0.30  (start point biased low)  n_up= 4270  KS D=0.0148 (crit 0.0494); P(up) sim=0.5337 vs 0.5218
+
+3. AGREEMENT -- PyTensor (fixed terms) vs NumPy (adaptive terms)
+  [PASS] v=  2.0 a=1.2 w=0.50 lower  max |log-density error| = 1.78e-15
+  [PASS] v=  2.0 a=1.2 w=0.50 upper  max |log-density error| = 3.55e-15
+  [PASS] v=  0.0 a=1.0 w=0.50 lower  max |log-density error| = 3.05e-15
+  [PASS] v=  0.0 a=1.0 w=0.50 upper  max |log-density error| = 3.05e-15
+  [PASS] v= -1.5 a=1.5 w=0.50 lower  max |log-density error| = 1.78e-15
+  [PASS] v= -1.5 a=1.5 w=0.50 upper  max |log-density error| = 1.78e-15
+  [PASS] v=  1.0 a=1.0 w=0.30 lower  max |log-density error| = 3.66e-15
+  [PASS] v=  1.0 a=1.0 w=0.30 upper  max |log-density error| = 3.64e-15
+  [PASS] v=  1.0 a=1.0 w=0.70 lower  max |log-density error| = 3.55e-15
+  [PASS] v=  1.0 a=1.0 w=0.70 upper  max |log-density error| = 3.55e-15
+  [PASS] v=  6.0 a=1.0 w=0.50 lower  max |log-density error| = 1.42e-14
+  [PASS] v=  6.0 a=1.0 w=0.50 upper  max |log-density error| = 1.42e-14
+  [PASS] v=  0.5 a=2.5 w=0.55 lower  max |log-density error| = 2.84e-14
+  [PASS] v=  0.5 a=2.5 w=0.55 upper  max |log-density error| = 7.11e-15
+  [PASS] v=  3.0 a=0.6 w=0.45 lower  max |log-density error| = 1.42e-14
+  [PASS] v=  3.0 a=0.6 w=0.45 upper  max |log-density error| = 1.42e-14
+  [PASS] v= 10.0 a=1.0 w=0.50 lower  max |log-density error| = 2.84e-14
+  [PASS] v= 10.0 a=1.0 w=0.50 upper  max |log-density error| = 2.84e-14
+  worst-case error across the whole grid: 2.842e-14
+
+4. GRADIENTS -- finite d(logp)/d(v, a, w), and finite-difference agreement
+  [PASS] v=  2.0 a=1.2 w=0.50  (unbiased, moderate drift)  max relative grad error = 9.02e-10
+  [PASS] v=  0.0 a=1.0 w=0.50  (zero drift, unbiased -> 50/50)  max relative grad error = 1.74e-10
+  [PASS] v= -1.5 a=1.5 w=0.50  (negative drift)  max relative grad error = 6.34e-10
+  [PASS] v=  1.0 a=1.0 w=0.30  (start point biased low)  max relative grad error = 1.51e-10
+  [PASS] v=  1.0 a=1.0 w=0.70  (start point biased high)  max relative grad error = 6.16e-10
+  [PASS] v=  6.0 a=1.0 w=0.50  (fast drift, few errors)  max relative grad error = 2.91e-10
+
+======================================================================
+ALL CHECKS PASSED -- the WFPT density is correct and differentiable.

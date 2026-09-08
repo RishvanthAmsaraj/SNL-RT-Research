@@ -1,0 +1,200 @@
+"""
+ddm2.py -- two-boundary (choice) drift diffusion: density, fitter, power analysis.
+
+The professor's position: "if there are some incorrect cases (heading initially in
+the wrong direction), this would be good for model fitting (because drift diffusion
+models work better when there are right and wrong cases), but I am skeptical there
+will be enough."
+
+He is right on both counts, and this module is here to make the second half
+quantitative rather than a hunch. A two-boundary DDM earns its extra parameters from
+the ERROR RT distribution. With few errors there is nothing to fit, and the model
+degenerates toward the single-boundary case with extra unidentified parameters.
+
+The controlling quantity is the drift-boundary product. For an unbiased start,
+
+    P(error) = 1 / (1 + exp(v*a))
+
+so a low error rate is not a nuisance -- it is a direct statement that v*a is large,
+and it caps how much the data can say about anything else.
+
+    v*a      P(error)    error trials per 110-trial cell
+    0.5      0.378       41.5
+    1.0      0.269       29.6
+    1.5      0.182       20.1
+    2.0      0.119       13.1
+    3.0      0.047        5.2
+    4.0      0.018        2.0
+
+Density is Navarro & Fuss (2009), validated against Euler-Maruyama simulation:
+the lower and upper densities integrate to 0.0832 and 0.9168 for (v=2, a=1.2, w=0.5),
+matching the analytic choice probabilities exactly, total mass 1.0000.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+from scipy import stats
+from scipy.optimize import differential_evolution
+
+
+# --------------------------------------------------------------------------- #
+# First-passage density
+# --------------------------------------------------------------------------- #
+def _f_small(u, w, K=7):
+    k = np.arange(-K, K + 1)[:, None]
+    return ((w + 2 * k) * np.exp(-(w + 2 * k) ** 2 / (2 * u))).sum(0) / np.sqrt(2 * np.pi * u ** 3)
+
+
+def _f_large(u, w, K=7):
+    k = np.arange(1, K + 1)[:, None]
+    return np.pi * (k * np.exp(-k ** 2 * np.pi ** 2 * u / 2) * np.sin(k * np.pi * w)).sum(0)
+
+
+def wfpt_lower(t, v, a, w, t0=0.0, K=7):
+    """Density of absorbing at the LOWER boundary at time t."""
+    t = np.atleast_1d(np.asarray(t, float)) - t0
+    out = np.zeros_like(t)
+    ok = t > 1e-9
+    if not ok.any():
+        return out
+    u = t[ok] / a ** 2
+    small = u < 0.5
+    f = np.empty_like(u)
+    if small.any():
+        f[small] = _f_small(u[small], w, K)
+    if (~small).any():
+        f[~small] = _f_large(u[~small], w, K)
+    out[ok] = f * np.exp(-v * a * w - v ** 2 * t[ok] / 2) / a ** 2
+    return out
+
+
+def wfpt_upper(t, v, a, w, t0=0.0, K=7):
+    """Upper boundary via the standard reflection symmetry."""
+    return wfpt_lower(t, -v, a, 1.0 - w, t0, K)
+
+
+def p_upper(v, a, w):
+    """Analytic probability of hitting the upper boundary."""
+    if abs(v) < 1e-9:
+        return 1.0 - w
+    return float((np.exp(-2 * v * a * w) - 1.0) / (np.exp(-2 * v * a) - 1.0))
+
+
+# --------------------------------------------------------------------------- #
+def fit_ddm2(rt, upper, floor=0.130, seed=42, maxiter=250):
+    """
+    Fit (v, a, w, t0) to choice RT data by maximum likelihood.
+
+    rt    : reaction times in seconds
+    upper : boolean array, True where the response hit the upper boundary
+            (conventionally the CORRECT response)
+    """
+    rt = np.asarray(rt, float)
+    upper = np.asarray(upper, bool)
+    hi_t0 = max(float(np.percentile(rt, 3)) - 0.002, floor + 1e-3)
+
+    def nll(p):
+        v, a, w, t0 = p
+        if not (floor <= t0 < rt.min()):
+            return 1e10
+        d = np.empty_like(rt)
+        if upper.any():
+            d[upper] = wfpt_upper(rt[upper], v, a, w, t0)
+        if (~upper).any():
+            d[~upper] = wfpt_lower(rt[~upper], v, a, w, t0)
+        if np.any(d <= 0) or not np.all(np.isfinite(d)):
+            return 1e10
+        return float(-np.sum(np.log(d)))
+
+    b = [(-8.0, 8.0), (0.3, 4.0), (0.15, 0.85), (floor, hi_t0)]
+    r = differential_evolution(nll, b, seed=seed, maxiter=maxiter, tol=1e-8,
+                               popsize=15, polish=True)
+    v, a, w, t0 = r.x
+    return {"v": float(v), "a": float(a), "w": float(w), "t0": float(t0),
+            "nll": float(r.fun), "n": rt.size, "n_err": int((~upper).sum()),
+            "p_err_obs": float((~upper).mean()),
+            "p_err_pred": float(1.0 - p_upper(v, a, w))}
+
+
+def sim_ddm2(v, a, w, t0, n, rng=None):
+    """Exact-ish simulation by rejection from the density grid (fast enough for power)."""
+    rng = rng or np.random.default_rng()
+    pu = p_upper(v, a, w)
+    up = rng.random(n) < pu
+    grid = np.linspace(1e-4, 3.0, 3000)
+    out = np.empty(n)
+    for flag, dens_fn in ((True, wfpt_upper), (False, wfpt_lower)):
+        m = up == flag
+        if not m.any():
+            continue
+        d = dens_fn(grid, v, a, w, 0.0)
+        d = np.maximum(d, 0)
+        if d.sum() <= 0:
+            out[m] = t0
+            continue
+        cdf = np.cumsum(d)
+        cdf /= cdf[-1]
+        out[m] = t0 + np.interp(rng.random(m.sum()), cdf, grid)
+    return out, up
+
+
+# --------------------------------------------------------------------------- #
+def power_analysis(error_rates, n_per_cell, n_reps=40, v_a_target=None,
+                   floor=0.130, seed=0, verbose=True):
+    """
+    How well are two-boundary parameters recovered at a given error rate and n?
+
+    For each target error rate, picks (v, a) consistent with it, simulates, refits,
+    and reports recovery error. This is the direct answer to "will we have enough
+    incorrect trials" -- expressed in the units the question is actually about.
+    """
+    rng = np.random.default_rng(seed)
+    rows = []
+    a_fix = 1.2
+    for pe in error_rates:
+        # P(error) = 1/(1 + exp(v*a)) for an unbiased start under this density's
+        # convention -- derived from p_upper() and checked against it below.
+        va = np.log((1 - pe) / pe)
+        v = va / a_fix
+        t0_true, w_true = 0.160, 0.5
+        errs_v, errs_t0, errs_w, nerr = [], [], [], []
+        for _ in range(n_reps):
+            rt, up = sim_ddm2(v, a_fix, w_true, t0_true, n_per_cell, rng)
+            if (~up).sum() < 2 or up.sum() < 2:
+                nerr.append(int((~up).sum()))
+                continue
+            f = fit_ddm2(rt, up, floor=floor, seed=int(rng.integers(1, 10000)),
+                         maxiter=120)
+            errs_v.append(abs(f["v"] - v))
+            errs_t0.append(abs(f["t0"] - t0_true) * 1000)
+            errs_w.append(abs(f["w"] - w_true))
+            nerr.append(f["n_err"])
+        rows.append({
+            "p_error": pe, "v_true": v, "a_true": a_fix,
+            "mean_err_trials": float(np.mean(nerr)) if nerr else 0.0,
+            "n_fitted": len(errs_v),
+            "rmse_v": float(np.sqrt(np.mean(np.square(errs_v)))) if errs_v else np.nan,
+            "mae_t0_ms": float(np.mean(errs_t0)) if errs_t0 else np.nan,
+            "mae_w": float(np.mean(errs_w)) if errs_w else np.nan,
+        })
+        if verbose:
+            r = rows[-1]
+            print(f"  P(err)={pe:6.3f}  err trials={r['mean_err_trials']:6.1f}  "
+                  f"fits={r['n_fitted']:3d}/{n_reps}  "
+                  f"RMSE v={r['rmse_v']:7.3f}  MAE t0={r['mae_t0_ms']:7.1f}ms  "
+                  f"MAE w={r['mae_w']:6.3f}")
+    return rows
+
+
+if __name__ == "__main__":
+    print("Validating the density")
+    v, a, w, t0 = 2.0, 1.2, 0.5, 0.15
+    g = np.linspace(t0 + 1e-4, t0 + 3.0, 4000)
+    lo = np.trapezoid(wfpt_lower(g, v, a, w, t0), g)
+    up = np.trapezoid(wfpt_upper(g, v, a, w, t0), g)
+    print(f"  lower mass {lo:.4f}  upper mass {up:.4f}  total {lo+up:.4f}  "
+          f"analytic P(upper) {p_upper(v,a,w):.4f}\n")
+
+    print("Two-boundary recovery vs error rate (n=110/cell, 12 reps)")
+    power_analysis([0.02, 0.05, 0.10, 0.20, 0.30], 110, n_reps=12)

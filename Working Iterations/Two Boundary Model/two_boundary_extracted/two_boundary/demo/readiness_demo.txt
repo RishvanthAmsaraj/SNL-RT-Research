@@ -1,0 +1,22 @@
+====================================================================================================
+TWO-BOUNDARY READINESS -- hand, outcome = sign(HandErr_deg) > 0
+====================================================================================================
+trials: 2,688 read -> 2,274 usable (BlockType==I, 150-800 ms, outcome present)
+overall split: 0.854 upper / 0.146 lower
+
+speed      cells  median n   median minority %   per-cell   hier only   no 2B
+------------------------------------------------------------------------------
+0             16        32               26.7%          5          10       1
+75            16        52                6.8%          2           6       8
+150           16        61                0.0%          0           1      15
+
+------------------------------------------------------------------------------
+7 / 48 cells clear the per-cell bar (minority share >= 5% and >= 10 trials).
+total minority responses in the dataset: 219 -- this is what the hierarchical fit has to work with.
+
+VERDICT: do NOT fit per cell. Fit hierarchically (partial pooling across
+         participants), which is what Bayesian_2B_fit.py does. Report the
+         group-level parameters per speed; treat weak cells as shrunk.
+
+wrote ./two_boundary_readiness_hand.csv
+wrote ./two_boundary_readiness_hand.pdf (+ .png)
