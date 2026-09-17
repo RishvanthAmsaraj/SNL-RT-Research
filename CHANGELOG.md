@@ -15,6 +15,17 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.2.0] — 2026-09-17 — Single-boundary consolidation: archive LATER + two-boundary
+
+### Decision
+
+The **single-boundary shifted Wald** is now the sole production model. The two alternatives explored as professor-directed next steps were archived:
+
+- **LATER** (reciprobit) — a tie against the Wald on hands, and its rate/threshold parameters are not comparable to the Wald's drift/boundary/non-decision, so it offered no compelling benefit. Moved `Current Pipeline/Code/LATER Model/` and `Current Pipeline/Figures/LATER Model/` to `Working Iterations/LATER Model/`.
+- **Two-boundary DDM** — the gate check found no usable scored direction. Moved to `Working Iterations/Two Boundary Model/`.
+
+LATER was removed from the active run order (`CODE_REFERENCE.md`), the figure reference (`RUN_GUIDE.md`), and the repository structure (`README.md`).
+
 ## [2.1.0] — 2026-07-18 — kinarm-rt-app: Streamlit GUI + headless CLI pipeline
 **New folder:** [`kinarm-rt-app/`](kinarm-rt-app/)
 

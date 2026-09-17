@@ -96,7 +96,6 @@ That reproduces the entire DDM figure suite. For the Bayesian figures, either se
 - `Bayesian_srt_ndt.pdf` — forest plot of per-participant saccadic t0
 - `SRT_identifiability.pdf` — saccadic t0 identifiability diagnostic
 - `SRT_fixedt0_sensitivity.pdf` — sensitivity analysis (t0 = 50/70/90 ms)
-- `LATER_reciprobit.pdf` — LATER complement figure
 
 ---
 

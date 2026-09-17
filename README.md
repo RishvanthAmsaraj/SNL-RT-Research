@@ -21,7 +21,7 @@ The KINARM interception task is *go-type* — participants initiate a movement w
 - **Method A (frequentist MLE).** Maximum likelihood via differential evolution with a 95% Wald + 5% uniform contamination mixture (Ratcliff & Tuerlinckx, 2002).
 - **Method B (hierarchical Bayesian).** Partial pooling across participant × speed units using PyMC/NUTS, with non-centered parametrization and R-hat convergence diagnostics (Wiecki et al., 2013; Gelman et al., 2013).
 
-Additional components: **express/regular two-component Wald mixture** for bimodal saccade cells (flagged by Hartigan's dip test), and the **LATER reciprobit model** as a complementary saccade-native analysis (Carpenter & Williams, 1995).
+Additional components: **express/regular two-component Wald mixture** for bimodal saccade cells (flagged by Hartigan's dip test).
 
 ---
 
@@ -39,7 +39,6 @@ Additional components: **express/regular two-component Wald mixture** for bimoda
 - **Hand t₀ decreases with target speed** — participants initiate hand responses faster when the target moves faster. The effect is triangulated by Friedman, participant-resampling bootstrap, and within-participant permutation tests.
 - **Saccadic t₀ is not identifiable above the physiological floor.** The data cannot separate non-decision time from sensory/motor conduction in saccades. The model collapses to 70 ms for all participants when estimated at the participant level — a diagnosis, not a bug.
 - **The saccadic floor-piling has a mechanism.** Saccadic latencies have low skew/CV (~3.4), which forces an implied t₀ of ~20–30 ms — below the 70 ms physiological minimum. Hand latencies have high skew/CV (~12.9), which pushes implied t₀ to ~191 ms — well above the 130 ms floor and identifiable.
-- **LATER confirms the picture.** Saccadic latencies fall on straight reciprobit lines (median r² = 0.98). LATER has no non-decision-time parameter, so the floor question never arises.
 
 ### Parameter Bounds (Literature-Anchored, Phase 2)
 
@@ -62,7 +61,6 @@ SNL-RT-Research/
 │   ├── Code/
 │   │   ├── Bayesian/              Hierarchical Bayesian fits (NUTS)
 │   │   ├── DDM/                   Frequentist MLE fits (diagnostic/comparison)
-│   │   ├── LATER Model/           Saccade-native reciprobit analysis
 │   │   ├── NDT/                   Non-decision time bar charts
 │   │   ├── SRT Analysis/          Identifiability checks, sensitivity sweeps
 │   │   ├── Vincentile/            Model-free raw-RT distribution figures
@@ -109,9 +107,9 @@ Each deprecated version carries its own `ISSUES_AND_IMPROVEMENTS.md` documenting
 
 ## The App
 
-The [`kinarm-rt-app/`](kinarm-rt-app/) directory contains a point-and-click Streamlit application and a headless CLI that reproduce the full pipeline. It fits the same models (shifted-Wald hierarchical Bayesian, MLE with contamination, express/regular mixtures, LATER reciprobit) and adds analyses beyond the basic fit — dissociation test battery, parameter recovery, sensitivity sweeps, PSIS-LOO model comparison, and per-speed hierarchical models with LKJ correlated effects.
+The [`kinarm-rt-app/`](kinarm-rt-app/) directory contains a point-and-click Streamlit application and a headless CLI that reproduce the full pipeline. It fits the same models (shifted-Wald hierarchical Bayesian, MLE with contamination, express/regular mixtures) and adds analyses beyond the basic fit — dissociation test battery, parameter recovery, sensitivity sweeps, PSIS-LOO model comparison, and per-speed hierarchical models with LKJ correlated effects.
 
-The app is the recommended entry point for anyone who wants to explore the models without writing code. It is validated against the real `pooled_data.csv`: hand t₀ per-cell correlation r = 0.999, LATER median r² = 0.971.
+The app is the recommended entry point for anyone who wants to explore the models without writing code. It is validated against the real `pooled_data.csv`: hand t₀ per-cell correlation r = 0.999.
 
 → **[kinarm-rt-app/README.md](kinarm-rt-app/README.md)** — installation, usage, data format, and deployment options
 

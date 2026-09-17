@@ -79,7 +79,7 @@ DDM_fit.py ──────────────────► DDM_hrt_fit
          └─► Bayesian_SRT_ndt.py (depends on DDM_srt_fits.csv for single/mixture split)
                 ├─► Bayesian_figures.py / Bayesian_conceptual.py
                 ├─► NDT_barchart_bayesian.py
-                └─► why_saccadic_t0_floors.py / LATER_analysis.py
+                └─► why_saccadic_t0_floors.py
 
 Vincentile/vincentile_figures.py (model-free; reads pooled_data.csv only)
 ```

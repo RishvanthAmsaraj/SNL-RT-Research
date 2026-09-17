@@ -4,6 +4,8 @@
 
 This is my complete explanation of the SNL RT Research project — what it is, how the models work, why every number is what it is, and how the pieces fit together. Every value below is drawn from the repository and the run outputs (the 2026-08-16 LATER/two-boundary run, the 2026-08-06 validation study v5, and the kinarm-rt-app record v1.1–v1.10). Where a number carries a documented caveat, I state it explicitly.
 
+> **Final decision (September 2026):** the single-boundary shifted Wald is the production model. The LATER and two-boundary explorations (Sections 8–9) concluded they offer no compelling benefit, so both are archived under `Working Iterations/`. The body of this document keeps the full analysis for the record.
+
 ## Contents
 
 1. What this project is, in one page

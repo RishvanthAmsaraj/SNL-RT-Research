@@ -8,6 +8,8 @@
 
 The Current Pipeline reflects the completed evolution through Phases 0–2 (see [`DEVELOPMENT_HISTORY.md`](../DEVELOPMENT_HISTORY.md)). It is considered **stable for internal reporting** with the following caveats.
 
+**Model decision (September 2026):** the **single-boundary shifted Wald** is the sole production model. The LATER reciprobit and two-boundary DDM alternatives were explored (technical breakdown Sections 8–9) and found to offer no compelling benefit, so both are archived under [`Working Iterations/`](../Working%20Iterations/).
+
 ---
 
 ## Known Limitations
@@ -48,7 +50,6 @@ Compared to Deprecated Ver 3:
 - **SRT per-participant NDT floor raised** from 35 to 70 ms (saccadic dead time)
 - **v/a bounds re-attributed** from Ratcliff & Tuerlinckx to Tran 2020
 - Figure refinements: NDT chart zoomed y-axes, bar→point switch, floor line labels corrected
-- **LATER model** added as complementary saccade analysis
 - **`why_saccadic_t0_floors.py`** — mechanism diagnostic added
 - Saccadic t₀ reported as **fixed at 70 ms**, not estimated per participant
 
@@ -69,7 +70,6 @@ The new [`kinarm-rt-app/`](../kinarm-rt-app/) addresses several roadmap items:
 ### Remaining (low priority / future work)
 
 - [ ] Trial-level covariate modelling (trial order, inter-trial interval)
-- [ ] Re-analysis with a dedicated saccade model (LATER) as primary for saccades
 - [ ] Expand to additional KINARM tasks (if data becomes available)
 
 ---
