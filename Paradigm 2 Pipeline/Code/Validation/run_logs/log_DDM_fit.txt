@@ -1,0 +1,130 @@
+HRT CIR001 75: t0=130ms a=1.04 ks=0.071
+HRT CIR002 75: t0=164ms a=1.32 ks=0.049
+HRT CIR003 75: t0=130ms a=1.42 ks=0.071
+HRT CIR005 75: t0=130ms a=1.15 ks=0.047
+HRT CIR006 75: t0=174ms a=0.59 ks=0.054
+HRT CIR007 75: t0=130ms a=1.44 ks=0.046
+HRT CIR008 75: t0=154ms a=0.70 ks=0.087
+HRT CIR009 75: t0=130ms a=1.19 ks=0.065
+HRT CIR010 75: t0=160ms a=0.91 ks=0.066
+HRT CIR011 75: t0=167ms a=0.77 ks=0.063
+HRT CIR012 75: t0=130ms a=0.97 ks=0.057
+HRT CIR013 75: t0=196ms a=0.74 ks=0.049
+HRT CIR014 75: t0=130ms a=1.31 ks=0.050
+HRT CIR015 75: t0=130ms a=1.41 ks=0.069
+HRT CIR016 75: t0=172ms a=0.58 ks=0.048
+HRT CIR017 75: t0=143ms a=0.89 ks=0.041
+HRT CIR001 100: t0=130ms a=1.08 ks=0.059
+HRT CIR002 100: t0=136ms a=2.15 ks=0.057
+HRT CIR003 100: t0=130ms a=1.52 ks=0.047
+HRT CIR005 100: t0=135ms a=1.02 ks=0.057
+HRT CIR006 100: t0=161ms a=0.71 ks=0.049
+HRT CIR007 100: t0=162ms a=0.78 ks=0.046
+HRT CIR008 100: t0=147ms a=0.90 ks=0.072
+HRT CIR009 100: t0=157ms a=0.80 ks=0.058
+HRT CIR010 100: t0=142ms a=1.48 ks=0.064
+HRT CIR011 100: t0=153ms a=0.87 ks=0.051
+HRT CIR012 100: t0=136ms a=0.91 ks=0.051
+HRT CIR013 100: t0=169ms a=1.30 ks=0.064
+HRT CIR014 100: t0=168ms a=0.59 ks=0.053
+HRT CIR015 100: t0=130ms a=1.71 ks=0.082
+HRT CIR016 100: t0=130ms a=1.64 ks=0.060
+HRT CIR017 100: t0=156ms a=0.80 ks=0.067
+HRT CIR001 125: t0=131ms a=1.03 ks=0.045
+HRT CIR002 125: t0=174ms a=1.03 ks=0.061
+HRT CIR003 125: t0=151ms a=0.97 ks=0.039
+HRT CIR005 125: t0=156ms a=0.85 ks=0.048
+HRT CIR006 125: t0=168ms a=0.68 ks=0.059
+HRT CIR007 125: t0=162ms a=0.85 ks=0.048
+HRT CIR008 125: t0=176ms a=0.45 ks=0.056
+HRT CIR009 125: t0=130ms a=1.35 ks=0.063
+HRT CIR010 125: t0=165ms a=0.86 ks=0.054
+HRT CIR011 125: t0=144ms a=1.06 ks=0.054
+HRT CIR012 125: t0=130ms a=1.20 ks=0.085
+HRT CIR013 125: t0=188ms a=0.95 ks=0.046
+HRT CIR014 125: t0=168ms a=0.64 ks=0.059
+HRT CIR015 125: t0=166ms a=0.95 ks=0.053
+HRT CIR016 125: t0=157ms a=0.90 ks=0.051
+HRT CIR017 125: t0=138ms a=1.06 ks=0.049
+HRT CIR001 150: t0=130ms a=1.15 ks=0.039
+HRT CIR002 150: t0=130ms a=2.07 ks=0.065
+HRT CIR003 150: t0=152ms a=0.85 ks=0.049
+HRT CIR005 150: t0=137ms a=1.05 ks=0.062
+HRT CIR006 150: t0=177ms a=0.51 ks=0.084
+HRT CIR007 150: t0=167ms a=0.64 ks=0.070
+HRT CIR008 150: t0=166ms a=0.55 ks=0.057
+HRT CIR009 150: t0=145ms a=1.12 ks=0.052
+HRT CIR010 150: t0=130ms a=1.81 ks=0.055
+HRT CIR011 150: t0=161ms a=0.79 ks=0.057
+HRT CIR012 150: t0=142ms a=0.86 ks=0.046
+HRT CIR013 150: t0=130ms a=2.17 ks=0.077
+HRT CIR014 150: t0=159ms a=0.81 ks=0.039
+HRT CIR015 150: t0=130ms a=1.72 ks=0.064
+HRT CIR016 150: t0=135ms a=1.42 ks=0.050
+HRT CIR017 150: t0=153ms a=0.81 ks=0.045
+SRT CIR001 75: single ks=0.110 (single 0.110)
+SRT CIR002 75: single ks=0.092 (single 0.092)
+SRT CIR003 75: mixture ks=0.037 (single 0.100)
+SRT CIR005 75: single ks=0.057 (single 0.057)
+SRT CIR006 75: single ks=0.063 (single 0.063)
+SRT CIR007 75: mixture ks=0.052 (single 0.125)
+SRT CIR008 75: mixture ks=0.090 (single 0.118)
+SRT CIR009 75: single ks=0.064 (single 0.064)
+SRT CIR010 75: single ks=0.045 (single 0.045)
+SRT CIR011 75: single ks=0.071 (single 0.071)
+SRT CIR012 75: single ks=0.060 (single 0.060)
+SRT CIR013 75: single ks=0.070 (single 0.070)
+SRT CIR014 75: single ks=0.046 (single 0.046)
+SRT CIR015 75: mixture ks=0.049 (single 0.122)
+SRT CIR016 75: single ks=0.055 (single 0.055)
+SRT CIR017 75: single ks=0.092 (single 0.092)
+SRT CIR001 100: single ks=0.117 (single 0.117)
+SRT CIR002 100: single ks=0.059 (single 0.059)
+SRT CIR003 100: single ks=0.080 (single 0.080)
+SRT CIR005 100: single ks=0.071 (single 0.071)
+SRT CIR006 100: single ks=0.073 (single 0.073)
+SRT CIR007 100: single ks=0.093 (single 0.093)
+SRT CIR008 100: mixture ks=0.049 (single 0.120)
+SRT CIR009 100: single ks=0.049 (single 0.049)
+SRT CIR010 100: single ks=0.064 (single 0.064)
+SRT CIR011 100: single ks=0.077 (single 0.077)
+SRT CIR012 100: single ks=0.089 (single 0.089)
+SRT CIR013 100: single ks=0.068 (single 0.068)
+SRT CIR014 100: single ks=0.062 (single 0.062)
+SRT CIR015 100: mixture ks=0.056 (single 0.162)
+SRT CIR016 100: single ks=0.053 (single 0.053)
+SRT CIR017 100: single ks=0.086 (single 0.086)
+SRT CIR001 125: single ks=0.158 (single 0.158)
+SRT CIR002 125: single ks=0.062 (single 0.062)
+SRT CIR003 125: mixture ks=0.049 (single 0.109)
+SRT CIR005 125: single ks=0.061 (single 0.061)
+SRT CIR006 125: single ks=0.069 (single 0.068)
+SRT CIR007 125: mixture ks=0.066 (single 0.120)
+SRT CIR008 125: mixture ks=0.059 (single 0.116)
+SRT CIR009 125: single ks=0.056 (single 0.056)
+SRT CIR010 125: single ks=0.049 (single 0.049)
+SRT CIR011 125: single ks=0.062 (single 0.062)
+SRT CIR012 125: single ks=0.059 (single 0.059)
+SRT CIR013 125: single ks=0.057 (single 0.057)
+SRT CIR014 125: single ks=0.046 (single 0.046)
+SRT CIR015 125: single ks=0.065 (single 0.064)
+SRT CIR016 125: single ks=0.039 (single 0.039)
+SRT CIR017 125: single ks=0.053 (single 0.053)
+SRT CIR001 150: single ks=0.115 (single 0.115)
+SRT CIR002 150: single ks=0.098 (single 0.098)
+SRT CIR003 150: mixture ks=0.046 (single 0.117)
+SRT CIR005 150: single ks=0.063 (single 0.063)
+SRT CIR006 150: single ks=0.092 (single 0.092)
+SRT CIR007 150: mixture ks=0.050 (single 0.126)
+SRT CIR008 150: mixture ks=0.058 (single 0.130)
+SRT CIR009 150: single ks=0.061 (single 0.061)
+SRT CIR010 150: single ks=0.079 (single 0.079)
+SRT CIR011 150: single ks=0.079 (single 0.079)
+SRT CIR012 150: single ks=0.072 (single 0.072)
+SRT CIR013 150: single ks=0.072 (single 0.072)
+SRT CIR014 150: single ks=0.061 (single 0.061)
+SRT CIR015 150: single ks=0.078 (single 0.078)
+SRT CIR016 150: single ks=0.058 (single 0.058)
+SRT CIR017 150: single ks=0.069 (single 0.069)
+DDM_FIT_DONE
+EXIT 0 elapsed 62s

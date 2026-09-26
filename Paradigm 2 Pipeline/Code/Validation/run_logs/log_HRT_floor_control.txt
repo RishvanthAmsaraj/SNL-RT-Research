@@ -1,0 +1,5 @@
+excluded as ceiling-bound: hand 4, saccade 7
+HAND  eligible 60/64: median slope 0.000, tracking (slope>0.7) 8/60
+EYE   eligible 38/52: median slope 0.698, tracking 19/38   (all 52 cells: median 0.178, tracking 23)
+saved HRT_floor_control.csv, HRT_floor_control.pdf/.png
+IDS_DONE

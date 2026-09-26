@@ -1,0 +1,44 @@
+START DDM_figures 05:40:19
+END   DDM_figures rc=0 2s
+START DDM_conceptual 05:40:21
+END   DDM_conceptual rc=0 5s
+START NDT_barchart 05:40:26
+END   NDT_barchart rc=0 2s
+START vincentile_figures 05:40:28
+END   vincentile_figures rc=0 4s
+START why_saccadic_t0_floors 05:40:32
+END   why_saccadic_t0_floors rc=0 3s
+START SRT_identifiability_check 05:40:35
+END   SRT_identifiability_check rc=0 98s
+START SRT_fixed_t0_analysis 05:42:13
+END   SRT_fixed_t0_analysis rc=0 11s
+START HRT_floor_control 05:42:24
+END   HRT_floor_control rc=0 114s
+START SRT_QA_flag_sensitivity 05:44:18
+END   SRT_QA_flag_sensitivity rc=0 64s
+START direction_check 05:45:22
+END   direction_check rc=0 39s
+START dissociation_tests 05:46:01
+END   dissociation_tests rc=0 5s
+START parameter_recovery_P2 05:46:06
+END   parameter_recovery_P2 rc=0 147s
+START P1_DDM_fit 05:48:33
+END   P1_DDM_fit rc=0 74s
+START P1_Bayesian_HRT_fit 05:49:47
+END   P1_Bayesian_HRT_fit rc=0 269s
+START P1_parity_check 05:54:16
+END   P1_parity_check rc=0 0s
+START Bayesian_SRT_fit 05:54:16
+START Bayesian_SRT_fit 15:27:51
+END   Bayesian_SRT_fit rc=0 514s
+START Bayesian_SRT_ndt 15:36:25
+START Bayesian_SRT_ndt 15:50:49
+START Bayesian_SRT_ndt 16:49:57
+END   Bayesian_SRT_ndt rc=0 732s
+START Bayesian_figures 17:02:09
+END   Bayesian_figures rc=0 1s
+START Bayesian_conceptual 17:02:10
+END   Bayesian_conceptual rc=0 5s
+START NDT_barchart_bayesian 17:02:15
+END   NDT_barchart_bayesian rc=0 2s
+MASTER_DONE 17:02:17

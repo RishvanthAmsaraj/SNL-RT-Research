@@ -1,0 +1,3 @@
+saved NDT_barchart_bayesian.pdf/.png
+HRT Bayesian t0 by speed: {75:147, 100:147, 125:152, 150:151}  Friedman p=0.0259
+SRT per-participant t0: 71-110 ms, mean 81 ms, n=15

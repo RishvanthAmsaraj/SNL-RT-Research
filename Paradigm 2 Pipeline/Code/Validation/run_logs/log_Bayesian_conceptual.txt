@@ -1,0 +1,2 @@
+saved 6 conceptual Bayesian schematics to /home/claude/p2/run
+HRT t0: {75: 147, 100: 147, 125: 152, 150: 151} | SRT t0: {75: 78, 100: 76, 125: 72, 150: 80}

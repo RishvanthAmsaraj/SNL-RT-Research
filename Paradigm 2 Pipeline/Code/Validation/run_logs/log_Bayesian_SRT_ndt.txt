@@ -1,0 +1,10 @@
+15 participants, 52 single cells, 8129 trials
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [mu_t0, sig_t0, t0_p, lv, la]
+Sampling 4 chains for 1_500 tune and 1_000 draw iterations (6_000 + 4_000 draws total) took 715 seconds.
+convergence: divergences=0, max t0 r-hat=1.004
+population mean t0=58ms, between-participant SD=10ms
+individual t0 range: 71-110ms
+saved Bayesian_srt_ndt.csv, Bayesian_srt_ndt_cells.csv, Bayesian_srt_ndt.pdf/.png to /home/claude/p2/run
+BAYESIAN_SRT_NDT_DONE

@@ -1,0 +1,1 @@
+saved 4 vincentile figures (n=16); HRT-SRT bin-20 diff by speed: {75: 136, 100: 133, 125: 128, 150: 120}

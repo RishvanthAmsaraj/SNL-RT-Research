@@ -1,0 +1,2 @@
+saved 6 conceptual DDM schematics to /home/claude/p2/run
+HRT t0: {75: 148, 100: 146, 125: 156, 150: 146} | SRT t0: {75: 86, 100: 90, 125: 84, 150: 91}

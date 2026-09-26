@@ -1,0 +1,5 @@
+SRT single cells tested: 52
+  cells whose t0 TRACKS the floor (slope>0.7 -> NOT identified): 23/52
+  cells stuck at their fastest saccade (ceiling-bound, slope<=0.7): 7/52
+  cells with genuinely identified t0 (slope<=0.7, not ceiling-bound): 22/52
+saved SRT_identifiability.pdf and .png to /home/claude/p2/run

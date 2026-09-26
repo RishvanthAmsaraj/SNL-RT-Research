@@ -1,0 +1,4 @@
+=== START Bayesian_HRT_fit.py Thu Sep 24 00:40:07 UTC 2026
+=== END Bayesian_HRT_fit.py exit=0 elapsed=250s Thu Sep 24 00:44:17 UTC 2026
+=== START Bayesian_SRT_fit.py Thu Sep 24 00:44:17 UTC 2026
+=== START Bayesian_SRT_fit.py Thu Sep 24 05:33:14 UTC 2026

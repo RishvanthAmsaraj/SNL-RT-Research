@@ -1,0 +1,2 @@
+Primary fit (t0=70 ms): 52 single cells, mean KS=0.074, 88% acceptable
+saved SRT_fixedt0_fits.csv, SRT_fixedt0_sensitivity.pdf/.png to /home/claude/p2/run

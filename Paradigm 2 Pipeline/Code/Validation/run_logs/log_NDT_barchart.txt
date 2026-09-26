@@ -1,0 +1,2 @@
+saved NDT_barchart.pdf/.png (n=16); HRT Friedman p=0.39796115705821855, SRT Friedman p=0.3087662640765572
+SRT t0 by speed: {75: 86, 100: 90, 125: 84, 150: 91}

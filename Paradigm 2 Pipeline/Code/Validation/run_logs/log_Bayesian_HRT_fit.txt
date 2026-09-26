@@ -1,0 +1,8 @@
+HRT: 10158 trials across 64 participant x speed units
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [mu_lv, s_lv, mu_la, s_la, mu_z, s_z, lv_raw, la_raw, z_raw]
+Sampling 4 chains for 1_500 tune and 1_500 draw iterations (6_000 + 6_000 draws total) took 239 seconds.
+divergences=0  max r-hat=1.003
+t0 at 130ms floor: 0/64
+BAYESIAN_HRT_DONE

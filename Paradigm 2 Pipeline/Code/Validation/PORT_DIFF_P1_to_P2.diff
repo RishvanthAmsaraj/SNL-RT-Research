@@ -1,0 +1,811 @@
+--- Paradigm1/Bayesian_HRT_fit.py
++++ Paradigm2/Bayesian_HRT_fit.py
+@@ -1,6 +1,10 @@
+ """
+ Bayesian_HRT_fit.py  --  Hierarchical Bayesian: hand RT (Method B)
+ 
++PARADIGM 2 (CIR): target speeds 75 / 100 / 125 / 150 deg/s, BlockType "P2", input
++pooled_data_P2.csv (built by build_pooled_data_P2.py). Model, likelihood, priors, bounds,
++floors, filters, optimiser and sampler settings are UNCHANGED from Paradigm 1.
++
+ Fits single-boundary shifted-Wald as a hierarchical Bayesian model (PyMC/NUTS) with
+ partial pooling across participants. Outputs Bayesian_hrt_fits.csv (v, a, t0, 95% CI,
+ convergence diagnostics), Bayesian_hrt_ndt.csv, and Bayesian_hrt_posterior.nc.
+@@ -26,15 +30,16 @@
+         + "=" * 72 + "\n")
+ 
+ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+-DATA = os.path.join(SCRIPT_DIR, "pooled_data.csv")
++DATA = os.path.join(SCRIPT_DIR, "pooled_data_P2.csv")
+ OUT  = os.path.join(SCRIPT_DIR, "Bayesian_hrt_fits.csv")
+-SPEEDS = [0, 75, 150]
++SPEEDS = [75, 100, 125, 150]
++BLOCK = "P2"                 # Paradigm 2 block type (Paradigm 1 used "I")
+ LO, HI = 150, 800            # HRT physiological filter (ms)
+ FLOOR = 0.130                # reach-preparation floor (130 ms; Haith et al. 2016)
+ DRAWS, TUNE, CHAINS, TARGET = 1500, 1500, 4, 0.95
+ 
+ def main():
+-    dfi = pd.read_csv(DATA); dfi = dfi[dfi["BlockType"] == "I"]
++    dfi = pd.read_csv(DATA); dfi = dfi[dfi["BlockType"] == BLOCK]
+     units, rt, uidx, minrt = [], [], [], []; u = 0
+     for spd in SPEEDS:
+         for pid in sorted(dfi["Participant"].unique()):
+@@ -81,7 +86,7 @@
+     ndt["t0_lo95"] = res.t0_lo95.astype(int)
+     ndt["t0_hi95"] = res.t0_hi95.astype(int)
+     ndt["ci_width_ms"] = (res.t0_hi95 - res.t0_lo95).astype(int)
+-    ndt["floored"] = (np.abs(res.t0 - FLOOR * 1000) < 2).astype(int)   # 1 = pinned at the 100 ms floor
++    ndt["floored"] = (np.abs(res.t0 - FLOOR * 1000) < 2).astype(int)   # 1 = pinned at the 130 ms floor
+     ndt["conv_div"] = res.conv_div; ndt["conv_rhat"] = res.conv_rhat
+     ndt.sort_values(["spd", "pid"]).to_csv(os.path.join(SCRIPT_DIR, "Bayesian_hrt_ndt.csv"), index=False)
+     try: idata.to_netcdf(os.path.join(SCRIPT_DIR, "Bayesian_hrt_posterior.nc"))
+--- Paradigm1/Bayesian_SRT_fit.py
++++ Paradigm2/Bayesian_SRT_fit.py
+@@ -1,6 +1,10 @@
+ """
+ Bayesian_SRT_fit.py  --  Hierarchical Bayesian: saccadic RT (Method B)
+ 
++PARADIGM 2 (CIR): target speeds 75 / 100 / 125 / 150 deg/s, BlockType "P2", input
++pooled_data_P2.csv (built by build_pooled_data_P2.py). Model, likelihood, priors, bounds,
++floors, filters, optimiser and sampler settings are UNCHANGED from Paradigm 1.
++
+ Fits the single-boundary shifted-Wald per saccadic RT cell (PyMC/NUTS), with mixture
+ handling for bimodal express/regular cells flagged by DDM_fit.py. Per-speed hierarchical
+ models; resumable (completed cells saved immediately).
+@@ -28,13 +32,14 @@
+         + "=" * 72 + "\n")
+ 
+ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+-DATA  = os.path.join(SCRIPT_DIR, "pooled_data.csv")
++DATA  = os.path.join(SCRIPT_DIR, "pooled_data_P2.csv")
+ SELECT = os.path.join(SCRIPT_DIR, "DDM_srt_fits.csv")   # which cells are mixture
+ OUT   = os.path.join(SCRIPT_DIR, "Bayesian_srt_fits.csv")
+ FLOOR = 0.040            # validity floor for the mixture shift (s)
+ FLOOR_PHYS = 0.070       # physiological saccadic non-decision floor (70 ms) for the single-Wald t0
+ LO, HI = 80, 600         # SRT physiological filter (ms)
+-SPEEDS = [int(sys.argv[1])] if len(sys.argv) > 1 else [0, 75, 150]
++SPEEDS = [int(sys.argv[1])] if len(sys.argv) > 1 else [75, 100, 125, 150]
++BLOCK = "P2"             # Paradigm 2 block type (Paradigm 1 used "I")
+ 
+ # thorough sampling settings (accuracy prioritized; runtime is acceptable)
+ DRAWS, TUNE, CHAINS, TARGET = 1500, 1500, 4, 0.95
+@@ -100,7 +105,7 @@
+ 
+ # ---------------------------------------------------------------- main
+ def main():
+-    dfi = pd.read_csv(DATA); dfi = dfi[dfi["BlockType"] == "I"]
++    dfi = pd.read_csv(DATA); dfi = dfi[dfi["BlockType"] == BLOCK]
+     pids = sorted(dfi["Participant"].unique())
+ 
+     # determine mixture cells from the DDM selection (preferred) or dip test (fallback)
+--- Paradigm1/Bayesian_SRT_ndt.py
++++ Paradigm2/Bayesian_SRT_ndt.py
+@@ -1,6 +1,10 @@
+ """
+ Bayesian_SRT_ndt.py  --  Hierarchical Bayesian: saccadic NDT per participant
+ 
++PARADIGM 2 (CIR): target speeds 75 / 100 / 125 / 150 deg/s, BlockType "P2", input
++pooled_data_P2.csv (built by build_pooled_data_P2.py). Model, likelihood, priors, bounds,
++floors, filters, optimiser and sampler settings are UNCHANGED from Paradigm 1.
++
+ Estimates participant-level saccadic t0 (shared across speeds) via PyMC/NUTS.
+ Replaces per-cell flooring with partial pooling: t0 is shared across speeds per
+ participant, regularized toward the group mean.
+@@ -13,8 +17,9 @@
+ """
+ import os, sys, numpy as np, pandas as pd, warnings
+ warnings.filterwarnings("ignore")
++REPLOT = "--replot" in sys.argv    # P2: redraw the forest plot from Bayesian_srt_ndt.csv without refitting
+ try:
+-    import pymc as pm, pytensor.tensor as pt, arviz as az
++    if not REPLOT: import pymc as pm, pytensor.tensor as pt, arviz as az
+ except ModuleNotFoundError:
+     sys.exit(
+         "\n" + "=" * 72 + "\n"
+@@ -46,8 +51,46 @@
+     z = dfi[(dfi.Participant==pid)&(dfi.Speed_deg_per_s==spd)]
+     x = z['GazeSRT_ms'].values.astype(float); return x[(~np.isnan(x))&(x>=80)&(x<=600)]/1000
+ 
++def forest(parts, t0m, t0lo, t0hi, ceil, mu_ms):
++    """Per-participant saccadic t0 forest plot. Identifiability is judged against BOTH bounds:
++    the 70 ms floor and the ceiling (each participant's fastest saccade - 1 ms)."""
++    from matplotlib.lines import Line2D
++    order = np.argsort(t0m); N = len(parts)
++    fig, ax = plt.subplots(figsize=(9, 7))
++    for rank, i in enumerate(order):
++        c = '#2c7fb8' if (t0hi[i]-t0lo[i]) < 35 else '#d95f0e'
++        ax.plot([t0lo[i], t0hi[i]], [rank, rank], color=c, lw=2.2, alpha=0.85)
++        ax.plot(t0m[i], rank, 'o', color=c, ms=6)
++        ax.plot(ceil[i], rank, '|', color='#888', ms=10, mew=1.6)
++    if mu_ms is not None: ax.axvline(mu_ms, color='#444', ls='--', lw=1.3)
++    ax.set_yticks(range(N)); ax.set_yticklabels([parts[i] for i in order], fontsize=8.5)
++    ax.set_xlabel('saccadic non-decision time $t_0$ (ms, posterior mean ± 95% CI)')
++    n_fl = int((t0lo <= FLOOR*1000 + 1).sum()); n_ce = int((t0hi >= ceil - 1).sum())
++    n_free = int(((t0lo > FLOOR*1000 + 1) & (t0hi < ceil - 1)).sum())
++    sub = (f'{n_fl}/{N} intervals reach the {FLOOR*1000:.0f} ms floor, {n_ce}/{N} reach the fastest-saccade ceiling, {n_free}/{N} clear of both'
++           + (' \u2014 not identifiable' if n_free <= 0.2*N else ''))
++    ax.set_title('Per-participant saccadic non-decision time (Paradigm 2)\n' + sub, fontsize=11.5, fontweight='bold')
++    h = [Line2D([0],[0],color='#2c7fb8',lw=2,label='tighter estimate (95% CI < 35 ms)'),
++         Line2D([0],[0],color='#d95f0e',lw=2,label='looser estimate (95% CI \u2265 35 ms)')]
++    if mu_ms is not None: h.append(Line2D([0],[0],color='#444',ls='--',label=f"population mean \u03bc ({mu_ms:.0f} ms)"))
++    h.append(Line2D([0],[0],color='#888',marker='|',ls='',ms=10,mew=1.6,label='ceiling: fastest saccade \u2212 1 ms'))
++    ax.legend(handles=h, fontsize=9, loc='lower right')
++    ax.spines[['top','right']].set_visible(False); ax.grid(True, axis='x', ls='--', alpha=0.3)
++    fig.tight_layout()
++    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.pdf"), dpi=300, bbox_inches='tight', facecolor='white')
++    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.png"), dpi=140, bbox_inches='tight', facecolor='white')
++    return n_fl, n_ce, n_free
++
+ def main():
+-    dfi = pd.read_csv(_need('pooled_data.csv')); dfi = dfi[dfi.BlockType=='I']
++    if REPLOT:
++        n = pd.read_csv(_need('Bayesian_srt_ndt.csv')); mu = None
++        lp = os.path.join(HERE, 'log_Bayesian_SRT_ndt.txt')
++        if os.path.exists(lp):
++            import re; m_ = re.search(r"population mean t0=(\d+)ms", open(lp).read()); mu = float(m_.group(1)) if m_ else None
++        print("floor / ceiling / clear:", forest(list(n.pid), n.t0_ms.values.astype(float), n.t0_lo95.values.astype(float),
++                                                   n.t0_hi95.values.astype(float), n.min_srt_ms.values.astype(float) - 1, mu))
++        print("re-plotted Bayesian_srt_ndt.pdf/.png from Bayesian_srt_ndt.csv"); return
++    dfi = pd.read_csv(_need('pooled_data_P2.csv')); dfi = dfi[dfi.BlockType=='P2']
+     s = pd.read_csv(_need('DDM_srt_fits.csv')); sing = s[s.model=='single']
+     parts = sorted(sing.pid.unique()); pmap = {p:i for i,p in enumerate(parts)}
+     cells = [(r.pid, int(r.spd)) for _, r in sing.iterrows()]
+@@ -97,27 +140,8 @@
+     pd.DataFrame(prows).to_csv(os.path.join(HERE,"Bayesian_srt_ndt.csv"), index=False)
+     pd.DataFrame(crows).to_csv(os.path.join(HERE,"Bayesian_srt_ndt_cells.csv"), index=False)
+ 
+-    # forest plot of per-participant t0
+-    order = np.argsort(t0m)
+-    fig, ax = plt.subplots(figsize=(9, 7))
+-    for rank, i in enumerate(order):
+-        tight = (t0hi[i]-t0lo[i]) < 35
+-        c = '#2c7fb8' if tight else '#d95f0e'
+-        ax.plot([t0lo[i], t0hi[i]], [rank, rank], color=c, lw=2.2, alpha=0.85)
+-        ax.plot(t0m[i], rank, 'o', color=c, ms=6)
+-    ax.axvline(float(po['mu_t0'].mean())*1000, color='#444', ls='--', lw=1.3)
+-    ax.set_yticks(range(len(parts))); ax.set_yticklabels([parts[i] for i in order], fontsize=8.5)
+-    ax.set_xlabel('saccadic non-decision time $t_0$ (ms, posterior mean ± 95% CI)')
+-    ax.set_title('Per-participant saccadic non-decision time — ESTIMATED, not fixed\n'
+-                 'individual differences preserved; each estimate carries its own uncertainty', fontsize=11.5, fontweight='bold')
+-    from matplotlib.lines import Line2D
+-    ax.legend(handles=[Line2D([0],[0],color='#2c7fb8',lw=2,label='tighter estimate (95% CI < 35 ms)'),
+-                       Line2D([0],[0],color='#d95f0e',lw=2,label='looser estimate (95% CI ≥ 35 ms)'),
+-                       Line2D([0],[0],color='#444',ls='--',label=f"population mean ({float(po['mu_t0'].mean())*1000:.0f} ms)")], fontsize=9, loc='lower right')
+-    ax.spines[['top','right']].set_visible(False); ax.grid(True, axis='x', ls='--', alpha=0.3)
+-    fig.tight_layout()
+-    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.pdf"), dpi=300, bbox_inches='tight', facecolor='white')
+-    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.png"), dpi=140, bbox_inches='tight', facecolor='white')
++    # forest plot, from the same rounded values written to the CSV (so its counts match every other figure)
++    forest(parts, np.round(t0m), np.round(t0lo), np.round(t0hi), np.round(minrt_arr*1000) - 1, float(po['mu_t0'].mean())*1000)
+     print("saved Bayesian_srt_ndt.csv, Bayesian_srt_ndt_cells.csv, Bayesian_srt_ndt.pdf/.png to", HERE, flush=True)
+     print("BAYESIAN_SRT_NDT_DONE", flush=True)
+ 
+--- Paradigm1/Bayesian_conceptual.py
++++ Paradigm2/Bayesian_conceptual.py
+@@ -20,8 +20,8 @@
+     p = os.path.join(HERE, f)
+     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py first.")
+     return p
+-SPEEDS = [0, 75, 150]
+-COL = {0: "#4a7c59", 75: "#9e5a5a", 150: "#496aa3"}
++SPEEDS = [75, 100, 125, 150]          # Paradigm 2
++COL = {75: "#9e5a5a", 100: "#b07a2a", 125: "#7a5a9e", 150: "#496aa3"}
+ XMAX = {"hrt": 600, "srt": 500}
+ DIST_LABEL = {"hrt": "HRT Distribution\n(Interception)", "srt": "SRT Distribution\n(Interception)"}
+ 
+@@ -96,7 +96,8 @@
+     ax.annotate("", xy=(xmax * 1.02, 0.17), xytext=(0, 0.17), arrowprops=dict(arrowstyle="-|>", lw=1.3, color="#333"))
+     for tk in range(0, xmax + 1, 100):
+         ax.plot([tk, tk], [0.17, 0.155], color="#333", lw=1)
+-        ax.text(tk, 0.125, f"{tk}", ha="center", va="top", fontsize=8.5, color="#333")
++        if abs(tk - t0) > xmax * 0.035:   # P2: skip a tick label that would collide with the t0 label
++            ax.text(tk, 0.125, f"{tk}", ha="center", va="top", fontsize=8.5, color="#333")
+     ax.text(xmax / 2, 0.06, "Time (ms)", ha="center", va="top", fontsize=10.5)
+     ax.plot([t0, t0], [0.17, 0.145], color="#333", lw=1.4)
+     ax.text(t0, 0.125, f"{t0:.0f} ms\n($t_0$)", ha="center", va="top", fontsize=8.5, fontweight="bold")
+@@ -105,7 +106,7 @@
+     ax.text(t0 / 2, yb - 0.055, f"Non-decision time ($t_0$) = {t0:.0f} ms", ha="center", va="top", fontsize=9, style="italic", color="#555")
+     ax.annotate("", xy=(xmax, yb), xytext=(t0, yb), arrowprops=dict(arrowstyle="<->", lw=1.2, color="#999"))
+     ax.text((t0 + xmax) / 2, yb - 0.055, "Decision time", ha="center", va="top", fontsize=9, style="italic", color="#999")
+-    fig.suptitle(f"Bayesian (Single Boundary, {measure.upper()}) -- {s} deg/s", fontsize=12.5, fontweight="bold", y=0.99)
++    fig.suptitle(f"Bayesian (Single Boundary, {measure.upper()}) -- {s} deg/s  (Paradigm 2)", fontsize=12.5, fontweight="bold", y=0.99)
+     ax.set_title(f"Group mean:  $v$ = {v:.2f} +/- {p['v_sd']:.2f},   $a$ = {a:.2f} +/- {p['a_sd']:.2f},   "
+                  f"$t_0$ = {t0:.0f} +/- {p['t0_sd']:.0f} ms", fontsize=11, pad=10)
+     ax.set_xlim(-xmax * 0.02, xmax * 1.06); ax.set_ylim(-0.10, 1.05); ax.axis("off")
+@@ -116,7 +117,7 @@
+     plt.close(fig)
+ 
+ dh = pd.read_csv(_need("Bayesian_hrt_fits.csv")); ds = pd.read_csv(_need("Bayesian_srt_fits.csv"))
+-dfi = pd.read_csv(_need("pooled_data.csv")); dfi = dfi[dfi.BlockType == "I"]
++dfi = pd.read_csv(_need("pooled_data_P2.csv")); dfi = dfi[dfi.BlockType == "P2"]
+ ph = group_params(dh, "hrt"); ps = group_params(ds, "srt")
+ for s in SPEEDS:
+     draw("hrt", s, ph[s], median_rt(dfi, "hrt", s), COL[s])
+--- Paradigm1/Bayesian_figures.py
++++ Paradigm2/Bayesian_figures.py
+@@ -1,9 +1,10 @@
+ """Bayesian_figures.py  --  Main result figures from Bayesian fits
++PARADIGM 2 (CIR): speeds 75/100/125/150 deg/s; reads the Paradigm 2 inputs/fit tables.
+ 
+ Reads Bayesian_hrt_fits.csv, DDM_hrt_fits.csv, Bayesian_srt_fits.csv,
+ DDM_srt_fits.csv, and optionally Bayesian_srt_ndt.csv for Panel C.
+ Produces Bayesian_summary.pdf/.png."""
+-import os, sys, pandas as pd, matplotlib
++import os, sys, numpy as np, pandas as pd, matplotlib
+ matplotlib.use("Agg"); import matplotlib.pyplot as plt
+ from matplotlib.lines import Line2D
+ import matplotlib.font_manager as fm
+@@ -14,7 +15,7 @@
+     p = os.path.join(HERE, f)
+     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py, Bayesian_HRT_fit.py and Bayesian_SRT_fit.py first.")
+     return p
+-SC={0:(0.30,0.55,0.20),75:(0.78,0.30,0.30),150:(0.20,0.35,0.62)}; SP=[0,75,150]
++SC={75:(0.78,0.30,0.30),100:(0.80,0.52,0.10),125:(0.48,0.32,0.66),150:(0.20,0.35,0.62)}; SP=[75,100,125,150]
+ # per-participant estimated saccadic t0 (the resolution); optional so this still runs without it
+ _ndt_path = os.path.join(HERE, 'Bayesian_srt_ndt.csv')
+ NDT = pd.read_csv(_ndt_path) if os.path.exists(_ndt_path) else None
+@@ -29,11 +30,13 @@
+     g=m[m.spd==spd]
+     ax[0].errorbar(g.t0_ddm,g.t0_bayes,yerr=[g.t0_bayes-g.t0_lo95,g.t0_hi95-g.t0_bayes],
+                    fmt='o',ms=6,color=SC[spd],ecolor=SC[spd],elinewidth=0.7,capsize=2,alpha=0.85,label=f'{spd} deg/s')
+-ax[0].axvline(100,color='#E84855',ls=':',lw=1.3); ax[0].text(101,188,'DDM floor (100ms)',color='#E84855',fontsize=8,rotation=90,va='top')
+-ax[0].plot([95,200],[95,200],color='#999',lw=1)
++_lo=min(125,5*np.floor((min(m.t0_ddm.min(),m.t0_lo95.min())-5)/5)); _hi=max(200,5*np.ceil((max(m.t0_ddm.max(),m.t0_hi95.max())+5)/5))
++ax[0].axvline(130,color='#E84855',ls=':',lw=1.3); ax[0].text(131,_hi-3,'MLE floor (130 ms)',color='#E84855',fontsize=8,rotation=90,va='top')   # P1 drew the retired 100 ms floor
++ax[0].plot([_lo,_hi],[_lo,_hi],color='#999',lw=1)
++nA=int((m.t0_ddm<=130.5).sum()); nB=int(((m.t0_bayes-130).abs()<2).sum())
+ ax[0].set_xlabel('DDM (MLE) $t_0$ (ms)'); ax[0].set_ylabel('Bayesian $t_0$ (ms, mean ± 95% CI)')
+-ax[0].set_title('A.  HRT: Bayesian resolves the floor degeneracy\n(floored DDM cells lifted to realistic values)',fontsize=11,fontweight='bold')
+-ax[0].legend(fontsize=8.5,loc='lower right',title='speed'); ax[0].set_xlim(95,200); ax[0].set_ylim(95,200)
++ax[0].set_title(f'A.  HRT $t_0$: Method A (MLE) vs Method B (Bayesian)\n(cells at the 130 ms floor: MLE {nA}/{len(m)}, Bayesian {nB}/{len(m)})',fontsize=11,fontweight='bold')
++ax[0].legend(fontsize=8.5,loc='lower right',title='speed'); ax[0].set_xlim(_lo,_hi); ax[0].set_ylim(_lo,_hi)
+ ax[0].spines[['top','right']].set_visible(False); ax[0].grid(True,ls='--',alpha=0.3)
+ 
+ # Panel B: SRT express fraction with 95% CI (reliability), sorted
+@@ -56,7 +59,10 @@
+     ax[2].axvline(nn.t0_ms.mean(), color='#444', ls='--', lw=1.2)
+     ax[2].set_yticks(range(len(nn))); ax[2].set_yticklabels(nn.pid, fontsize=6.5)
+     ax[2].set_xlabel('$t_0$ (ms, mean ± 95% CI)')
+-    ax[2].set_title('C.  SRT non-decision time — estimated per participant\n(individual differences preserved; not floored)', fontsize=11, fontweight='bold')
++    ceil = nn.min_srt_ms - 1; ax[2].plot(ceil, range(len(nn)), '|', color='#888', ms=8, mew=1.4)   # fastest-saccade ceiling
++    n_fl = int((nn.t0_lo95 <= 71).sum()); n_ce = int((nn.t0_hi95 >= ceil - 1).sum()); n_free = int(((nn.t0_lo95 > 71) & (nn.t0_hi95 < ceil - 1)).sum())
++    sub = f'({n_fl} at floor, {n_ce} at fastest-saccade ceiling, {n_free} free)'
++    ax[2].set_title('C.  SRT non-decision time per participant\n' + sub, fontsize=11, fontweight='bold')
+     ax[2].legend(handles=[Line2D([0],[0],color='#2c7fb8',lw=2,label='tighter CI (<35 ms)'),
+                           Line2D([0],[0],color='#d95f0e',lw=2,label='looser CI (≥35 ms)')], fontsize=8, loc='lower right')
+ else:
+@@ -66,7 +72,7 @@
+     ax[2].set_title('C.  SRT non-decision time (per participant)', fontsize=11, fontweight='bold')
+ ax[2].spines[['top','right']].set_visible(False); ax[2].grid(True, axis='x', ls='--', alpha=0.3)
+ 
+-fig.suptitle('Bayesian Model — HRT non-decision-time degeneracy resolved; saccadic $t_0$ estimated per participant',fontsize=12.5,fontweight='bold',y=1.00)
++fig.suptitle('Bayesian Model (Paradigm 2) — hand $t_0$ per cell, saccadic two-component fraction, saccadic $t_0$ per participant',fontsize=12.5,fontweight='bold',y=1.00)
+ fig.tight_layout()
+ fig.savefig(os.path.join(HERE,'Bayesian_summary.pdf'),dpi=300,bbox_inches='tight',facecolor='white')
+ fig.savefig(os.path.join(HERE,'Bayesian_summary.png'),dpi=140,bbox_inches='tight',facecolor='white')
+--- Paradigm1/DDM_conceptual.py
++++ Paradigm2/DDM_conceptual.py
+@@ -20,8 +20,8 @@
+     p = os.path.join(HERE, f)
+     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py first.")
+     return p
+-SPEEDS = [0, 75, 150]
+-COL = {0: "#4a7c59", 75: "#9e5a5a", 150: "#496aa3"}
++SPEEDS = [75, 100, 125, 150]          # Paradigm 2
++COL = {75: "#9e5a5a", 100: "#b07a2a", 125: "#7a5a9e", 150: "#496aa3"}
+ XMAX = {"hrt": 600, "srt": 500}
+ DIST_LABEL = {"hrt": "HRT Distribution\n(Interception)", "srt": "SRT Distribution\n(Interception)"}
+ 
+@@ -96,7 +96,8 @@
+     ax.annotate("", xy=(xmax * 1.02, 0.17), xytext=(0, 0.17), arrowprops=dict(arrowstyle="-|>", lw=1.3, color="#333"))
+     for tk in range(0, xmax + 1, 100):
+         ax.plot([tk, tk], [0.17, 0.155], color="#333", lw=1)
+-        ax.text(tk, 0.125, f"{tk}", ha="center", va="top", fontsize=8.5, color="#333")
++        if abs(tk - t0) > xmax * 0.035:   # P2: skip a tick label that would collide with the t0 label
++            ax.text(tk, 0.125, f"{tk}", ha="center", va="top", fontsize=8.5, color="#333")
+     ax.text(xmax / 2, 0.06, "Time (ms)", ha="center", va="top", fontsize=10.5)
+     ax.plot([t0, t0], [0.17, 0.145], color="#333", lw=1.4)
+     ax.text(t0, 0.125, f"{t0:.0f} ms\n($t_0$)", ha="center", va="top", fontsize=8.5, fontweight="bold")
+@@ -105,7 +106,7 @@
+     ax.text(t0 / 2, yb - 0.055, f"Non-decision time ($t_0$) = {t0:.0f} ms", ha="center", va="top", fontsize=9, style="italic", color="#555")
+     ax.annotate("", xy=(xmax, yb), xytext=(t0, yb), arrowprops=dict(arrowstyle="<->", lw=1.2, color="#999"))
+     ax.text((t0 + xmax) / 2, yb - 0.055, "Decision time", ha="center", va="top", fontsize=9, style="italic", color="#999")
+-    fig.suptitle(f"DDM (Single Boundary, {measure.upper()}) -- {s} deg/s", fontsize=12.5, fontweight="bold", y=0.99)
++    fig.suptitle(f"DDM (Single Boundary, {measure.upper()}) -- {s} deg/s  (Paradigm 2)", fontsize=12.5, fontweight="bold", y=0.99)
+     ax.set_title(f"Group mean:  $v$ = {v:.2f} +/- {p['v_sd']:.2f},   $a$ = {a:.2f} +/- {p['a_sd']:.2f},   "
+                  f"$t_0$ = {t0:.0f} +/- {p['t0_sd']:.0f} ms", fontsize=11, pad=10)
+     ax.set_xlim(-xmax * 0.02, xmax * 1.06); ax.set_ylim(-0.10, 1.05); ax.axis("off")
+@@ -116,7 +117,7 @@
+     plt.close(fig)
+ 
+ dh = pd.read_csv(_need("DDM_hrt_fits.csv")); ds = pd.read_csv(_need("DDM_srt_fits.csv"))
+-dfi = pd.read_csv(_need("pooled_data.csv")); dfi = dfi[dfi.BlockType == "I"]
++dfi = pd.read_csv(_need("pooled_data_P2.csv")); dfi = dfi[dfi.BlockType == "P2"]
+ ph = group_params(dh, "hrt"); ps = group_params(ds, "srt")
+ for s in SPEEDS:
+     draw("hrt", s, ph[s], median_rt(dfi, "hrt", s), COL[s])
+--- Paradigm1/DDM_figures.py
++++ Paradigm2/DDM_figures.py
+@@ -1,4 +1,5 @@
+ """DDM_figures.py  --  DDM method comparison and diagnostic figures.
++PARADIGM 2 (CIR): speeds 75/100/125/150 deg/s; reads the Paradigm 2 fit tables / pooled_data_P2.csv.
+ 
+ Produces summary figure panels from DDM fits.
+ Reads DDM_hrt_fits.csv, DDM_srt_fits.csv. Output: DDM_summary.pdf/.png.
+@@ -16,8 +17,9 @@
+     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py first.")
+     return p
+ h=pd.read_csv(_need('DDM_hrt_fits.csv')); s=pd.read_csv(_need('DDM_srt_fits.csv'))
+-SC={0:(0.30,0.55,0.20),75:(0.78,0.30,0.30),150:(0.20,0.35,0.62)}
+-SP=[0,75,150]
++SC={75:(0.78,0.30,0.30),100:(0.80,0.52,0.10),125:(0.48,0.32,0.66),150:(0.20,0.35,0.62)}
++SP=[75,100,125,150]
++XR=len(SP)-0.6          # right-hand x position for in-panel labels (was 2.4 with 3 speeds)
+ rng=np.random.default_rng(0)
+ fig,ax=plt.subplots(1,3,figsize=(16,5.2))
+ 
+@@ -25,9 +27,10 @@
+     d=h[h.spd==spd]
+     ax[0].scatter(np.full(len(d),i)+rng.uniform(-.12,.12,len(d)),d.ks,color=SC[spd],s=28,alpha=0.7,edgecolor='white',linewidth=0.4)
+ ax[0].axhline(0.10,color='#888',ls='--',lw=1); ax[0].axhline(0.12,color='#E84855',ls=':',lw=1)
+-ax[0].text(2.4,0.102,'OK',fontsize=8,color='#666'); ax[0].text(2.4,0.122,'Poor',fontsize=8,color='#E84855')
+-ax[0].set_xticks(range(3)); ax[0].set_xticklabels([f'{x} deg/s' for x in SP])
+-ax[0].set_ylabel('KS statistic'); ax[0].set_title('A.  HRT fit quality\n(single-Wald, 0% Poor)',fontsize=11,fontweight='bold')
++ax[0].text(XR,0.102,'OK',fontsize=8,color='#666'); ax[0].text(XR,0.122,'Poor',fontsize=8,color='#E84855')
++ax[0].set_xticks(range(len(SP))); ax[0].set_xticklabels([f'{x} deg/s' for x in SP])
++pct_poor=100*(h.ks>0.12).mean()   # was hard-coded '0% Poor' in Paradigm 1
++ax[0].set_ylabel('KS statistic'); ax[0].set_title(f'A.  HRT fit quality\n(single-Wald, {pct_poor:.0f}% Poor)',fontsize=11,fontweight='bold')
+ ax[0].spines[['top','right']].set_visible(False); ax[0].set_ylim(0,0.18); ax[0].grid(True,axis='y',ls='--',alpha=0.3)
+ 
+ srt_s=s.sort_values('ks_single').reset_index(drop=True)
+@@ -42,15 +45,15 @@
+ ax[1].grid(True,axis='y',ls='--',alpha=0.3)
+ 
+ hm=[h[h.spd==spd].t0.mean() for spd in SP]; hsd=[h[h.spd==spd].t0.std() for spd in SP]
+-x=np.arange(3)
++x=np.arange(len(SP))
+ ax[2].bar(x,hm,yerr=hsd,capsize=6,color=[SC[spd] for spd in SP],edgecolor='#444',linewidth=1.2)
+ for i,(m,sd) in enumerate(zip(hm,hsd)): ax[2].text(i,m+sd+2,f'{m:.0f}',ha='center',fontsize=10,fontweight='bold')
+-ax[2].axhline(100,color='#E84855',ls=':',lw=1.2); ax[2].text(2.4,102,'floor 100ms',fontsize=8,color='#E84855',ha='right')
++ax[2].axhline(130,color='#E84855',ls=':',lw=1.2); ax[2].text(XR,132,'floor 130ms',fontsize=8,color='#E84855',ha='right')   # P1 still drew the retired 100 ms floor
+ ax[2].set_xticks(x); ax[2].set_xticklabels([f'{spd} deg/s' for spd in SP]); ax[2].set_ylabel('$t_0$ (ms)')
+ ax[2].set_title('C.  HRT non-decision time\n(defensible bounds)',fontsize=11,fontweight='bold')
+ ax[2].spines[['top','right']].set_visible(False); ax[2].grid(True,axis='y',ls='--',alpha=0.3); ax[2].set_ylim(0,200)
+ 
+-fig.suptitle('DDM (Drift-Diffusion Model): literature-grounded bounds + SRT express/regular mixture',fontsize=13,fontweight='bold',y=1.00)
++fig.suptitle('DDM (Drift-Diffusion Model), Paradigm 2: literature-grounded bounds + SRT express/regular mixture',fontsize=13,fontweight='bold',y=1.00)
+ fig.tight_layout()
+ fig.savefig(os.path.join(HERE,'DDM_summary.pdf'),dpi=300,bbox_inches='tight',facecolor='white')
+ fig.savefig(os.path.join(HERE,'DDM_summary.png'),dpi=140,bbox_inches='tight',facecolor='white')
+--- Paradigm1/DDM_fit.py
++++ Paradigm2/DDM_fit.py
+@@ -1,6 +1,10 @@
+ """
+ DDM_fit.py  --  Frequentist MLE (Method A) for hand & saccadic RT
+ 
++PARADIGM 2 (CIR): target speeds 75 / 100 / 125 / 150 deg/s, BlockType "P2", input
++pooled_data_P2.csv (built by build_pooled_data_P2.py). Model, likelihood, priors, bounds,
++floors, filters, optimiser and sampler settings are UNCHANGED from Paradigm 1.
++
+ Fits the single-boundary shifted-Wald (contamination mixture) per participant x speed
+ cell via scipy.optimize differential evolution. Outputs DDM_hrt_fits.csv and
+ DDM_srt_fits.csv (resumable: completed cells are skipped on re-run).
+@@ -21,8 +25,9 @@
+     _HAVE_EXTRAS = False
+ 
+ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+-DATA = os.path.join(SCRIPT_DIR, "pooled_data.csv")
+-SPEEDS = [0, 75, 150]
++DATA = os.path.join(SCRIPT_DIR, "pooled_data_P2.csv")
++SPEEDS = [75, 100, 125, 150]
++BLOCK = "P2"                      # Paradigm 2 block type (Paradigm 1 used "I")
+ A_MAX, V_MAX = 2.5, 20.0          # a,v caps follow Tran et al. (2020) s=1 envelope (a<=7.47, |v|<=18.5)
+ HRT_FLOOR, SRT_FLOOR = 0.130, 0.070  # HRT floor = reach-prep ~130ms (Haith 2016); SRT floor = saccadic dead time (Bompas 2017; Ludwig 2007)
+ P_CONTAM = 0.05
+@@ -109,7 +114,7 @@
+     return set(zip(*[pd.read_csv(path)[c] for c in ["pid","spd"]])) if os.path.exists(path) else set()
+ 
+ def main():
+-    dfi = pd.read_csv(DATA); dfi = dfi[dfi["BlockType"] == "I"]
++    dfi = pd.read_csv(DATA); dfi = dfi[dfi["BlockType"] == BLOCK]
+     pids = sorted(dfi["Participant"].unique())
+ 
+     # ---- HRT: single Wald ----
+--- Paradigm1/NDT_barchart.py
++++ Paradigm2/NDT_barchart.py
+@@ -21,8 +21,8 @@
+     p = os.path.join(HERE, f)
+     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py first.")
+     return p
+-SPEEDS = [0, 75, 150]
+-SC = {0: (0.45, 0.68, 0.40), 75: (0.85, 0.55, 0.55), 150: (0.50, 0.62, 0.82)}
++SPEEDS = [75, 100, 125, 150]            # Paradigm 2
++SC = {75: (0.85, 0.55, 0.55), 100: (0.88, 0.68, 0.36), 125: (0.66, 0.55, 0.80), 150: (0.50, 0.62, 0.82)}   # 75/150 as Paradigm 1
+ 
+ def srt_t0_table(ds):
+     """one saccadic t0 per participant per speed: t0 (single) or t0r (mixture regular comp)."""
+@@ -60,9 +60,9 @@
+                     ecolor="#222", capsize=6, lw=2.0, zorder=5)
+         ax.text(i + 0.23, m, f"{m:.0f} ms", ha="left", va="center", fontsize=10, fontweight="bold")
+     ax.axhline(floor, color="#777", ls=":", lw=1.3, zorder=1)
+-    ax.text(2.46, floor + (yhi - ylo) * 0.015, f"Physiol. min ({floor:.0f} ms)", ha="right", va="bottom",
++    ax.text(len(SPEEDS) - 0.54, floor + (yhi - ylo) * 0.015, f"Physiol. min ({floor:.0f} ms)", ha="right", va="bottom",
+             fontsize=8, style="italic", color="#999")
+-    ax.set_xticks(range(3)); ax.set_xticklabels([f"{s} deg/s" for s in SPEEDS]); ax.set_xlim(-0.5, 2.8)
++    ax.set_xticks(range(len(SPEEDS))); ax.set_xticklabels([f"{s} deg/s" for s in SPEEDS]); ax.set_xlim(-0.5, len(SPEEDS) - 0.2)
+     ax.set_ylabel("$t_0$ (ms)"); ax.set_ylim(ylo, yhi); ax.set_title(title, fontsize=11.5, fontweight="bold")
+     ax.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+     ax.spines[["top", "right"]].set_visible(False); ax.grid(True, axis="y", ls="--", alpha=0.3)
+@@ -72,10 +72,12 @@
+ ph, nph = friedman_p(hrt); psr, npsr = friedman_p(srt)
+ n = dh["pid"].nunique()
+ 
+-fig, ax = plt.subplots(1, 2, figsize=(13, 6))
+-panel(ax[0], hrt, f"HRT Non-Decision Time\n{p_label(ph)}", 130, 118, 205, nph)
+-panel(ax[1], srt, f"SRT Non-Decision Time\n{p_label(psr)}", 70, 55, 150, npsr)
+-fig.suptitle(f"Non-Decision Time ($t_0$) by Target Speed\nGroup mean +/- 1 SD  (n = {n} participants)",
++# y-limits: Paradigm 1 values unless a Paradigm 2 dot would fall outside them
++def _yl(t, lo, hi): return (min(lo, 5 * np.floor((t.t0.min() - 6) / 5)), max(hi, 5 * np.ceil((t.t0.max() + 6) / 5)))
++fig, ax = plt.subplots(1, 2, figsize=(14.5, 6))
++panel(ax[0], hrt, f"HRT Non-Decision Time\n{p_label(ph)}", 130, *_yl(hrt, 118, 205), nph)
++panel(ax[1], srt, f"SRT Non-Decision Time\n{p_label(psr)}", 70, *_yl(srt, 55, 150), npsr)
++fig.suptitle(f"Non-Decision Time ($t_0$) by Target Speed  (Paradigm 2, Method A)\nGroup mean +/- 1 SD  (n = {n} participants)",
+              fontsize=13, fontweight="bold", y=1.02)
+ fig.tight_layout()
+ fig.savefig(os.path.join(HERE, "NDT_barchart.pdf"), bbox_inches="tight", facecolor="white")
+--- Paradigm1/NDT_barchart_bayesian.py
++++ Paradigm2/NDT_barchart_bayesian.py
+@@ -25,8 +25,8 @@
+     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run the Bayesian fits first.")
+     return p
+ 
+-SPEEDS = [0, 75, 150]
+-SC = {0: (0.45, 0.68, 0.40), 75: (0.85, 0.55, 0.55), 150: (0.50, 0.62, 0.82)}  # match original suite
++SPEEDS = [75, 100, 125, 150]            # Paradigm 2
++SC = {75: (0.85, 0.55, 0.55), 100: (0.88, 0.68, 0.36), 125: (0.66, 0.55, 0.80), 150: (0.50, 0.62, 0.82)}  # 75/150 as Paradigm 1
+ HRT_FLOOR = 130
+ TIGHT_C, LOOSE_C = "#2c7fb8", "#d95f0e"   # well-constrained vs regularized (match Bayesian_srt_ndt.py)
+ 
+@@ -35,12 +35,13 @@
+ 
+ # ---- HRT Friedman on the Bayesian t0 ----
+ piv = bh.pivot_table(index="pid", columns="spd", values="t0_ms")
+-pH = friedmanchisquare(piv[0], piv[75], piv[150])[1]
++piv = piv.dropna()                      # complete participants only (all 16 are complete in Paradigm 2)
++pH = friedmanchisquare(*[piv[s] for s in SPEEDS])[1]
+ def p_label(p):
+     star = "***" if p < .001 else "**" if p < .01 else "*" if p < .05 else "(n.s.)"
+     return f"Friedman p = {p:.3f} {star}"
+ 
+-fig, ax = plt.subplots(1, 2, figsize=(13.5, 6.2), gridspec_kw={"width_ratios": [1.0, 1.15]})
++fig, ax = plt.subplots(1, 2, figsize=(14.5, 6.2), gridspec_kw={"width_ratios": [1.0, 1.15]})
+ 
+ # ================= Panel A: HRT non-decision time by speed (Bayesian) =================
+ rng = np.random.default_rng(0)
+@@ -53,12 +54,12 @@
+                    ecolor="#222", capsize=6, lw=2.0, zorder=5)
+     ax[0].text(i + 0.23, m, f"{m:.0f} ms", ha="left", va="center", fontsize=10, fontweight="bold")
+ ax[0].axhline(HRT_FLOOR, color="#777", ls=":", lw=1.3, zorder=1)
+-ax[0].text(2.46, HRT_FLOOR + 1.3, f"Physiol. min ({HRT_FLOOR:.0f} ms)", ha="right", va="bottom",
++ax[0].text(len(SPEEDS) - 0.54, HRT_FLOOR + 1.3, f"Physiol. min ({HRT_FLOOR:.0f} ms)", ha="right", va="bottom",
+            fontsize=8, style="italic", color="#999")
+-ax[0].text(0.02, 0.03, "0 / 48 cells floored", transform=ax[0].transAxes, fontsize=8.5,
++ax[0].text(0.02, 0.03, f"{int(bh.floored.sum())} / {len(bh)} cells floored", transform=ax[0].transAxes, fontsize=8.5,
+            style="italic", color="#2c7fb8")
+-ax[0].set_xticks(range(3)); ax[0].set_xticklabels([f"{s} deg/s" for s in SPEEDS]); ax[0].set_xlim(-0.5, 2.8)
+-ax[0].set_ylabel("$t_0$ (ms)"); ax[0].set_ylim(118, 205)
++ax[0].set_xticks(range(len(SPEEDS))); ax[0].set_xticklabels([f"{s} deg/s" for s in SPEEDS]); ax[0].set_xlim(-0.5, len(SPEEDS) - 0.2)
++ax[0].set_ylabel("$t_0$ (ms)"); ax[0].set_ylim(min(118, 5 * np.floor((bh.t0_ms.min() - 6) / 5)), max(205, 5 * np.ceil((bh.t0_ms.max() + 6) / 5)))
+ ax[0].yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+ ax[0].set_title(f"HRT Non-Decision Time  (n = {piv.shape[0]})\n{p_label(pH)}", fontsize=11.5, fontweight="bold")
+ ax[0].spines[["top", "right"]].set_visible(False); ax[0].grid(True, axis="y", ls="--", alpha=0.3)
+@@ -77,23 +78,33 @@
+ ax[1].axvline(70, color="#777", ls=":", lw=1.3, zorder=1)
+ ax[1].text(70.5, 0.5, "70 ms physiological floor", rotation=90, fontsize=8, style="italic", color="#999", va="bottom")
+ ax[1].set_xlim(40, 150)
+-ax[1].set_title(f"SRT Non-Decision Time  (n = {len(nn)})\nnot identifiable \u2014 pinned at the 70 ms floor",
+-                fontsize=11.5, fontweight="bold")
+-ax[1].text(0.97, 0.04, "data favour <70 ms; pinned at floor\n(not estimable above it; Bompas 2024)",
+-           transform=ax[1].transAxes, ha="right", fontsize=7.6, style="italic", color="#b00")
++n_pin = int((nn.t0_ms - 70 < 2).sum()); ceil = nn.min_srt_ms - 1   # P2: judge against BOTH bounds (floor, fastest-saccade ceiling)
++n_fl = int((nn.t0_lo95 <= 71).sum()); n_ce = int((nn.t0_hi95 >= ceil - 1).sum()); n_free = int(((nn.t0_lo95 > 71) & (nn.t0_hi95 < ceil - 1)).sum())
++PINNED = n_free <= 0.2 * len(nn)   # 'not identifiable' = (almost) every interval runs into a bound
++ax[1].plot(ceil, range(len(nn)), '|', color='#888', ms=10, mew=1.6, zorder=4)
++ax[1].set_title(f"SRT Non-Decision Time  (n = {len(nn)})\n" + ("not identifiable \u2014 " if PINNED else "")
++                + f"{n_fl} reach the 70 ms floor, {n_ce} the fastest-saccade ceiling, {n_free} clear of both", fontsize=11.5, fontweight="bold")
++if PINNED and n_ce == 0:   # P1-style note only; when the ceiling binds the title/footnote say it (the note would sit under the legend)
++    ax[1].text(0.97, 0.04, ("data favour <70 ms; pinned at floor\n(not estimable above it; Bompas 2024)" if n_ce == 0 else
++               "bounded by the 70 ms floor or by the fastest saccade\n(grey tick) \u2014 not estimable between them"),
++               transform=ax[1].transAxes, ha="right", fontsize=7.6, style="italic", color="#b00")
+ ax[1].legend(handles=[
+-    Line2D([0], [0], color=TIGHT_C, lw=2.2, marker="o", ms=5, label="well-constrained (95% CI < 35 ms)"),
+-    Line2D([0], [0], color=LOOSE_C, lw=2.2, marker="o", ms=5, label="regularized (95% CI \u2265 35 ms)"),
+-    Line2D([0], [0], color="#444", ls="--", lw=1.3, label=f"across-participant mean ({pop_mean:.0f} ms)")],
++    Line2D([0], [0], color=TIGHT_C, lw=2.2, marker="o", ms=5, label="95% CI < 35 ms"),
++    Line2D([0], [0], color=LOOSE_C, lw=2.2, marker="o", ms=5, label="95% CI \u2265 35 ms"),
++    Line2D([0], [0], color="#444", ls="--", lw=1.3, label=f"across-participant mean ({pop_mean:.0f} ms)"),
++    Line2D([0], [0], color="#888", marker="|", ls="", ms=10, mew=1.6, label="ceiling: fastest saccade \u2212 1 ms")],
+     fontsize=8.3, loc="lower right", framealpha=0.95)
+ ax[1].spines[["top", "right"]].set_visible(False); ax[1].grid(True, axis="x", ls="--", alpha=0.3)
+ 
+-fig.suptitle("Non-Decision Time ($t_0$) \u2014 Hierarchical Bayesian estimates",
++fig.suptitle("Non-Decision Time ($t_0$) \u2014 Hierarchical Bayesian estimates  (Paradigm 2)",
+              fontsize=13.5, fontweight="bold", y=1.005)
++hm = [bh[bh.spd == s].t0_ms.mean() for s in SPEEDS]      # Paradigm 1 footnote hard-coded its own numbers
+ fig.text(0.5, -0.015,
+-         "HRT: hand non-decision time is identifiable and decreases with target speed (170\u2192158\u2192148 ms; 0/48 cells floored).   "
+-         "SRT: saccadic non-decision time is NOT identifiable \u2014 with the 70 ms physiological floor enforced, every participant pins at the floor "
+-         "(the data favour even lower values), so it is reported as fixed at 70 ms rather than estimated per participant.",
++         f"HRT: hand non-decision time by speed {chr(8594).join(f'{x:.0f}' for x in hm)} ms "
++         f"({int(bh.floored.sum())}/{len(bh)} cells floored; Friedman p = {pH:.3f}).   "
++         + (f"SRT: saccadic non-decision time is NOT identifiable \u2014 {n_fl}/{len(nn)} intervals reach the 70 ms floor and "
++            f"{n_ce}/{len(nn)} the ceiling set by the fastest saccade ({n_free} clear of both), so it is reported as fixed at 70 ms." if PINNED else
++            f"SRT: {n_fl}/{len(nn)} intervals reach the 70 ms floor, {n_ce}/{len(nn)} the fastest-saccade ceiling; {n_free} are estimated between them."),
+          ha="center", fontsize=7.8, color="#666")
+ fig.tight_layout()
+ fig.savefig(os.path.join(HERE, "NDT_barchart_bayesian.pdf"), bbox_inches="tight", facecolor="white")
+--- Paradigm1/SRT_fixed_t0_analysis.py
++++ Paradigm2/SRT_fixed_t0_analysis.py
+@@ -26,8 +26,8 @@
+ 
+ T0_PRIMARY = 0.070
+ T0_SENSITIVITY = [0.050, 0.070, 0.090]
+-SPEEDS = [0, 75, 150]
+-SC = {0:(0.30,0.55,0.20), 75:(0.78,0.30,0.30), 150:(0.20,0.35,0.62)}
++SPEEDS = [75, 100, 125, 150]          # Paradigm 2
++SC = {75:(0.78,0.30,0.30), 100:(0.80,0.52,0.10), 125:(0.48,0.32,0.66), 150:(0.20,0.35,0.62)}
+ 
+ def wald_pdf(t,v,a):
+     t=np.maximum(t,1e-9); return (a/np.sqrt(2*np.pi*t**3))*np.exp(-(a-v*t)**2/(2*t))
+@@ -49,7 +49,7 @@
+     z = dfi[(dfi.Participant==pid)&(dfi.Speed_deg_per_s==spd)]
+     x = z['GazeSRT_ms'].values.astype(float); return x[(~np.isnan(x))&(x>=80)&(x<=600)]/1000
+ 
+-dfi = pd.read_csv(_need('pooled_data.csv')); dfi = dfi[dfi.BlockType=='I']
++dfi = pd.read_csv(_need('pooled_data_P2.csv')); dfi = dfi[dfi.BlockType=='P2']
+ s = pd.read_csv(_need('DDM_srt_fits.csv')); sing = s[s.model=='single']
+ 
+ # ---- primary fit (t0 = 70 ms) ----
+@@ -67,7 +67,7 @@
+       f"{100*(out.ks<0.10).mean():.0f}% acceptable")
+ 
+ # ---- sensitivity over t0 in {50,70,90} ----
+-sens = {t0:{0:[],75:[],150:[]} for t0 in T0_SENSITIVITY}; sens_ks = {t0:[] for t0 in T0_SENSITIVITY}
++sens = {t0:{sp:[] for sp in SPEEDS} for t0 in T0_SENSITIVITY}; sens_ks = {t0:[] for t0 in T0_SENSITIVITY}
+ for t0 in T0_SENSITIVITY:
+     for _, r in sing.iterrows():
+         x = load(dfi, r.pid, int(r.spd))
+@@ -75,16 +75,23 @@
+         res = fit_va(x, t0)
+         if res: sens[t0][int(r.spd)].append(res[0]); sens_ks[t0].append(res[2])
+ 
++# Paradigm 2: the P1 panel titles asserted stability; here the titles report the measured numbers instead
++_prof = {t0: [np.mean(sens[t0][sp]) for sp in SPEEDS] for t0 in T0_SENSITIVITY}
++_r = min(np.corrcoef(_prof[p], _prof[q])[0, 1] for i, p in enumerate(T0_SENSITIVITY) for q in T0_SENSITIVITY[i+1:])
++_ks = [np.mean(sens_ks[t0]) for t0 in T0_SENSITIVITY]
++pd.DataFrame([dict(t0_fixed_ms=int(t0*1000), n_cells=len(sens_ks[t0]), mean_ks=round(np.mean(sens_ks[t0]),4),
++                   **{f'mean_v_{sp}': round(np.mean(sens[t0][sp]),3) for sp in SPEEDS}) for t0 in T0_SENSITIVITY]
++             ).to_csv(os.path.join(HERE,'SRT_fixedt0_sensitivity.csv'), index=False)
+ fig, ax = plt.subplots(1, 2, figsize=(13, 5.2))
+ # Panel A: mean drift by speed, one line per fixed-t0 value -> shows pattern is stable
+ styles = {0.050:('--','o'), 0.070:('-','s'), 0.090:(':','^')}
+ for t0 in T0_SENSITIVITY:
+     mv = [np.mean(sens[t0][sp]) for sp in SPEEDS]
+     ls, mk = styles[t0]
+-    ax[0].plot(range(3), mv, ls, marker=mk, lw=2, ms=7, label=f'$t_0$ = {int(t0*1000)} ms')
+-ax[0].set_xticks(range(3)); ax[0].set_xticklabels([f'{sp} deg/s' for sp in SPEEDS])
+-ax[0].set_ylabel('mean drift rate $v$'); ax[0].set_title('A.  Drift by speed is stable across the assumed $t_0$\n(the conclusions do not depend on the fixed value)', fontsize=11, fontweight='bold')
+-ax[0].legend(fontsize=9.5, title='fixed non-decision time'); ax[0].spines[['top','right']].set_visible(False); ax[0].grid(True, ls='--', alpha=0.3)
++    ax[0].plot(range(len(SPEEDS)), mv, ls, marker=mk, lw=2, ms=7, label=f'$t_0$ = {int(t0*1000)} ms')
++ax[0].set_xticks(range(len(SPEEDS))); ax[0].set_xticklabels([f'{sp} deg/s' for sp in SPEEDS])
++ax[0].set_ylabel('mean drift rate $v$'); ax[0].set_title(f'A.  Mean drift by speed under each fixed $t_0$\n(speed-profile correlation across $t_0$ values: min r = {_r:.2f})', fontsize=11, fontweight='bold')
++ax[0].legend(fontsize=9, title='fixed non-decision time', ncol=3, loc='upper center', bbox_to_anchor=(0.5, -0.10));   # P2: below the axes so no line is hidden ax[0].spines[['top','right']].set_visible(False); ax[0].grid(True, ls='--', alpha=0.3)
+ 
+ # Panel B: fit quality identical across t0 -> data don't constrain t0 (but fixing costs nothing)
+ means = [np.mean(sens_ks[t0]) for t0 in T0_SENSITIVITY]
+@@ -92,10 +99,10 @@
+ for i,mn in enumerate(means): ax[1].text(i, mn+0.002, f'{mn:.3f}', ha='center', fontsize=10, fontweight='bold')
+ ax[1].axhline(0.10, color='#E84855', ls=':', lw=1.3); ax[1].text(2.4, 0.103, 'acceptable < 0.10', ha='right', color='#E84855', fontsize=8.5)
+ ax[1].set_ylabel('mean KS (fit quality)'); ax[1].set_ylim(0, 0.13)
+-ax[1].set_title('B.  Fit quality is identical across $t_0$\n(data cannot distinguish the values — hence fixing it)', fontsize=11, fontweight='bold')
++ax[1].set_title(f'B.  Mean KS under each fixed $t_0$\n(range across $t_0$ values: {max(_ks)-min(_ks):.3f})', fontsize=11, fontweight='bold')
+ ax[1].spines[['top','right']].set_visible(False); ax[1].grid(True, axis='y', ls='--', alpha=0.3)
+ 
+-fig.suptitle('Saccadic RT with fixed non-decision time — the floor-piling artifact is removed and conclusions are robust',
++fig.suptitle('Saccadic RT with fixed non-decision time (Paradigm 2) — sensitivity of drift and fit quality to the assumed $t_0$',
+              fontsize=12.5, fontweight='bold', y=1.0)
+ fig.tight_layout()
+ fig.savefig(os.path.join(HERE,'SRT_fixedt0_sensitivity.pdf'), dpi=300, bbox_inches='tight', facecolor='white')
+--- Paradigm1/SRT_identifiability_check.py
++++ Paradigm2/SRT_identifiability_check.py
+@@ -44,41 +44,47 @@
+         if best is None or r.fun<best.fun: best=r
+     return best.x[2]*1000
+ 
+-dfi=pd.read_csv(_need('pooled_data.csv')); dfi=dfi[dfi.BlockType=='I']
++dfi=pd.read_csv(_need('pooled_data_P2.csv')); dfi=dfi[dfi.BlockType=='P2']
+ s=pd.read_csv(_need('DDM_srt_fits.csv')); sing=s[s.model=='single']
+ FLOORS=[0.040,0.050,0.060,0.070,0.080,0.090]
+ 
+-rows=[]
++rows=[]; tab=[]
+ for _,r in sing.iterrows():
+     sub=dfi[(dfi.Participant==r.pid)&(dfi.Speed_deg_per_s==r.spd)]
+     x=sub['GazeSRT_ms'].values.astype(float); x=x[(~np.isnan(x))&(x>=80)&(x<=600)]/1000
+     t0s=[fit_t0(x,fl) for fl in FLOORS]
+     # identified if t0 does NOT closely track the floor (slope of t0 vs floor << 1)
+     slope=np.polyfit([f*1000 for f in FLOORS], t0s, 1)[0]
+-    rows.append((f"{r.pid}@{int(r.spd)}", t0s, slope))
++    ceil_b=bool(max(abs(t-x.min()*1000) for t in t0s)<2.0)   # P2: stuck at the fastest saccade at every floor = ceiling-bound, NOT identified
++    rows.append((f"{r.pid}@{int(r.spd)}", t0s, slope, ceil_b))
++    tab.append(dict(pid=r.pid, spd=int(r.spd), n=len(x), min_srt_ms=round(x.min()*1000,1), slope=round(slope,3),
++                    tracks_floor=bool(slope>0.7), ceiling_bound=ceil_b, eligible=bool(x.min() > max(FLOORS)+0.002),   # eligible = min RT above every floor (v3 rule)
++                    **{f't0_at_{int(f*1000)}': round(t,1) for f,t in zip(FLOORS,t0s)}))
+ 
+-n_tracking=sum(1 for _,_,sl in rows if sl>0.7)
++n_tracking=sum(1 for _,_,sl,_ in rows if sl>0.7); n_ceil=sum(1 for _,_,sl,cb in rows if sl<=0.7 and cb)
++pd.DataFrame(tab).to_csv(os.path.join(HERE,'SRT_identifiability.csv'),index=False)   # new in Paradigm 2 (P1 saved no table)
+ print(f"SRT single cells tested: {len(rows)}")
+ print(f"  cells whose t0 TRACKS the floor (slope>0.7 -> NOT identified): {n_tracking}/{len(rows)}")
+-print(f"  cells with genuinely identified t0 (slope<=0.7): {len(rows)-n_tracking}/{len(rows)}")
++print(f"  cells stuck at their fastest saccade (ceiling-bound, slope<=0.7): {n_ceil}/{len(rows)}")
++print(f"  cells with genuinely identified t0 (slope<=0.7, not ceiling-bound): {len(rows)-n_tracking-n_ceil}/{len(rows)}")
+ 
+ fig,ax=plt.subplots(1,2,figsize=(13,5.4))
+ xf=[f*1000 for f in FLOORS]
+-for name,t0s,slope in rows:
+-    c='#C0392B' if slope>0.7 else '#27AE60'
++for name,t0s,slope,cb in rows:
++    c='#C0392B' if slope>0.7 else ('#E67E22' if cb else '#27AE60')
+     ax[0].plot(xf,t0s,'-o',color=c,alpha=0.55,ms=3,lw=1)
+ ax[0].plot([40,90],[40,90],'k--',lw=1.5,label='t0 = floor (unidentified)')
+ ax[0].set_xlabel('imposed non-decision floor (ms)'); ax[0].set_ylabel('fitted $t_0$ (ms)')
+-ax[0].set_title('SRT $t_0$ vs imposed floor\nred = tracks floor (unidentified); green = stable (identified)',fontsize=11,fontweight='bold')
++ax[0].set_title('SRT $t_0$ vs imposed floor\nred = tracks floor; orange = stuck at fastest saccade; green = identified',fontsize=11,fontweight='bold')
+ ax[0].legend(fontsize=9); ax[0].spines[['top','right']].set_visible(False); ax[0].grid(True,ls='--',alpha=0.3)
+ 
+-slopes=[sl for _,_,sl in rows]
++slopes=[sl for _,_,sl,_ in rows]
+ ax[1].hist(slopes,bins=np.linspace(0,1.05,12),color='#7f8c8d',edgecolor='white')
+ ax[1].axvline(0.7,color='#C0392B',ls=':',lw=1.5); ax[1].text(0.71,ax[1].get_ylim()[1]*0.9,'tracks floor →',color='#C0392B',fontsize=9)
+ ax[1].set_xlabel('slope of $t_0$ vs floor  (1 = perfectly tracks floor)'); ax[1].set_ylabel('number of cells')
+ ax[1].set_title(f'{n_tracking}/{len(rows)} SRT single cells are floor-determined',fontsize=11,fontweight='bold')
+ ax[1].spines[['top','right']].set_visible(False); ax[1].grid(True,axis='y',ls='--',alpha=0.3)
+-fig.suptitle('Saccadic non-decision time is largely NOT identifiable — it sits at the imposed floor (both DDM and Bayesian)',fontsize=12.5,fontweight='bold',y=1.0)
++fig.suptitle(f'Saccadic non-decision time vs the imposed floor (Paradigm 2) — {n_tracking}/{len(rows)} cells track the floor, {n_ceil} sit at the fastest saccade, {len(rows)-n_tracking-n_ceil} identified',fontsize=12.5,fontweight='bold',y=1.0)
+ fig.tight_layout()
+ fig.savefig(os.path.join(HERE,'SRT_identifiability.pdf'),dpi=300,bbox_inches='tight',facecolor='white')
+ fig.savefig(os.path.join(HERE,'SRT_identifiability.png'),dpi=140,bbox_inches='tight',facecolor='white')
+--- Paradigm1/vincentile_figures.py
++++ Paradigm2/vincentile_figures.py
+@@ -19,16 +19,16 @@
+ matplotlib.rcParams.update({"font.family": _fam, "font.size": 11, "pdf.fonttype": 42, "ps.fonttype": 42})
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+-DATA = os.path.join(HERE, "pooled_data.csv")
+-if not os.path.exists(DATA): sys.exit("ERROR: pooled_data.csv must sit next to this script.")
+-SPEEDS = [0, 75, 150]
+-SPEED_FILL = {0: "#cfe8cf", 75: "#f3d4d4", 150: "#d3ddef"}     # light per-speed backgrounds
+-SPEED_LINE = {0: "#4a7c59", 75: "#9e4a4a", 150: "#496aa3"}     # saturated per-speed lines
++DATA = os.path.join(HERE, "pooled_data_P2.csv")
++if not os.path.exists(DATA): sys.exit("ERROR: pooled_data_P2.csv must sit next to this script.")
++SPEEDS = [75, 100, 125, 150]          # Paradigm 2
++SPEED_FILL = {75: "#f3d4d4", 100: "#f6e3c4", 125: "#e3daf0", 150: "#d3ddef"}     # light per-speed backgrounds (75/150 as P1)
++SPEED_LINE = {75: "#9e4a4a", 100: "#b07a2a", 125: "#7a5a9e", 150: "#496aa3"}     # saturated per-speed lines (75/150 as P1)
+ SRT_C, HRT_C = "#2c7fb8", "#d9772b"                            # SRT cool, HRT warm
+ NBINS = 20
+ 
+ def load():
+-    d = pd.read_csv(DATA); d = d[d["BlockType"] == "I"]
++    d = pd.read_csv(DATA); d = d[d["BlockType"] == "P2"]
+     out = {}; pairs = {}
+     for s in SPEEDS:
+         z = d[d["Speed_deg_per_s"] == s]
+@@ -70,7 +70,7 @@
+ diffs = vincentile_diffs(pairs)
+ 
+ # ---------------------------------------------------------------- fig1: KDE overlay
+-fig, ax = plt.subplots(1, 3, figsize=(13, 4.2), sharey=True)
++fig, ax = plt.subplots(1, len(SPEEDS), figsize=(16.5, 4.2), sharey=True)
+ xs = np.linspace(100, 600, 400)
+ for i, s in enumerate(SPEEDS):
+     sr, hr = pooled(data, s, "srt"), pooled(data, s, "hrt")
+@@ -84,13 +84,13 @@
+     ax[i].set_title(f"{s} deg/s", fontsize=11, fontweight="bold"); ax[i].set_xlabel("RT (ms)")
+     ax[i].spines[["top", "right"]].set_visible(False)
+ ax[0].set_ylabel("Density")
+-ax[2].legend(handles=[Line2D([0],[0],color=SRT_C,lw=2,label="SRT (gaze)"),
++ax[-1].legend(handles=[Line2D([0],[0],color=SRT_C,lw=2,label="SRT (gaze)"),
+                       Line2D([0],[0],color=HRT_C,lw=2,label="HRT (hand)")], fontsize=9, loc="upper right")
+-fig.suptitle(f"RT Distributions (SRT & HRT Overlay)   n={nP} participants", fontsize=12.5, fontweight="bold")
++fig.suptitle(f"RT Distributions (SRT & HRT Overlay), Paradigm 2   n={nP} participants", fontsize=12.5, fontweight="bold")
+ fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig1_kde_overlay.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
+ 
+ # ---------------------------------------------------------------- fig2: histograms (SRT top, HRT bottom)
+-fig, ax = plt.subplots(2, 3, figsize=(13, 7))
++fig, ax = plt.subplots(2, len(SPEEDS), figsize=(16.5, 7))
+ for i, s in enumerate(SPEEDS):
+     sr, hr = pooled(data, s, "srt"), pooled(data, s, "hrt")
+     xs_s = np.linspace(100, 600, 300); xs_h = np.linspace(200, 800, 300)
+@@ -106,11 +106,11 @@
+     ax[1, i].set_xlabel("RT (ms)")
+     for a in (ax[0,i], ax[1,i]): a.spines[["top","right"]].set_visible(False)
+ ax[0, 0].set_ylabel("Density\n(SRT — gaze RT)"); ax[1, 0].set_ylabel("Density\n(HRT — hand RT)")
+-fig.suptitle(f"RT Histograms — SRT (top) & HRT (bottom)   n={nP} participants", fontsize=12.5, fontweight="bold")
++fig.suptitle(f"RT Histograms — SRT (top) & HRT (bottom), Paradigm 2   n={nP} participants", fontsize=12.5, fontweight="bold")
+ fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig2_histograms.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
+ 
+ # ---------------------------------------------------------------- fig3: HRT-SRT vincentile by speed (3 panels)
+-fig, ax = plt.subplots(1, 3, figsize=(13, 4.6), sharey=True)
++fig, ax = plt.subplots(1, len(SPEEDS), figsize=(16.5, 4.6), sharey=True)
+ x = np.arange(1, NBINS + 1)
+ for i, s in enumerate(SPEEDS):
+     m = diffs[s].mean(0); sd = diffs[s].std(0, ddof=1)
+@@ -121,7 +121,7 @@
+     ax[i].set_xticks(x); ax[i].set_xticklabels(x, fontsize=7)
+     ax[i].spines[["top", "right"]].set_visible(False)
+ ax[0].set_ylabel("HRT − SRT (ms)")
+-fig.suptitle("HRT − SRT Vincentile by Speed", fontsize=13, fontweight="bold")
++fig.suptitle("HRT − SRT Vincentile by Speed  (Paradigm 2)", fontsize=13, fontweight="bold")
+ fig.text(0.5, -0.02, f"Group mean ± 1 SD  |  n={nP} participants", ha="center", fontsize=9, color="#666")
+ fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig3_vincentile_by_speed.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
+ 
+@@ -135,7 +135,7 @@
+ ax.set_xlabel("Vincentile bin"); ax.set_ylabel("HRT − SRT (ms)")
+ ax.set_xticks([1, 5, 10, 15, 20]); ax.legend(fontsize=10, loc="upper left")
+ ax.spines[["top", "right"]].set_visible(False); ax.grid(True, ls="--", alpha=0.3)
+-fig.suptitle("HRT − SRT Vincentile (All Speeds)", fontsize=13, fontweight="bold")
++fig.suptitle("HRT − SRT Vincentile (All Speeds, Paradigm 2)", fontsize=13, fontweight="bold")
+ fig.text(0.5, -0.02, f"Group mean  |  n={nP} participants", ha="center", fontsize=9, color="#666")
+ fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig4_combined_vincentile.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
+ 
+--- Paradigm1/why_saccadic_t0_floors.py
++++ Paradigm2/why_saccadic_t0_floors.py
+@@ -23,7 +23,8 @@
+         except Exception: pass
+ matplotlib.rcParams.update({"font.family": _fam, "font.size": 11, "pdf.fonttype": 42, "ps.fonttype": 42})
+ 
+-df = pd.read_csv(os.path.join(HERE, "pooled_data.csv")); df = df[df["BlockType"] == "I"]
++df = pd.read_csv(os.path.join(HERE, "pooled_data_P2.csv")); df = df[df["BlockType"] == "P2"]
++IMPL = {}   # effector -> (implied t0, floor, skew/CV); drives the text below (P1 hard-coded it)
+ 
+ cfg = [("HandRT_ms", "HAND  (manual reaction time)", 130, (150, 800), (0.45, 0.68, 0.40)),
+        ("GazeSRT_ms", "EYE  (saccadic reaction time)", 70, (80, 600), (0.50, 0.62, 0.82))]
+@@ -33,6 +34,7 @@
+     r = df[col].dropna().values.astype(float); r = r[(r >= filt[0]) & (r <= filt[1])]
+     m, sd, sk = r.mean(), r.std(), skew(r)
+     implied = m - 3 * sd / sk
++    IMPL[col] = (implied, floor, sk / (sd / m))
+ 
+     xs = np.linspace(r.min(), np.percentile(r, 99), 400)
+     kde = gaussian_kde(r)(xs)
+@@ -62,17 +64,22 @@
+     ax.text(0.97, 0.97, txt, transform=ax.transAxes, ha="right", va="top", fontsize=9,
+             bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="#ccc"))
+ 
+-fig.suptitle("Why saccadic non-decision time floors: it is the distribution SHAPE, not the data\n"
++(hi_, hf_, hr_), (ei_, ef_, er_) = IMPL["HandRT_ms"], IMPL["GazeSRT_ms"]
++MECH = (hi_ > hf_) and (ei_ < ef_)
++fig.suptitle(("Why saccadic non-decision time floors: it is the distribution SHAPE, not the data  (Paradigm 2)\n" if MECH else
++              "Shape-implied non-decision time vs the physiological floors  (Paradigm 2)\n") +
+              "implied $t_0$ = mean RT \u2212 3\u00b7SD / skewness   (forced by the Wald's skew\u2013spread geometry)",
+              fontsize=12.5, fontweight="bold", y=1.02)
+ fig.text(0.5, -0.04,
+-         "The hand distribution is strongly right-skewed, so the Wald reads a late onset plus a short skewed decision \u2014 $t_0$ lands above its floor and is identified.  "
+-         "The saccadic distribution is nearly symmetric for its spread (skew/CV \u2248 3, low absolute skew), so the model attributes almost all of the RT to the\n"
+-         "decision process and $t_0$ is pushed below the 70 ms physiological floor.  More trials cannot change this \u2014 it is set by the shape, which is why the saccade "
+-         "field fixes the dead time (e.g. the LATER / reciprocal-normal model) rather than estimating it freely.",
++         f"Hand: skew/CV = {hr_:.1f}, shape-implied $t_0$ = {hi_:.0f} ms vs the {hf_:.0f} ms floor ("
++         + ("above it, so $t_0$ is identified" if hi_ > hf_ else "below it, so $t_0$ is pushed to the floor") + ").   "
++         f"Eye: skew/CV = {er_:.1f}, shape-implied $t_0$ = {ei_:.0f} ms vs the {ef_:.0f} ms floor ("
++         + ("below it, so the model assigns almost all of the RT to the decision and $t_0$ is pushed onto the floor" if ei_ < ef_
++            else "above it, so $t_0$ can be identified") + ").\n"
++         "More trials cannot change this \u2014 it is set by the shape of the distribution (a pure Wald has skew/CV = 3).",
+          ha="center", fontsize=8.2, color="#555")
+ fig.tight_layout()
+ fig.savefig(os.path.join(HERE, "why_saccadic_t0_floors.pdf"), bbox_inches="tight", facecolor="white")
+ fig.savefig(os.path.join(HERE, "why_saccadic_t0_floors.png"), dpi=150, bbox_inches="tight", facecolor="white")
+-print(f"HAND implied t0 vs floor: see figure;  EYE implied t0 floors below 70 ms")
++print(f"HAND implied t0 = {hi_:.0f} ms (floor {hf_:.0f}), skew/CV {hr_:.1f};  EYE implied t0 = {ei_:.0f} ms (floor {ef_:.0f}), skew/CV {er_:.1f}")
+ print("saved why_saccadic_t0_floors.pdf/.png")

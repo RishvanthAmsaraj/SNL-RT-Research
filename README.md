@@ -2,7 +2,12 @@
 
 **Hierarchical Bayesian drift-diffusion modeling of hand and saccadic reaction times from a KINARM interception task.**
 
-A research project from the Penn State Sensorimotor Neuroscience Lab (ReSESENSE Labs). Fits single-boundary shifted-Wald models to reaction-time data from 16 participants performing an interception task at three target speeds (0, 75, 150 deg/s) — 7,676 trials total. The headline finding is a **dissociation in non-decision time**: hand t₀ decreases with target speed while saccadic t₀ does not.
+A research project from the Penn State Sensorimotor Neuroscience Lab (ReSESENSE Labs). Fits single-boundary shifted-Wald models to reaction-time data from an interception task, across two paradigms:
+
+- **Paradigm 1** (CMT cohort): 16 participants, three target speeds (0, 75, 150 deg/s), 7,676 trials — in [`Current Pipeline/`](Current%20Pipeline/).
+- **Paradigm 2** (CIR cohort): 16 participants, four target speeds (75, 100, 125, 150 deg/s), ~10,000 hand + saccade trials — in [`Paradigm 2 Pipeline/`](Paradigm%202%20Pipeline/).
+
+Paradigm 1's headline finding was a **dissociation in non-decision time**: hand t₀ decreases with target speed while saccadic t₀ does not. Paradigm 2 found that speed effect does **not** replicate (hand t₀ is flat across 75–150 deg/s) — itself a central result, detailed in [`Paradigm 2 Pipeline/Documents/P2_Results_and_P1_Comparison.md`](Paradigm%202%20Pipeline/Documents/P2_Results_and_P1_Comparison.md).
 
 ---
 
@@ -69,6 +74,11 @@ SNL-RT-Research/
 │   ├── Figures/                   All generated figures (PDF + PNG)
 │   └── ISSUES_AND_IMPROVEMENTS.md
 │
+├── Paradigm 2 Pipeline/           ← Paradigm 2 (CIR): same model, 4 speeds
+│   ├── Code/                      Bayesian, DDM, NDT, SRT Analysis, Vincentile, Supplementary, Validation
+│   ├── Documents/                 P2 technical breakdown, results + P1 comparison, RUN_GUIDE_P2
+│   └── Figures/                   All P2 figures (PDF + PNG)
+│
 ├── Deprecated Pipelines/          ← Preserved historical versions
 │   ├── Deprecated Ver 1/          Phase 0: PyDDM prototypes, synthetic data
 │   ├── Deprecated Ver 2/          Phase 0: Native MLE, first real pipeline
@@ -102,6 +112,8 @@ Each deprecated version carries its own `ISSUES_AND_IMPROVEMENTS.md` documenting
 | [`REFERENCES.md`](REFERENCES.md) | Citations organized by role (Tier 1 core / Tier 2 context / Tier 3 general) |
 | [`Current Pipeline/ISSUES_AND_IMPROVEMENTS.md`](Current%20Pipeline/ISSUES_AND_IMPROVEMENTS.md) | Known limitations, resolved items, future roadmap |
 | [`Current Pipeline/Documents/RUN_GUIDE.md`](Current%20Pipeline/Documents/RUN_GUIDE.md) | Installation and execution order for the research pipeline |
+| [`Paradigm 2 Pipeline/Documents/P2_Results_and_P1_Comparison.md`](Paradigm%202%20Pipeline/Documents/P2_Results_and_P1_Comparison.md) | Paradigm 2 results, takeaways, open questions, and the Paradigm 1 comparison |
+| [`Paradigm 2 Pipeline/Documents/P2_Technical_Breakdown.md`](Paradigm%202%20Pipeline/Documents/P2_Technical_Breakdown.md) | Full computed Paradigm 2 tables, validation, and caveats |
 
 ---
 

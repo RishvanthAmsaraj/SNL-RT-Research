@@ -15,6 +15,19 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.3.0] — 2026-09-26 — Paradigm 2 (CIR): same pipeline, new cohort, speed effect does not replicate
+**New folder:** [`Paradigm 2 Pipeline/`](Paradigm%202%20Pipeline/)
+
+### Added
+
+- **`Paradigm 2 Pipeline/`** — the single-boundary shifted-Wald pipeline run on Paradigm 2: 16 CIR participants, 4 speeds (75/100/125/150 deg/s), 10,158 hand + 10,017 saccade trials. Configuration-only port (speeds, `BlockType == "P2"`, input `pooled_data_P2.csv`); likelihood, priors, bounds, floors (hand 130 / saccade 70 ms), RT windows, and sampler settings are byte-identical to Paradigm 1.
+- **Five supplementary analyses** — `dissociation_tests.py`, `HRT_floor_control.py`, `SRT_QA_flag_sensitivity.py`, `direction_check.py`, `parameter_recovery_P2.py` — plus **`P1_parity_check.py`**, which validates that this environment reproduces the published Paradigm 1 fits exactly (Method A, 48/48 cells) and to sampling error (Method B, r = 0.9995).
+- **`Documents/P2_Results_and_P1_Comparison.md`** — synthesis of results, takeaways, open questions, and the Paradigm 1 comparison. `Documents/P2_Technical_Breakdown.md` carries the full computed tables.
+
+### Key finding
+
+**The Paradigm 1 speed effect does not replicate.** Paradigm 1's hand t₀ decreased with speed (158 → 148 ms across 75–150); Paradigm 2's is flat (≈147–152 ms, Friedman p = 0.026 but +3.9 ms in the opposite direction). Hand t₀ remains identified (0/64 Bayesian cells floored), saccadic t₀ remains reported as fixed at 70 ms (now also ceiling-bound at the participant level — 6/15 vs 0/14 in Paradigm 1).
+
 ## [2.2.0] — 2026-09-17 — Single-boundary consolidation: archive LATER + two-boundary
 
 ### Decision

@@ -1,0 +1,58 @@
+                         measure speed  right_minus_left_mean  n_right_greater  n  wilcoxon_p
+                      hrt_median    75                  6.250              8.0 16      0.2774
+                      hrt_median   100                  6.219              9.0 16      0.2891
+                      hrt_median   125                  3.062              7.0 16      0.5321
+                      hrt_median   150                  3.625              9.0 16      0.6791
+                      hrt_median   all                  4.789              9.0 16      0.4532
+                      srt_median    75                  3.135              9.0 16      0.5282
+                      srt_median   100                  4.531              7.0 16      0.4637
+                      srt_median   125                  3.437              7.0 16      0.5321
+                      srt_median   150                  2.498              7.0 16      0.7057
+                      srt_median   all                  3.400              7.0 16      0.8603
+                              t0    75                 -8.240              6.0 16      0.4332
+                              t0   100                 12.330              9.0 16      0.2114
+                              t0   125                 -0.789              9.0 16      1.0000
+                              t0   150                 -2.646              7.0 16      0.9399
+                              t0   all                  0.164              8.0 16      0.5966
+                               v    75                  0.103              8.0 16      1.0000
+                               v   100                 -2.763              2.0 16      0.0042
+                               v   125                 -0.768              7.0 16      0.6322
+                               v   150                  0.274              6.0 16      0.9799
+                               v   all                 -0.788              4.0 16      0.0934
+                               a    75                  0.198              9.0 16      0.4954
+                               a   100                 -0.261              4.0 16      0.0833
+                               a   125                 -0.001              8.0 16      0.9799
+                               a   150                  0.072              8.0 16      0.8603
+                               a   all                  0.002              7.0 16      0.4637
+               mean_signed_error    75                 11.848             14.0 16      0.0063
+               mean_signed_error   100                 13.480             14.0 16      0.0063
+               mean_signed_error   125                 13.602             14.0 16      0.0017
+               mean_signed_error   150                 13.841             14.0 16      0.0013
+               mean_signed_error   all                 13.193             14.0 16      0.0042
+         mean_signed_error_HRT50    75                  9.504             14.0 16      0.0002
+         mean_signed_error_HRT50   100                 10.308             14.0 16      0.0002
+         mean_signed_error_HRT50   125                  9.924             15.0 16      0.0001
+         mean_signed_error_HRT50   150                 10.252             14.0 16      0.0002
+         mean_signed_error_HRT50   all                  9.997             14.0 16      0.0002
+                 lead_share_Left    75                  0.949              NaN 16         NaN
+                lead_share_Right    75                  0.984              NaN 16         NaN
+                 lead_share_Left   100                  0.931              NaN 16         NaN
+                lead_share_Right   100                  0.986              NaN 16         NaN
+                 lead_share_Left   125                  0.930              NaN 16         NaN
+                lead_share_Right   125                  0.988              NaN 16         NaN
+                 lead_share_Left   150                  0.909              NaN 16         NaN
+                lead_share_Right   150                  0.988              NaN 16         NaN
+           lead_share_HRT50_Left    75                  0.994              NaN 16         NaN
+          lead_share_HRT50_Right    75                  0.996              NaN 16         NaN
+           lead_share_HRT50_Left   100                  0.995              NaN 16         NaN
+          lead_share_HRT50_Right   100                  0.998              NaN 16         NaN
+           lead_share_HRT50_Left   125                  0.986              NaN 16         NaN
+          lead_share_HRT50_Right   125                  0.996              NaN 16         NaN
+           lead_share_HRT50_Left   150                  0.972              NaN 16         NaN
+          lead_share_HRT50_Right   150                  0.997              NaN 16         NaN
+spearman_rho_HRT_vs_signed_error    75                 -0.089              4.0 16      0.0290
+spearman_rho_HRT_vs_signed_error   100                 -0.100              4.0 16      0.0290
+spearman_rho_HRT_vs_signed_error   125                 -0.077              5.0 16      0.0386
+spearman_rho_HRT_vs_signed_error   150                 -0.061              6.0 16      0.1591
+saved direction_check_cells.csv, direction_check_summary.csv
+NOTE: rows 'lead_share_*' hold the plain mean share in the right_minus_left_mean column; rho rows hold mean rho (n_right_greater = n positive).
