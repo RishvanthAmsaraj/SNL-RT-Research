@@ -390,10 +390,7 @@ def main():
     group.to_csv(os.path.join(args.out, f"Bayesian2B_{eff}_group.csv"), index=False)
     cells.to_csv(os.path.join(args.out, f"Bayesian2B_{eff}_cells.csv"), index=False)
     g.to_csv(os.path.join(args.out, f"Bayesian2B_{eff}_gof.csv"), index=False)
-    try:
-        idata.to_netcdf(os.path.join(args.out, f"Bayesian2B_{eff}_idata.nc"))
-    except Exception as e:
-        print(f"WARNING: could not save NetCDF posterior ({e}); continuing to LOO comparison.")
+    idata.to_netcdf(os.path.join(args.out, f"Bayesian2B_{eff}_idata.nc"))
 
     if not args.no_compare:
         print("\nFitting the comparison model (shifted Wald x independent Bernoulli)...")
