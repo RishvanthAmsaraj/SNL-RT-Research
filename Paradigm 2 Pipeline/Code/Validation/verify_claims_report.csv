@@ -1,0 +1,73 @@
+id,claim,value,quoted_in,found_in,status
+D1,P2 hand RTs kept,"10,158","R,B","R,B",PASS
+D2,P2 saccade RTs kept,"10,017","R,B","R,B",PASS
+D3,P1 interception trials,"5,760","R,V","R,V",PASS
+D4,P1 hand kept,"5,690","R,V","R,V",PASS
+D5,P1 saccade kept,"5,164","R,V","R,V",PASS
+H1,P2 Bayesian hand t0 by speed,146.7 / 147.0 / 151.7 / 150.6,"B,G","B,G",PASS
+H2,P1 Bayesian hand t0 by speed,169.5 → 158.0 → 147.9,G,G,PASS
+H3,P1 decision time a/v by speed,84.0 / 85.1 / 102.1,G,G,PASS
+H3m,P1 raw median HRT by speed,246.1 → 235.9 → 239.1,G,G,PASS
+H3q,P1 raw 10th-pct HRT by speed,220.4 → 210.8 → 208.3,G,G,PASS
+H3s,P1 raw median SRT by speed,173.8 → 182.5 → 185.7,G,G,PASS
+H4,P2 decision time a/v by speed,90.5 / 89.4 / 84.1 / 84.2,G,G,PASS
+H4m,P2 raw median HRT by speed,232.5 / 231.1 / 230.5 / 229.7,G,G,PASS
+H4q,P2 raw 10th-pct HRT by speed,205.5 / 205.6 / 206.5 / 206.4,G,G,PASS
+H4s,P2 raw median SRT by speed,176.8 → 178.9 → 181.1 → 183.6,G,G,PASS
+H5,P2 Bayesian hand Friedman p,0.026,"R,B,G","R,B,G",PASS
+H6,P1 Bayesian hand Friedman p,0.003,G,G,PASS
+H7,P2 per-participant slope Wilcoxon p,0.074,"R,B,G","R,B,G",PASS
+S1t,P1 0->75 t0 change,-11.5,"R,G","R,G",PASS
+S1d,P1 0->75 decision-time change,+1.1,"R,G","R,G",PASS
+S1median,P1 0->75 raw median HRT change,-10.2,"R,G","R,G",PASS
+S1p10,P1 0->75 raw p10 HRT change,-9.6,"R,G","R,G",PASS
+S1ci,P1 0->75 t0 change CI,"[-19.3, -5.1]","R,V","R,V",PASS
+S2t,P1 75->150 t0 change,-10.1,"R,G","R,G",PASS
+S2d,P1 75->150 decision-time change,+17.0,"R,G","R,G",PASS
+S2median,P1 75->150 raw median HRT change,+3.2,"R,G","R,G",PASS
+S2p10,P1 75->150 raw p10 HRT change,-2.5,"R,G","R,G",PASS
+S2ci,P1 75->150 t0 change CI,"[-20.1, +1.0]","R,V","R,V",PASS
+S2r,"P1 corr(delta t0, delta decision)",-0.80,"R,G","R,G",PASS
+S3t,P2 75->150 t0 change,+3.9,"R,G","R,G",PASS
+S3d,P2 75->150 decision-time change,-6.3,"R,G","R,G",PASS
+S3median,P2 75->150 raw median HRT change,-2.8,"R,G","R,G",PASS
+S3p10,P2 75->150 raw p10 HRT change,+0.8,"R,G","R,G",PASS
+S3p10ci,P2 fast-end change with its interval,"+0.8 [-1.2, +3.1]","R,G","R,G",PASS
+S3ci,P2 75->150 t0 change CI,"[+0.8, +6.9]","R,V","R,V",PASS
+S3r,"P2 corr(delta t0, delta decision)",-0.80,"R,G","R,G",PASS
+S3pci,P2 fast-end change CI,"[-1.2, +3.1]","R,G","R,G",PASS
+E1,P1 75->150 SRT median change,+3.2,"R,G","R,G",PASS
+E2,P2 75->150 SRT median change,+6.8,"R,G","R,G",PASS
+N1,P2 participants at floor,10/15,"R,B,G","R,B,G",PASS
+N2,P2 participants at ceiling,6/15,"R,B,G","R,B,G",PASS
+N3,P1 participants at floor,14/14,"R,G","R,G",PASS
+N4,the one free participant,"CIR014 (94 ms [76, 107])","R,B","R,B",PASS
+N5,ceiling-bind Fisher p,0.017,"R,B,G","R,B,G",PASS
+F1HRT,P1 HRT fits following the floor,5/43,"R,G","R,G",PASS
+F1SRT,P1 SRT fits following the floor,9/16,"R,G","R,G",PASS
+F2HRT,P2 HRT fits following the floor,8/60,"R,G","R,G",PASS
+F2SRT,P2 SRT fits following the floor,19/38,"R,G","R,G",PASS
+G1e,P1 Bayesian eye t0 by speed,79 / 79 / 71,G,G,PASS
+G1f,P1 Bayesian eye estimates on floor,18/32,G,G,PASS
+G1a,P1 Method A hand t0 by speed,165 / 156 / 150,G,G,PASS
+G1af,P1 Method A hand cells on floor,11/48,G,G,PASS
+G2e,P2 Bayesian eye t0 by speed,78 / 76 / 72 / 80,G,G,PASS
+G2f,P2 Bayesian eye estimates on floor,18/52,G,G,PASS
+G2a,P2 Method A hand t0 by speed,148 / 146 / 156 / 146,G,G,PASS
+G2af,P2 Method A hand cells on floor,19/64,G,G,PASS
+L1,P1 mean eye-hand lag by speed,74.2 → 58.7 → 60.2,G,G,PASS
+L1Hand75,P1 pooled HandRT_ms at 75: median (n),"234 (n = 1,899)",G,G,PASS
+L1Hand150,P1 pooled HandRT_ms at 150: median (n),"237 (n = 1,883)",G,G,PASS
+L1Gaze75,P1 pooled GazeSRT_ms at 75: median (n),"182 (n = 1,717)",G,G,PASS
+L1Gaze150,P1 pooled GazeSRT_ms at 150: median (n),"186 (n = 1,727)",G,G,PASS
+L2,P2 mean eye-hand lag by speed,54.6 → 52.2 → 49.5 → 45.5,G,G,PASS
+L2Hand75,P2 pooled HandRT_ms at 75: median (n),"232 (n = 2,533)",G,G,PASS
+L2Hand150,P2 pooled HandRT_ms at 150: median (n),"229 (n = 2,548)",G,G,PASS
+L2Gaze75,P2 pooled GazeSRT_ms at 75: median (n),"178 (n = 2,507)",G,G,PASS
+L2Gaze150,P2 pooled GazeSRT_ms at 150: median (n),"185 (n = 2,501)",G,G,PASS
+V1,recovery: participants detecting the drop,15/16,"R,V","R,V",PASS
+V2,recovery: recovered drop,-5.9,"R,V","R,V",PASS
+V3,recovery: decision-time artefact,-4.3,"R,V","R,V",PASS
+V4,recovery: noise-only correlation,-0.75,"R,V,G","R,V,G",PASS
+V5,recovery: coverage,70%,"R,V,G","R,V,G",PASS
+V6,P1 parity Bayesian r,0.9995,"R,B","R,B",PASS

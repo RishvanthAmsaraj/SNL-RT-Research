@@ -89,8 +89,8 @@ def main():
                     fontsize=11, fontweight="bold")
     ax[0].legend(fontsize=9); ax[0].spines[["top", "right"]].set_visible(False); ax[0].grid(True, ls="--", alpha=0.3)
     bins = np.linspace(-0.1, 1.1, 25)
-    ax[1].hist(he.slope, bins=bins, color="#27AE60", alpha=0.6, label=f"hand (n={len(he)}, median {he.slope.median():.2f})")   # ceiling-bound cells excluded
-    ax[1].hist(ee.slope, bins=bins, color="#C0392B", alpha=0.6, label=f"saccade (n={len(ee)}, median {ee.slope.median():.2f})")
+    ax[1].hist(he.slope, bins=bins, color="#27AE60", alpha=0.6, label=f"hand: {int((he.slope > 0.7).sum())}/{len(he)} follow the floor")   # ceiling-bound cells excluded
+    ax[1].hist(ee.slope, bins=bins, color="#C0392B", alpha=0.6, label=f"saccade: {int((ee.slope > 0.7).sum())}/{len(ee)} follow the floor")
     ax[1].axvline(0.7, color="#555", ls=":", lw=1.4)
     ax[1].set_xlabel("slope of fitted $t_0$ on imposed floor  (1 = set by the floor)"); ax[1].set_ylabel("cells")
     ax[1].set_title("B.  Floor-tracking slope: hand vs saccade\n(fastest RT above every floor; cells stuck at the fastest RT excluded)", fontsize=11, fontweight="bold")

@@ -15,6 +15,32 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.3.2] — 2026-10-06 — Pre-publication verification of the Paradigm 2 figures and analysis
+
+### Added
+
+- `Paradigm 2 Pipeline/Documents/FIGURE_GUIDE.md` — every figure: what it shows, how to read it, its numbers, where it fits, caveats, suggested captions.
+- `Code/Validation/verify_math.py`, `verify_claims.py` (72 quoted numbers re-derived and matched), `bayesian_recovery_P2.py` (known 10 ms hand t₀ change, production Bayesian model).
+
+### Changed
+
+- Interpretation, from the Bayesian recovery test: the model detects a 10 ms hand t₀ change at Paradigm 2's design but shrinks it (−5.9 ms) and moves part into decision time; absolute hand t₀ reads ~6 ms high; per-cell 95% intervals under-cover (70%); the t₀/decision-time anticorrelation (r ≈ −0.75) arises from noise alone. Documents now say so.
+- `P1_vs_P2_saccade`: panel C uses the Bayesian fits; panel D reports the share of fits that follow the floor (the median misled — the eye slopes form two clusters). `HRT_floor_control` legend likewise.
+- Two values corrected to the exact rounding used everywhere else (Paradigm 2 fast-end HRT at 100 deg/s 205.6 ms; its 75 → 150 change +0.8 ms).
+
+## [2.3.1] — 2026-10-03 — Paradigm 2 verification: speed-effect finding reframed, cross-paradigm comparison added
+
+### Changed
+
+- **Key finding restated.** [2.3.0] said the Paradigm 1 speed effect "does not replicate". Within Paradigm 1, the 75 → 150 deg/s step in hand t₀ (−10.1 ms) is itself not reliable (p = 0.066) and is not visible in the raw RTs (median HRT +3.2 ms), while the stationary → moving step is (t₀ −11.5 ms, p = 0.005; median HRT −10.2 ms, p < 0.001). Between moving speeds hand t₀ is flat in both paradigms, and in both the small t₀ shift is cancelled by decision time (r = −0.80). Paradigm 1's effect is therefore stationary-vs-moving, which Paradigm 2 has no condition to test.
+- `P2_Results_and_P1_Comparison.md` revised (participant IDs, trial counts, parity wording, saccadic-ceiling wording); `P2_Technical_Breakdown.md` regenerated (the claim that Paradigm 1 saccades never reached their fastest-saccade bound was wrong — 4/32 cells do; the floor-sweep comparison now uses the same code on both paradigms).
+- `run_all_P2.py --skip-bayes-fits` now carries the Bayesian run logs, so the regenerated breakdown keeps its convergence numbers.
+
+### Added
+
+- `Paradigm 2 Pipeline/Code/Comparison/P1_vs_P2_comparison.py` → `Figures/Comparison/` (hand, saccade/identifiability, distributions) and `P1_vs_P2_summary.csv`; Paradigm 1 floor sweep rerun with the Paradigm 2 code.
+- `Paradigm 2 Pipeline/Documents/VERIFICATION_REPORT_P2.md` — what was checked, what agreed, what was corrected.
+
 ## [2.3.0] — 2026-09-26 — Paradigm 2 (CIR): same pipeline, new cohort, speed effect does not replicate
 **New folder:** [`Paradigm 2 Pipeline/`](Paradigm%202%20Pipeline/)
 

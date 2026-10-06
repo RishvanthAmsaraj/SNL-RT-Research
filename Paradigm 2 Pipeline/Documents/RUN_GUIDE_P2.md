@@ -45,6 +45,10 @@ Put every script and `pooled_data_P2.csv` in one folder and run, in this order:
 | 12 | `dissociation_tests.py` | speed-effect battery | 1, 6 |
 | 13 | `parameter_recovery_P2.py` | t0 recovery study | 5, 6 |
 
+Pre-publication checks (`Code/Validation/`): `python verify_math.py [--raw <CIR folder>]` (density, optimiser, table consistency, posterior-predictive check), `python verify_claims.py` (re-derives every key number in the documents and checks it is quoted correctly → `verify_claims_report.csv`), `python bayesian_recovery_P2.py` (simulate a known 10 ms hand t₀ change and refit with the production Bayesian model; needs PyMC, ~5 min). Figures are explained in `Documents/FIGURE_GUIDE.md`.
+
+Cross-paradigm comparison (optional; needs the Paradigm 1 tables in `Current Pipeline/Code/` and Paradigm 1's `pooled_data.csv` in `Working Iterations/SNL RT Research/`): `python Code/Comparison/P1_vs_P2_comparison.py` → `Figures/Comparison/` and `Code/Comparison/P1_vs_P2_summary.csv`. `P1_floor_sweep_rerun.csv` there is `HRT_floor_control.py` run on Paradigm 1 data (the same script with `pooled_data.csv` and block type `I`).
+
 Validation (optional): copy the **original, unmodified** Paradigm 1 `DDM_fit.py` and `Bayesian_HRT_fit.py` with the
 Paradigm 1 `pooled_data.csv` into an empty folder, run them, then
 `python P1_parity_check.py "<repo>/Current Pipeline/Code" <that folder>`.

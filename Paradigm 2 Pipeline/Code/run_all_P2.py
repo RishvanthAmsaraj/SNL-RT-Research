@@ -63,8 +63,11 @@ def main():
         sys.exit("pooled_data_P2.csv missing -- pass --data <folder with the CIR*_TRIAL_Summary files>")
     pr = os.path.join(CODE, "Validation", "P1_parity_results.csv")
     if os.path.exists(pr): shutil.copy2(pr, run)   # the breakdown reports the saved Paradigm 1 parity result
-    if skip:   # reuse the saved Bayesian tables so the figure/supplementary steps can run without PyMC
+    rr = os.path.join(CODE, "Validation", "bayesian_recovery_P2_summary.csv")
+    if os.path.exists(rr): shutil.copy2(rr, run)   # ... and the saved Bayesian recovery result
+    if skip:   # reuse the saved Bayesian tables (and their run logs, which the breakdown quotes) so the rest runs without PyMC
         for f in glob.glob(os.path.join(CODE, "Bayesian", "Bayesian_*.csv")): shutil.copy2(f, run)
+        for f in glob.glob(os.path.join(CODE, "Validation", "run_logs", "log_Bayesian_*.txt")): shutil.copy2(f, run)
     for s in STEPS:
         if skip and s in BAYES_FITS: print(f"-- skip {s} (using saved tables)"); continue
         t = time.time(); print(f">> {s}", flush=True)

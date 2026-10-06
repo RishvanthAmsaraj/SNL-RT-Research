@@ -4,10 +4,10 @@
 
 A research project from the Penn State Sensorimotor Neuroscience Lab (ReSESENSE Labs). Fits single-boundary shifted-Wald models to reaction-time data from an interception task, across two paradigms:
 
-- **Paradigm 1** (CMT cohort): 16 participants, three target speeds (0, 75, 150 deg/s), 7,676 trials — in [`Current Pipeline/`](Current%20Pipeline/).
+- **Paradigm 1** (CMT cohort): 16 participants, three target speeds (0, 75, 150 deg/s), 5,760 interception trials (the data file's 7,676 rows also hold 1,916 saccade-only trials) — in [`Current Pipeline/`](Current%20Pipeline/).
 - **Paradigm 2** (CIR cohort): 16 participants, four target speeds (75, 100, 125, 150 deg/s), ~10,000 hand + saccade trials — in [`Paradigm 2 Pipeline/`](Paradigm%202%20Pipeline/).
 
-Paradigm 1's headline finding was a **dissociation in non-decision time**: hand t₀ decreases with target speed while saccadic t₀ does not. Paradigm 2 found that speed effect does **not** replicate (hand t₀ is flat across 75–150 deg/s) — itself a central result, detailed in [`Paradigm 2 Pipeline/Documents/P2_Results_and_P1_Comparison.md`](Paradigm%202%20Pipeline/Documents/P2_Results_and_P1_Comparison.md).
+Paradigm 1's headline finding was a **dissociation in non-decision time**: hand t₀ changes with the target condition while saccadic t₀ does not. Cross-paradigm analysis locates that hand effect in Paradigm 1's **stationary → moving** step (≈ −11 ms, also visible in the raw RTs); between moving speeds hand t₀ is flat in **both** paradigms (Paradigm 2 has no stationary condition), so the effect is stationary-vs-moving rather than a graded speed effect — detailed in [`Paradigm 2 Pipeline/Documents/P2_Results_and_P1_Comparison.md`](Paradigm%202%20Pipeline/Documents/P2_Results_and_P1_Comparison.md).
 
 ---
 
