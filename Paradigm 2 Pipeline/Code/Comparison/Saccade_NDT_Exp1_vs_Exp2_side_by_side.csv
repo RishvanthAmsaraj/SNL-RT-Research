@@ -1,0 +1,65 @@
+Exp 1 Participant,Exp 1 Target speed (deg/s),Exp 1 Saccade NDT (ms),Exp 1 Note,,Exp 2 Participant,Exp 2 Target speed (deg/s),Exp 2 Saccade NDT (ms),Exp 2 Note
+CMT001,0,78,interval reaches 70 ms floor,,CIR001,75,71,interval reaches 70 ms floor
+CMT001,75,74,interval reaches 70 ms floor,,CIR001,100,72,interval reaches 70 ms floor
+CMT001,150,73,interval reaches 70 ms floor,,CIR001,125,70,interval reaches 70 ms floor
+CMT002,0,110,,,CIR001,150,72,interval reaches 70 ms floor
+CMT002,75,,two-component cell (no single NDT),,CIR002,75,77,interval reaches 70 ms floor
+CMT002,150,72,interval reaches 70 ms floor,,CIR002,100,90,interval reaches 70 ms floor
+CMT003,0,,two-component cell (no single NDT),,CIR002,125,75,interval reaches 70 ms floor
+CMT003,75,,two-component cell (no single NDT),,CIR002,150,105,
+CMT003,150,,two-component cell (no single NDT),,CIR003,75,,two-component cell (no single NDT)
+CMT004,0,,two-component cell (no single NDT),,CIR003,100,73,interval reaches 70 ms floor
+CMT004,75,,two-component cell (no single NDT),,CIR003,125,,two-component cell (no single NDT)
+CMT004,150,,two-component cell (no single NDT),,CIR003,150,,two-component cell (no single NDT)
+CMT005,0,84,interval reaches 70 ms floor,,CIR005,75,71,interval reaches 70 ms floor
+CMT005,75,70,interval reaches 70 ms floor,,CIR005,100,74,interval reaches 70 ms floor
+CMT005,150,70,interval reaches 70 ms floor,,CIR005,125,71,interval reaches 70 ms floor
+CMT006,0,,two-component cell (no single NDT),,CIR005,150,79,interval reaches 70 ms floor
+CMT006,75,,two-component cell (no single NDT),,CIR006,75,70,interval reaches 70 ms floor
+CMT006,150,71,interval reaches 70 ms floor,,CIR006,100,71,interval reaches 70 ms floor
+CMT007,0,70,interval reaches 70 ms floor,,CIR006,125,72,interval reaches 70 ms floor
+CMT007,75,,two-component cell (no single NDT),,CIR006,150,101,
+CMT007,150,,two-component cell (no single NDT),,CIR007,75,,two-component cell (no single NDT)
+CMT008,0,71,interval reaches 70 ms floor,,CIR007,100,72,interval reaches 70 ms floor
+CMT008,75,,two-component cell (no single NDT),,CIR007,125,,two-component cell (no single NDT)
+CMT008,150,,two-component cell (no single NDT),,CIR007,150,,two-component cell (no single NDT)
+CMT009,0,70,interval reaches 70 ms floor,,CIR008,75,,two-component cell (no single NDT)
+CMT009,75,71,interval reaches 70 ms floor,,CIR008,100,,two-component cell (no single NDT)
+CMT009,150,71,interval reaches 70 ms floor,,CIR008,125,,two-component cell (no single NDT)
+CMT010,0,72,interval reaches 70 ms floor,,CIR008,150,,two-component cell (no single NDT)
+CMT010,75,71,interval reaches 70 ms floor,,CIR009,75,71,interval reaches 70 ms floor
+CMT010,150,,two-component cell (no single NDT),,CIR009,100,71,interval reaches 70 ms floor
+CMT0011,0,71,interval reaches 70 ms floor,,CIR009,125,71,interval reaches 70 ms floor
+CMT0011,75,70,interval reaches 70 ms floor,,CIR009,150,72,interval reaches 70 ms floor
+CMT0011,150,70,interval reaches 70 ms floor,,CIR010,75,84,interval reaches 70 ms floor
+CMT0012,0,73,interval reaches 70 ms floor,,CIR010,100,71,interval reaches 70 ms floor
+CMT0012,75,86,,,CIR010,125,73,interval reaches 70 ms floor
+CMT0012,150,,two-component cell (no single NDT),,CIR010,150,74,interval reaches 70 ms floor
+CMT0014,0,70,interval reaches 70 ms floor,,CIR011,75,73,interval reaches 70 ms floor
+CMT0014,75,70,interval reaches 70 ms floor,,CIR011,100,71,interval reaches 70 ms floor
+CMT0014,150,72,interval reaches 70 ms floor,,CIR011,125,71,interval reaches 70 ms floor
+CMT0015,0,111,,,CIR011,150,72,interval reaches 70 ms floor
+CMT0015,75,127,,,CIR012,75,74,interval reaches 70 ms floor
+CMT0015,150,70,interval reaches 70 ms floor,,CIR012,100,75,interval reaches 70 ms floor
+CMT0016,0,70,interval reaches 70 ms floor,,CIR012,125,72,interval reaches 70 ms floor
+CMT0016,75,74,interval reaches 70 ms floor,,CIR012,150,74,interval reaches 70 ms floor
+CMT0016,150,71,interval reaches 70 ms floor,,CIR013,75,101,
+CMT0017,0,,two-component cell (no single NDT),,CIR013,100,94,interval reaches 70 ms floor
+CMT0017,75,76,interval reaches 70 ms floor,,CIR013,125,71,interval reaches 70 ms floor
+CMT0017,150,71,interval reaches 70 ms floor,,CIR013,150,89,interval reaches 70 ms floor
+,,,,,CIR014,75,96,
+,,,,,CIR014,100,88,interval reaches 70 ms floor
+,,,,,CIR014,125,77,interval reaches 70 ms floor
+,,,,,CIR014,150,81,interval reaches 70 ms floor
+,,,,,CIR015,75,,two-component cell (no single NDT)
+,,,,,CIR015,100,,two-component cell (no single NDT)
+,,,,,CIR015,125,72,interval reaches 70 ms floor
+,,,,,CIR015,150,72,interval reaches 70 ms floor
+,,,,,CIR016,75,72,interval reaches 70 ms floor
+,,,,,CIR016,100,77,interval reaches 70 ms floor
+,,,,,CIR016,125,71,interval reaches 70 ms floor
+,,,,,CIR016,150,79,interval reaches 70 ms floor
+,,,,,CIR017,75,71,interval reaches 70 ms floor
+,,,,,CIR017,100,71,interval reaches 70 ms floor
+,,,,,CIR017,125,71,interval reaches 70 ms floor
+,,,,,CIR017,150,71,interval reaches 70 ms floor

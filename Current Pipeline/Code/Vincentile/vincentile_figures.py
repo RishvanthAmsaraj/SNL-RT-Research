@@ -1,3 +1,5 @@
+# PARADIGM 1 (CMT) VERSION -- the Paradigm 2 script (same code, corrected labels) set to Paradigm 1:
+# speeds 0/75/150 deg/s, BlockType "I", input pooled_data.csv and the committed Paradigm 1 fit tables.
 """
 vincentile_figures.py  --  RT-distribution & Vincentile figures
 
@@ -21,9 +23,9 @@ matplotlib.rcParams.update({"font.family": _fam, "font.size": 11, "pdf.fonttype"
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "pooled_data.csv")
 if not os.path.exists(DATA): sys.exit("ERROR: pooled_data.csv must sit next to this script.")
-SPEEDS = [0, 75, 150]
-SPEED_FILL = {0: "#cfe8cf", 75: "#f3d4d4", 150: "#d3ddef"}     # light per-speed backgrounds
-SPEED_LINE = {0: "#4a7c59", 75: "#9e4a4a", 150: "#496aa3"}     # saturated per-speed lines
+SPEEDS = [0, 75, 150]          # Paradigm 1
+SPEED_FILL = {0: "#cfe8cf", 75: "#f3d4d4", 100: "#f6e3c4", 125: "#e3daf0", 150: "#d3ddef"}     # light per-speed backgrounds (75/150 as P1)
+SPEED_LINE = {0: "#4a7c59", 75: "#9e4a4a", 100: "#b07a2a", 125: "#7a5a9e", 150: "#496aa3"}     # saturated per-speed lines (75/150 as P1)
 SRT_C, HRT_C = "#2c7fb8", "#d9772b"                            # SRT cool, HRT warm
 NBINS = 20
 
@@ -70,7 +72,7 @@ nP = d_all["Participant"].nunique()
 diffs = vincentile_diffs(pairs)
 
 # ---------------------------------------------------------------- fig1: KDE overlay
-fig, ax = plt.subplots(1, 3, figsize=(13, 4.2), sharey=True)
+fig, ax = plt.subplots(1, len(SPEEDS), figsize=(13, 4.2), sharey=True)
 xs = np.linspace(100, 600, 400)
 for i, s in enumerate(SPEEDS):
     sr, hr = pooled(data, s, "srt"), pooled(data, s, "hrt")
@@ -84,13 +86,13 @@ for i, s in enumerate(SPEEDS):
     ax[i].set_title(f"{s} deg/s", fontsize=11, fontweight="bold"); ax[i].set_xlabel("RT (ms)")
     ax[i].spines[["top", "right"]].set_visible(False)
 ax[0].set_ylabel("Density")
-ax[2].legend(handles=[Line2D([0],[0],color=SRT_C,lw=2,label="SRT (gaze)"),
+ax[-1].legend(handles=[Line2D([0],[0],color=SRT_C,lw=2,label="SRT (gaze)"),
                       Line2D([0],[0],color=HRT_C,lw=2,label="HRT (hand)")], fontsize=9, loc="upper right")
-fig.suptitle(f"RT Distributions (SRT & HRT Overlay)   n={nP} participants", fontsize=12.5, fontweight="bold")
+fig.suptitle(f"RT Distributions (SRT & HRT Overlay), Paradigm 1   n={nP} participants", fontsize=12.5, fontweight="bold")
 fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig1_kde_overlay.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
 
 # ---------------------------------------------------------------- fig2: histograms (SRT top, HRT bottom)
-fig, ax = plt.subplots(2, 3, figsize=(13, 7))
+fig, ax = plt.subplots(2, len(SPEEDS), figsize=(13, 7))
 for i, s in enumerate(SPEEDS):
     sr, hr = pooled(data, s, "srt"), pooled(data, s, "hrt")
     xs_s = np.linspace(100, 600, 300); xs_h = np.linspace(200, 800, 300)
@@ -106,11 +108,11 @@ for i, s in enumerate(SPEEDS):
     ax[1, i].set_xlabel("RT (ms)")
     for a in (ax[0,i], ax[1,i]): a.spines[["top","right"]].set_visible(False)
 ax[0, 0].set_ylabel("Density\n(SRT — gaze RT)"); ax[1, 0].set_ylabel("Density\n(HRT — hand RT)")
-fig.suptitle(f"RT Histograms — SRT (top) & HRT (bottom)   n={nP} participants", fontsize=12.5, fontweight="bold")
+fig.suptitle(f"RT Histograms — SRT (top) & HRT (bottom), Paradigm 1   n={nP} participants", fontsize=12.5, fontweight="bold")
 fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig2_histograms.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
 
 # ---------------------------------------------------------------- fig3: HRT-SRT vincentile by speed (3 panels)
-fig, ax = plt.subplots(1, 3, figsize=(13, 4.6), sharey=True)
+fig, ax = plt.subplots(1, len(SPEEDS), figsize=(13, 4.6), sharey=True)
 x = np.arange(1, NBINS + 1)
 for i, s in enumerate(SPEEDS):
     m = diffs[s].mean(0); sd = diffs[s].std(0, ddof=1)
@@ -121,7 +123,7 @@ for i, s in enumerate(SPEEDS):
     ax[i].set_xticks(x); ax[i].set_xticklabels(x, fontsize=7)
     ax[i].spines[["top", "right"]].set_visible(False)
 ax[0].set_ylabel("HRT − SRT (ms)")
-fig.suptitle("HRT − SRT Vincentile by Speed", fontsize=13, fontweight="bold")
+fig.suptitle("HRT − SRT Vincentile by Speed  (Paradigm 1)", fontsize=13, fontweight="bold")
 fig.text(0.5, -0.02, f"Group mean ± 1 SD  |  n={nP} participants", ha="center", fontsize=9, color="#666")
 fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig3_vincentile_by_speed.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
 
@@ -135,7 +137,7 @@ ax.axhline(0, color="#555", ls="--", lw=0.9)
 ax.set_xlabel("Vincentile bin"); ax.set_ylabel("HRT − SRT (ms)")
 ax.set_xticks([1, 5, 10, 15, 20]); ax.legend(fontsize=10, loc="upper left")
 ax.spines[["top", "right"]].set_visible(False); ax.grid(True, ls="--", alpha=0.3)
-fig.suptitle("HRT − SRT Vincentile (All Speeds)", fontsize=13, fontweight="bold")
+fig.suptitle("HRT − SRT Vincentile (All Speeds, Paradigm 1)", fontsize=13, fontweight="bold")
 fig.text(0.5, -0.02, f"Group mean  |  n={nP} participants", ha="center", fontsize=9, color="#666")
 fig.tight_layout(); fig.savefig(os.path.join(HERE, "vincentile_results_fig4_combined_vincentile.pdf"), bbox_inches="tight", facecolor="white"); plt.close(fig)
 

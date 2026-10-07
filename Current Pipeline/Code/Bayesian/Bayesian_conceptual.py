@@ -1,3 +1,5 @@
+# PARADIGM 1 (CMT) VERSION -- the Paradigm 2 script (same code, corrected labels) set to Paradigm 1:
+# speeds 0/75/150 deg/s, BlockType "I", input pooled_data.csv and the committed Paradigm 1 fit tables.
 """
 DDM_conceptual.py  --  Conceptual single-boundary diffusion schematics (Bayesian version)
 
@@ -20,8 +22,8 @@ def _need(f):
     p = os.path.join(HERE, f)
     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py first.")
     return p
-SPEEDS = [0, 75, 150]
-COL = {0: "#4a7c59", 75: "#9e5a5a", 150: "#496aa3"}
+SPEEDS = [0, 75, 150]          # Paradigm 1
+COL = {0: "#4a7c59", 75: "#9e5a5a", 100: "#b07a2a", 125: "#7a5a9e", 150: "#496aa3"}
 XMAX = {"hrt": 600, "srt": 500}
 DIST_LABEL = {"hrt": "HRT Distribution\n(Interception)", "srt": "SRT Distribution\n(Interception)"}
 
@@ -96,7 +98,8 @@ def draw(measure, s, p, med, color):
     ax.annotate("", xy=(xmax * 1.02, 0.17), xytext=(0, 0.17), arrowprops=dict(arrowstyle="-|>", lw=1.3, color="#333"))
     for tk in range(0, xmax + 1, 100):
         ax.plot([tk, tk], [0.17, 0.155], color="#333", lw=1)
-        ax.text(tk, 0.125, f"{tk}", ha="center", va="top", fontsize=8.5, color="#333")
+        if abs(tk - t0) > xmax * 0.035:   # P2: skip a tick label that would collide with the t0 label
+            ax.text(tk, 0.125, f"{tk}", ha="center", va="top", fontsize=8.5, color="#333")
     ax.text(xmax / 2, 0.06, "Time (ms)", ha="center", va="top", fontsize=10.5)
     ax.plot([t0, t0], [0.17, 0.145], color="#333", lw=1.4)
     ax.text(t0, 0.125, f"{t0:.0f} ms\n($t_0$)", ha="center", va="top", fontsize=8.5, fontweight="bold")
@@ -105,7 +108,7 @@ def draw(measure, s, p, med, color):
     ax.text(t0 / 2, yb - 0.055, f"Non-decision time ($t_0$) = {t0:.0f} ms", ha="center", va="top", fontsize=9, style="italic", color="#555")
     ax.annotate("", xy=(xmax, yb), xytext=(t0, yb), arrowprops=dict(arrowstyle="<->", lw=1.2, color="#999"))
     ax.text((t0 + xmax) / 2, yb - 0.055, "Decision time", ha="center", va="top", fontsize=9, style="italic", color="#999")
-    fig.suptitle(f"Bayesian (Single Boundary, {measure.upper()}) -- {s} deg/s", fontsize=12.5, fontweight="bold", y=0.99)
+    fig.suptitle(f"Bayesian (Single Boundary, {measure.upper()}) -- {s} deg/s  (Paradigm 1)", fontsize=12.5, fontweight="bold", y=0.99)
     ax.set_title(f"Group mean:  $v$ = {v:.2f} +/- {p['v_sd']:.2f},   $a$ = {a:.2f} +/- {p['a_sd']:.2f},   "
                  f"$t_0$ = {t0:.0f} +/- {p['t0_sd']:.0f} ms", fontsize=11, pad=10)
     ax.set_xlim(-xmax * 0.02, xmax * 1.06); ax.set_ylim(-0.10, 1.05); ax.axis("off")

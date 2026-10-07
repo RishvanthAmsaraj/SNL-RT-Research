@@ -1,3 +1,5 @@
+# PARADIGM 1 (CMT) VERSION -- the Paradigm 2 script (same code, corrected labels) set to Paradigm 1:
+# speeds 0/75/150 deg/s, BlockType "I", input pooled_data.csv and the committed Paradigm 1 fit tables.
 """
 NDT_barchart.py  --  NDT bar charts (DDM fits)
 
@@ -21,8 +23,8 @@ def _need(f):
     p = os.path.join(HERE, f)
     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py first.")
     return p
-SPEEDS = [0, 75, 150]
-SC = {0: (0.45, 0.68, 0.40), 75: (0.85, 0.55, 0.55), 150: (0.50, 0.62, 0.82)}
+SPEEDS = [0, 75, 150]            # Paradigm 1
+SC = {0: (0.45, 0.68, 0.40), 75: (0.85, 0.55, 0.55), 100: (0.88, 0.68, 0.36), 125: (0.66, 0.55, 0.80), 150: (0.50, 0.62, 0.82)}   # 75/150 as Paradigm 1
 
 def srt_t0_table(ds):
     """one saccadic t0 per participant per speed: t0 (single) or t0r (mixture regular comp)."""
@@ -60,9 +62,9 @@ def panel(ax, tbl, title, floor, ylo, yhi, n):
                     ecolor="#222", capsize=6, lw=2.0, zorder=5)
         ax.text(i + 0.23, m, f"{m:.0f} ms", ha="left", va="center", fontsize=10, fontweight="bold")
     ax.axhline(floor, color="#777", ls=":", lw=1.3, zorder=1)
-    ax.text(2.46, floor + (yhi - ylo) * 0.015, f"Physiol. min ({floor:.0f} ms)", ha="right", va="bottom",
+    ax.text(len(SPEEDS) - 0.54, floor + (yhi - ylo) * 0.015, f"Physiol. min ({floor:.0f} ms)", ha="right", va="bottom",
             fontsize=8, style="italic", color="#999")
-    ax.set_xticks(range(3)); ax.set_xticklabels([f"{s} deg/s" for s in SPEEDS]); ax.set_xlim(-0.5, 2.8)
+    ax.set_xticks(range(len(SPEEDS))); ax.set_xticklabels([f"{s} deg/s" for s in SPEEDS]); ax.set_xlim(-0.5, len(SPEEDS) - 0.2)
     ax.set_ylabel("$t_0$ (ms)"); ax.set_ylim(ylo, yhi); ax.set_title(title, fontsize=11.5, fontweight="bold")
     ax.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
     ax.spines[["top", "right"]].set_visible(False); ax.grid(True, axis="y", ls="--", alpha=0.3)
@@ -72,10 +74,12 @@ hrt = dh[["pid", "spd", "t0"]].copy(); srt = srt_t0_table(ds)
 ph, nph = friedman_p(hrt); psr, npsr = friedman_p(srt)
 n = dh["pid"].nunique()
 
-fig, ax = plt.subplots(1, 2, figsize=(13, 6))
-panel(ax[0], hrt, f"HRT Non-Decision Time\n{p_label(ph)}", 130, 118, 205, nph)
-panel(ax[1], srt, f"SRT Non-Decision Time\n{p_label(psr)}", 70, 55, 150, npsr)
-fig.suptitle(f"Non-Decision Time ($t_0$) by Target Speed\nGroup mean +/- 1 SD  (n = {n} participants)",
+# y-limits: Paradigm 1 values unless a Paradigm 1 dot would fall outside them
+def _yl(t, lo, hi): return (min(lo, 5 * np.floor((t.t0.min() - 6) / 5)), max(hi, 5 * np.ceil((t.t0.max() + 6) / 5)))
+fig, ax = plt.subplots(1, 2, figsize=(14.5, 6))
+panel(ax[0], hrt, f"HRT Non-Decision Time\n{p_label(ph)}", 130, *_yl(hrt, 118, 205), nph)
+panel(ax[1], srt, f"SRT Non-Decision Time\n{p_label(psr)}", 70, *_yl(srt, 55, 150), npsr)
+fig.suptitle(f"Non-Decision Time ($t_0$) by Target Speed  (Paradigm 1, Method A)\nGroup mean +/- 1 SD  (n = {n} participants)",
              fontsize=13, fontweight="bold", y=1.02)
 fig.tight_layout()
 fig.savefig(os.path.join(HERE, "NDT_barchart.pdf"), bbox_inches="tight", facecolor="white")

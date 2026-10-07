@@ -15,6 +15,17 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.4.0] — 2026-10-07 — Corrected Paradigm 1 figures + cross-paradigm NDT comparison data
+
+### Changed
+
+- **Corrected every Paradigm 1 figure** (`Current Pipeline/Figures/`), redrawn from the committed Paradigm 1 tables using the Paradigm 2 figure scripts set to Paradigm 1 settings. No model was refitted, so no number changed. Fixes: the retired 100 ms hand floor in `DDM_summary` / `Bayesian_summary`; the "ESTIMATED, not fixed" title and legend overlap in `Bayesian_srt_ndt`; the legend covering data in `SRT_fixedt0_sensitivity`; typed-in text replaced by computed values; the fastest-saccade cell now shown as ceiling-bound in `SRT_identifiability`; a tick-label collision in `ddm_srt_0_degs`. Added `Figures/Supplementary/HRT_floor_control` (hand vs saccade floor test) to Paradigm 1, mirroring Paradigm 2. See `Current Pipeline/Documents/Figure_Corrections.md`.
+- **Replaced the Paradigm 1 figure scripts** (`Current Pipeline/Code/`) with the corrected versions, adding `Code/Supplementary/HRT_floor_control.py`.
+
+### Added
+
+- **Cross-paradigm NDT comparison tables** (`Paradigm 2 Pipeline/Code/Comparison/`): per-participant hand NDT (`Experiment1_hand_NDT_Bayesian.csv`, `Experiment2_hand_NDT_Bayesian.csv`, `Hand_NDT_Exp1_vs_Exp2_side_by_side.csv`) and saccade NDT (`Saccade_NDT_Exp1_vs_Exp2_side_by_side.csv`, `Saccade_NDT_participant_level_Exp1_vs_Exp2.csv`).
+
 ## [2.3.2] — 2026-10-06 — Pre-publication verification of the Paradigm 2 figures and analysis
 
 ### Added

@@ -1,3 +1,5 @@
+# PARADIGM 1 (CMT) VERSION -- the Paradigm 2 script (same code, corrected labels) set to Paradigm 1:
+# speeds 0/75/150 deg/s, BlockType "I", input pooled_data.csv and the committed Paradigm 1 fit tables.
 """
 why_saccadic_t0_floors.py  --  Diagnostic: mechanism of saccadic t0 flooring
 
@@ -24,6 +26,7 @@ for f in fm.findSystemFonts():
 matplotlib.rcParams.update({"font.family": _fam, "font.size": 11, "pdf.fonttype": 42, "ps.fonttype": 42})
 
 df = pd.read_csv(os.path.join(HERE, "pooled_data.csv")); df = df[df["BlockType"] == "I"]
+IMPL = {}   # effector -> (implied t0, floor, skew/CV); drives the text below (P1 hard-coded it)
 
 cfg = [("HandRT_ms", "HAND  (manual reaction time)", 130, (150, 800), (0.45, 0.68, 0.40)),
        ("GazeSRT_ms", "EYE  (saccadic reaction time)", 70, (80, 600), (0.50, 0.62, 0.82))]
@@ -33,6 +36,7 @@ for ax, (col, title, floor, filt, color) in zip(axes, cfg):
     r = df[col].dropna().values.astype(float); r = r[(r >= filt[0]) & (r <= filt[1])]
     m, sd, sk = r.mean(), r.std(), skew(r)
     implied = m - 3 * sd / sk
+    IMPL[col] = (implied, floor, sk / (sd / m))
 
     xs = np.linspace(r.min(), np.percentile(r, 99), 400)
     kde = gaussian_kde(r)(xs)
@@ -62,17 +66,22 @@ for ax, (col, title, floor, filt, color) in zip(axes, cfg):
     ax.text(0.97, 0.97, txt, transform=ax.transAxes, ha="right", va="top", fontsize=9,
             bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="#ccc"))
 
-fig.suptitle("Why saccadic non-decision time floors: it is the distribution SHAPE, not the data\n"
+(hi_, hf_, hr_), (ei_, ef_, er_) = IMPL["HandRT_ms"], IMPL["GazeSRT_ms"]
+MECH = (hi_ > hf_) and (ei_ < ef_)
+fig.suptitle(("Why saccadic non-decision time floors: it is the distribution SHAPE, not the data  (Paradigm 1)\n" if MECH else
+              "Shape-implied non-decision time vs the physiological floors  (Paradigm 1)\n") +
              "implied $t_0$ = mean RT \u2212 3\u00b7SD / skewness   (forced by the Wald's skew\u2013spread geometry)",
              fontsize=12.5, fontweight="bold", y=1.02)
 fig.text(0.5, -0.04,
-         "The hand distribution is strongly right-skewed, so the Wald reads a late onset plus a short skewed decision \u2014 $t_0$ lands above its floor and is identified.  "
-         "The saccadic distribution is nearly symmetric for its spread (skew/CV \u2248 3, low absolute skew), so the model attributes almost all of the RT to the\n"
-         "decision process and $t_0$ is pushed below the 70 ms physiological floor.  More trials cannot change this \u2014 it is set by the shape, which is why the saccade "
-         "field fixes the dead time (e.g. the LATER / reciprocal-normal model) rather than estimating it freely.",
+         f"Hand: skew/CV = {hr_:.1f}, shape-implied $t_0$ = {hi_:.0f} ms vs the {hf_:.0f} ms floor ("
+         + ("above it, so $t_0$ is identified" if hi_ > hf_ else "below it, so $t_0$ is pushed to the floor") + ").   "
+         f"Eye: skew/CV = {er_:.1f}, shape-implied $t_0$ = {ei_:.0f} ms vs the {ef_:.0f} ms floor ("
+         + ("below it, so the model assigns almost all of the RT to the decision and $t_0$ is pushed onto the floor" if ei_ < ef_
+            else "above it, so $t_0$ can be identified") + ").\n"
+         "More trials cannot change this \u2014 it is set by the shape of the distribution (a pure Wald has skew/CV = 3).",
          ha="center", fontsize=8.2, color="#555")
 fig.tight_layout()
 fig.savefig(os.path.join(HERE, "why_saccadic_t0_floors.pdf"), bbox_inches="tight", facecolor="white")
 fig.savefig(os.path.join(HERE, "why_saccadic_t0_floors.png"), dpi=150, bbox_inches="tight", facecolor="white")
-print(f"HAND implied t0 vs floor: see figure;  EYE implied t0 floors below 70 ms")
+print(f"HAND implied t0 = {hi_:.0f} ms (floor {hf_:.0f}), skew/CV {hr_:.1f};  EYE implied t0 = {ei_:.0f} ms (floor {ef_:.0f}), skew/CV {er_:.1f}")
 print("saved why_saccadic_t0_floors.pdf/.png")

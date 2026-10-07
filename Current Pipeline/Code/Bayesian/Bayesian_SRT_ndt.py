@@ -1,5 +1,8 @@
+# PARADIGM 1 (CMT) VERSION -- the Paradigm 2 script (same code, corrected labels) set to Paradigm 1:
+# speeds 0/75/150 deg/s, BlockType "I", input pooled_data.csv and the committed Paradigm 1 fit tables.
 """
 Bayesian_SRT_ndt.py  --  Hierarchical Bayesian: saccadic NDT per participant
+
 
 Estimates participant-level saccadic t0 (shared across speeds) via PyMC/NUTS.
 Replaces per-cell flooring with partial pooling: t0 is shared across speeds per
@@ -13,8 +16,9 @@ Run: python Bayesian_SRT_ndt.py  (needs DDM_srt_fits.csv first)
 """
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings("ignore")
+REPLOT = "--replot" in sys.argv    # P2: redraw the forest plot from Bayesian_srt_ndt.csv without refitting
 try:
-    import pymc as pm, pytensor.tensor as pt, arviz as az
+    if not REPLOT: import pymc as pm, pytensor.tensor as pt, arviz as az
 except ModuleNotFoundError:
     sys.exit(
         "\n" + "=" * 72 + "\n"
@@ -46,7 +50,46 @@ def load(dfi, pid, spd):
     z = dfi[(dfi.Participant==pid)&(dfi.Speed_deg_per_s==spd)]
     x = z['GazeSRT_ms'].values.astype(float); return x[(~np.isnan(x))&(x>=80)&(x<=600)]/1000
 
+def forest(parts, t0m, t0lo, t0hi, ceil, mu_ms):
+    """Per-participant saccadic t0 forest plot. Identifiability is judged against BOTH bounds:
+    the 70 ms floor and the ceiling (each participant's fastest saccade - 1 ms)."""
+    from matplotlib.lines import Line2D
+    order = np.argsort(t0m); N = len(parts)
+    fig, ax = plt.subplots(figsize=(9, 7))
+    for rank, i in enumerate(order):
+        c = '#2c7fb8' if (t0hi[i]-t0lo[i]) < 35 else '#d95f0e'
+        ax.plot([t0lo[i], t0hi[i]], [rank, rank], color=c, lw=2.2, alpha=0.85)
+        ax.plot(t0m[i], rank, 'o', color=c, ms=6)
+        ax.plot(ceil[i], rank, '|', color='#888', ms=10, mew=1.6)
+    if mu_ms is not None: ax.axvline(mu_ms, color='#444', ls='--', lw=1.3)
+    ax.set_yticks(range(N)); ax.set_yticklabels([parts[i] for i in order], fontsize=8.5)
+    ax.set_xlabel('saccadic non-decision time $t_0$ (ms, posterior mean ± 95% CI)')
+    n_fl = int((t0lo <= FLOOR*1000 + 1).sum()); n_ce = int((t0hi >= ceil - 1).sum())
+    n_free = int(((t0lo > FLOOR*1000 + 1) & (t0hi < ceil - 1)).sum())
+    sub = (f'{n_fl}/{N} intervals reach the {FLOOR*1000:.0f} ms floor, {n_ce}/{N} reach the fastest-saccade ceiling, {n_free}/{N} clear of both'
+           + (' \u2014 not identifiable' if n_free <= 0.2*N else ''))
+    ax.set_title('Per-participant saccadic non-decision time (Paradigm 1)\n' + sub, fontsize=11.5, fontweight='bold')
+    h = [Line2D([0],[0],color='#2c7fb8',lw=2,label='tighter estimate (95% CI < 35 ms)'),
+         Line2D([0],[0],color='#d95f0e',lw=2,label='looser estimate (95% CI \u2265 35 ms)')]
+    if mu_ms is not None: h.append(Line2D([0],[0],color='#444',ls='--',label=f"population mean \u03bc ({mu_ms:.0f} ms)"))
+    h.append(Line2D([0],[0],color='#888',marker='|',ls='',ms=10,mew=1.6,label='ceiling: fastest saccade \u2212 1 ms'))
+    ax.legend(handles=h, fontsize=9, loc='lower right')
+    ax.spines[['top','right']].set_visible(False); ax.grid(True, axis='x', ls='--', alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.pdf"), dpi=300, bbox_inches='tight', facecolor='white')
+    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.png"), dpi=140, bbox_inches='tight', facecolor='white')
+    return n_fl, n_ce, n_free
+
 def main():
+    if REPLOT:
+        n = pd.read_csv(_need('Bayesian_srt_ndt.csv')); mu = None
+        lp = os.path.join(HERE, 'log_Bayesian_SRT_ndt.txt')
+        if os.path.exists(lp):
+            import re; m_ = re.search(r"population mean t0=(\d+)ms", open(lp).read()); mu = float(m_.group(1)) if m_ else None
+        if "--mu" in sys.argv: mu = float(sys.argv[sys.argv.index("--mu") + 1])
+        print("floor / ceiling / clear:", forest(list(n.pid), n.t0_ms.values.astype(float), n.t0_lo95.values.astype(float),
+                                                   n.t0_hi95.values.astype(float), n.min_srt_ms.values.astype(float) - 1, mu))
+        print("re-plotted Bayesian_srt_ndt.pdf/.png from Bayesian_srt_ndt.csv"); return
     dfi = pd.read_csv(_need('pooled_data.csv')); dfi = dfi[dfi.BlockType=='I']
     s = pd.read_csv(_need('DDM_srt_fits.csv')); sing = s[s.model=='single']
     parts = sorted(sing.pid.unique()); pmap = {p:i for i,p in enumerate(parts)}
@@ -97,27 +140,8 @@ def main():
     pd.DataFrame(prows).to_csv(os.path.join(HERE,"Bayesian_srt_ndt.csv"), index=False)
     pd.DataFrame(crows).to_csv(os.path.join(HERE,"Bayesian_srt_ndt_cells.csv"), index=False)
 
-    # forest plot of per-participant t0
-    order = np.argsort(t0m)
-    fig, ax = plt.subplots(figsize=(9, 7))
-    for rank, i in enumerate(order):
-        tight = (t0hi[i]-t0lo[i]) < 35
-        c = '#2c7fb8' if tight else '#d95f0e'
-        ax.plot([t0lo[i], t0hi[i]], [rank, rank], color=c, lw=2.2, alpha=0.85)
-        ax.plot(t0m[i], rank, 'o', color=c, ms=6)
-    ax.axvline(float(po['mu_t0'].mean())*1000, color='#444', ls='--', lw=1.3)
-    ax.set_yticks(range(len(parts))); ax.set_yticklabels([parts[i] for i in order], fontsize=8.5)
-    ax.set_xlabel('saccadic non-decision time $t_0$ (ms, posterior mean ± 95% CI)')
-    ax.set_title('Per-participant saccadic non-decision time — ESTIMATED, not fixed\n'
-                 'individual differences preserved; each estimate carries its own uncertainty', fontsize=11.5, fontweight='bold')
-    from matplotlib.lines import Line2D
-    ax.legend(handles=[Line2D([0],[0],color='#2c7fb8',lw=2,label='tighter estimate (95% CI < 35 ms)'),
-                       Line2D([0],[0],color='#d95f0e',lw=2,label='looser estimate (95% CI ≥ 35 ms)'),
-                       Line2D([0],[0],color='#444',ls='--',label=f"population mean ({float(po['mu_t0'].mean())*1000:.0f} ms)")], fontsize=9, loc='lower right')
-    ax.spines[['top','right']].set_visible(False); ax.grid(True, axis='x', ls='--', alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.pdf"), dpi=300, bbox_inches='tight', facecolor='white')
-    fig.savefig(os.path.join(HERE,"Bayesian_srt_ndt.png"), dpi=140, bbox_inches='tight', facecolor='white')
+    # forest plot, from the same rounded values written to the CSV (so its counts match every other figure)
+    forest(parts, np.round(t0m), np.round(t0lo), np.round(t0hi), np.round(minrt_arr*1000) - 1, float(po['mu_t0'].mean())*1000)
     print("saved Bayesian_srt_ndt.csv, Bayesian_srt_ndt_cells.csv, Bayesian_srt_ndt.pdf/.png to", HERE, flush=True)
     print("BAYESIAN_SRT_NDT_DONE", flush=True)
 

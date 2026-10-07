@@ -1,9 +1,11 @@
+# PARADIGM 1 (CMT) VERSION -- the Paradigm 2 script (same code, corrected labels) set to Paradigm 1:
+# speeds 0/75/150 deg/s, BlockType "I", input pooled_data.csv and the committed Paradigm 1 fit tables.
 """Bayesian_figures.py  --  Main result figures from Bayesian fits
 
 Reads Bayesian_hrt_fits.csv, DDM_hrt_fits.csv, Bayesian_srt_fits.csv,
 DDM_srt_fits.csv, and optionally Bayesian_srt_ndt.csv for Panel C.
 Produces Bayesian_summary.pdf/.png."""
-import os, sys, pandas as pd, matplotlib
+import os, sys, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib.font_manager as fm
@@ -14,7 +16,7 @@ def _need(f):
     p = os.path.join(HERE, f)
     if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py, Bayesian_HRT_fit.py and Bayesian_SRT_fit.py first.")
     return p
-SC={0:(0.30,0.55,0.20),75:(0.78,0.30,0.30),150:(0.20,0.35,0.62)}; SP=[0,75,150]
+SC={0:(0.30,0.55,0.20),75:(0.78,0.30,0.30),100:(0.80,0.52,0.10),125:(0.48,0.32,0.66),150:(0.20,0.35,0.62)}; SP=[0,75,150]
 # per-participant estimated saccadic t0 (the resolution); optional so this still runs without it
 _ndt_path = os.path.join(HERE, 'Bayesian_srt_ndt.csv')
 NDT = pd.read_csv(_ndt_path) if os.path.exists(_ndt_path) else None
@@ -29,11 +31,13 @@ for spd in SP:
     g=m[m.spd==spd]
     ax[0].errorbar(g.t0_ddm,g.t0_bayes,yerr=[g.t0_bayes-g.t0_lo95,g.t0_hi95-g.t0_bayes],
                    fmt='o',ms=6,color=SC[spd],ecolor=SC[spd],elinewidth=0.7,capsize=2,alpha=0.85,label=f'{spd} deg/s')
-ax[0].axvline(100,color='#E84855',ls=':',lw=1.3); ax[0].text(101,188,'DDM floor (100ms)',color='#E84855',fontsize=8,rotation=90,va='top')
-ax[0].plot([95,200],[95,200],color='#999',lw=1)
+_lo=min(125,5*np.floor((min(m.t0_ddm.min(),m.t0_lo95.min())-5)/5)); _hi=max(200,5*np.ceil((max(m.t0_ddm.max(),m.t0_hi95.max())+5)/5))
+ax[0].axvline(130,color='#E84855',ls=':',lw=1.3); ax[0].text(131,_hi-3,'MLE floor (130 ms)',color='#E84855',fontsize=8,rotation=90,va='top')   # P1 drew the retired 100 ms floor
+ax[0].plot([_lo,_hi],[_lo,_hi],color='#999',lw=1)
+nA=int((m.t0_ddm<=130.5).sum()); nB=int(((m.t0_bayes-130).abs()<2).sum())
 ax[0].set_xlabel('DDM (MLE) $t_0$ (ms)'); ax[0].set_ylabel('Bayesian $t_0$ (ms, mean ± 95% CI)')
-ax[0].set_title('A.  HRT: Bayesian resolves the floor degeneracy\n(floored DDM cells lifted to realistic values)',fontsize=11,fontweight='bold')
-ax[0].legend(fontsize=8.5,loc='lower right',title='speed'); ax[0].set_xlim(95,200); ax[0].set_ylim(95,200)
+ax[0].set_title(f'A.  HRT $t_0$: Method A (MLE) vs Method B (Bayesian)\n(cells at the 130 ms floor: MLE {nA}/{len(m)}, Bayesian {nB}/{len(m)})',fontsize=11,fontweight='bold')
+ax[0].legend(fontsize=8.5,loc='lower right',title='speed'); ax[0].set_xlim(_lo,_hi); ax[0].set_ylim(_lo,_hi)
 ax[0].spines[['top','right']].set_visible(False); ax[0].grid(True,ls='--',alpha=0.3)
 
 # Panel B: SRT express fraction with 95% CI (reliability), sorted
@@ -56,7 +60,10 @@ if NDT is not None:
     ax[2].axvline(nn.t0_ms.mean(), color='#444', ls='--', lw=1.2)
     ax[2].set_yticks(range(len(nn))); ax[2].set_yticklabels(nn.pid, fontsize=6.5)
     ax[2].set_xlabel('$t_0$ (ms, mean ± 95% CI)')
-    ax[2].set_title('C.  SRT non-decision time — estimated per participant\n(individual differences preserved; not floored)', fontsize=11, fontweight='bold')
+    ceil = nn.min_srt_ms - 1; ax[2].plot(ceil, range(len(nn)), '|', color='#888', ms=8, mew=1.4)   # fastest-saccade ceiling
+    n_fl = int((nn.t0_lo95 <= 71).sum()); n_ce = int((nn.t0_hi95 >= ceil - 1).sum()); n_free = int(((nn.t0_lo95 > 71) & (nn.t0_hi95 < ceil - 1)).sum())
+    sub = f'({n_fl} at floor, {n_ce} at fastest-saccade ceiling, {n_free} free)'
+    ax[2].set_title('C.  SRT non-decision time per participant\n' + sub, fontsize=11, fontweight='bold')
     ax[2].legend(handles=[Line2D([0],[0],color='#2c7fb8',lw=2,label='tighter CI (<35 ms)'),
                           Line2D([0],[0],color='#d95f0e',lw=2,label='looser CI (≥35 ms)')], fontsize=8, loc='lower right')
 else:
@@ -66,7 +73,7 @@ else:
     ax[2].set_title('C.  SRT non-decision time (per participant)', fontsize=11, fontweight='bold')
 ax[2].spines[['top','right']].set_visible(False); ax[2].grid(True, axis='x', ls='--', alpha=0.3)
 
-fig.suptitle('Bayesian Model — HRT non-decision-time degeneracy resolved; saccadic $t_0$ estimated per participant',fontsize=12.5,fontweight='bold',y=1.00)
+fig.suptitle('Bayesian Model (Paradigm 1) — hand $t_0$ per cell, saccadic two-component fraction, saccadic $t_0$ per participant',fontsize=12.5,fontweight='bold',y=1.00)
 fig.tight_layout()
 fig.savefig(os.path.join(HERE,'Bayesian_summary.pdf'),dpi=300,bbox_inches='tight',facecolor='white')
 fig.savefig(os.path.join(HERE,'Bayesian_summary.png'),dpi=140,bbox_inches='tight',facecolor='white')

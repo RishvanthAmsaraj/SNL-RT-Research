@@ -1,3 +1,5 @@
+# PARADIGM 1 (CMT) VERSION -- the Paradigm 2 script (same code, corrected labels) set to Paradigm 1:
+# speeds 0/75/150 deg/s, BlockType "I", input pooled_data.csv and the committed Paradigm 1 fit tables.
 """
 SRT_identifiability_check.py  --  Diagnostic for saccadic t0 identifiability
 
@@ -48,37 +50,43 @@ dfi=pd.read_csv(_need('pooled_data.csv')); dfi=dfi[dfi.BlockType=='I']
 s=pd.read_csv(_need('DDM_srt_fits.csv')); sing=s[s.model=='single']
 FLOORS=[0.040,0.050,0.060,0.070,0.080,0.090]
 
-rows=[]
+rows=[]; tab=[]
 for _,r in sing.iterrows():
     sub=dfi[(dfi.Participant==r.pid)&(dfi.Speed_deg_per_s==r.spd)]
     x=sub['GazeSRT_ms'].values.astype(float); x=x[(~np.isnan(x))&(x>=80)&(x<=600)]/1000
     t0s=[fit_t0(x,fl) for fl in FLOORS]
     # identified if t0 does NOT closely track the floor (slope of t0 vs floor << 1)
     slope=np.polyfit([f*1000 for f in FLOORS], t0s, 1)[0]
-    rows.append((f"{r.pid}@{int(r.spd)}", t0s, slope))
+    ceil_b=bool(max(abs(t-x.min()*1000) for t in t0s)<2.0)   # P2: stuck at the fastest saccade at every floor = ceiling-bound, NOT identified
+    rows.append((f"{r.pid}@{int(r.spd)}", t0s, slope, ceil_b))
+    tab.append(dict(pid=r.pid, spd=int(r.spd), n=len(x), min_srt_ms=round(x.min()*1000,1), slope=round(slope,3),
+                    tracks_floor=bool(slope>0.7), ceiling_bound=ceil_b, eligible=bool(x.min() > max(FLOORS)+0.002),   # eligible = min RT above every floor (v3 rule)
+                    **{f't0_at_{int(f*1000)}': round(t,1) for f,t in zip(FLOORS,t0s)}))
 
-n_tracking=sum(1 for _,_,sl in rows if sl>0.7)
+n_tracking=sum(1 for _,_,sl,_ in rows if sl>0.7); n_ceil=sum(1 for _,_,sl,cb in rows if sl<=0.7 and cb)
+pd.DataFrame(tab).to_csv(os.path.join(HERE,'SRT_identifiability.csv'),index=False)   # new in Paradigm 1 (P1 saved no table)
 print(f"SRT single cells tested: {len(rows)}")
 print(f"  cells whose t0 TRACKS the floor (slope>0.7 -> NOT identified): {n_tracking}/{len(rows)}")
-print(f"  cells with genuinely identified t0 (slope<=0.7): {len(rows)-n_tracking}/{len(rows)}")
+print(f"  cells stuck at their fastest saccade (ceiling-bound, slope<=0.7): {n_ceil}/{len(rows)}")
+print(f"  cells with genuinely identified t0 (slope<=0.7, not ceiling-bound): {len(rows)-n_tracking-n_ceil}/{len(rows)}")
 
 fig,ax=plt.subplots(1,2,figsize=(13,5.4))
 xf=[f*1000 for f in FLOORS]
-for name,t0s,slope in rows:
-    c='#C0392B' if slope>0.7 else '#27AE60'
+for name,t0s,slope,cb in rows:
+    c='#C0392B' if slope>0.7 else ('#E67E22' if cb else '#27AE60')
     ax[0].plot(xf,t0s,'-o',color=c,alpha=0.55,ms=3,lw=1)
 ax[0].plot([40,90],[40,90],'k--',lw=1.5,label='t0 = floor (unidentified)')
 ax[0].set_xlabel('imposed non-decision floor (ms)'); ax[0].set_ylabel('fitted $t_0$ (ms)')
-ax[0].set_title('SRT $t_0$ vs imposed floor\nred = tracks floor (unidentified); green = stable (identified)',fontsize=11,fontweight='bold')
+ax[0].set_title('SRT $t_0$ vs imposed floor\nred = tracks floor; orange = stuck at fastest saccade; green = identified',fontsize=11,fontweight='bold')
 ax[0].legend(fontsize=9); ax[0].spines[['top','right']].set_visible(False); ax[0].grid(True,ls='--',alpha=0.3)
 
-slopes=[sl for _,_,sl in rows]
+slopes=[sl for _,_,sl,_ in rows]
 ax[1].hist(slopes,bins=np.linspace(0,1.05,12),color='#7f8c8d',edgecolor='white')
 ax[1].axvline(0.7,color='#C0392B',ls=':',lw=1.5); ax[1].text(0.71,ax[1].get_ylim()[1]*0.9,'tracks floor →',color='#C0392B',fontsize=9)
 ax[1].set_xlabel('slope of $t_0$ vs floor  (1 = perfectly tracks floor)'); ax[1].set_ylabel('number of cells')
 ax[1].set_title(f'{n_tracking}/{len(rows)} SRT single cells are floor-determined',fontsize=11,fontweight='bold')
 ax[1].spines[['top','right']].set_visible(False); ax[1].grid(True,axis='y',ls='--',alpha=0.3)
-fig.suptitle('Saccadic non-decision time is largely NOT identifiable — it sits at the imposed floor (both DDM and Bayesian)',fontsize=12.5,fontweight='bold',y=1.0)
+fig.suptitle(f'Saccadic non-decision time vs the imposed floor (Paradigm 1) — {n_tracking}/{len(rows)} cells track the floor, {n_ceil} {'sits' if n_ceil == 1 else 'sit'} at the fastest saccade, {len(rows)-n_tracking-n_ceil} identified',fontsize=12.5,fontweight='bold',y=1.0)
 fig.tight_layout()
 fig.savefig(os.path.join(HERE,'SRT_identifiability.pdf'),dpi=300,bbox_inches='tight',facecolor='white')
 fig.savefig(os.path.join(HERE,'SRT_identifiability.png'),dpi=140,bbox_inches='tight',facecolor='white')
