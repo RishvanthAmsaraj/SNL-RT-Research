@@ -35,7 +35,7 @@ try:
 except Exception:
     HAVE_DIPTEST = False
 
-st.set_page_config(page_title="KINARM RT analysis", layout="wide", page_icon="🧠")
+st.set_page_config(page_title="KINARM RT analysis", layout="wide", page_icon=None)
 ui.inject_theme()
 
 SS = st.session_state

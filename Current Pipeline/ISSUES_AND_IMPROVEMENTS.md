@@ -57,7 +57,7 @@ Compared to Deprecated Ver 3:
 
 ## Planned Improvements (Not Yet Implemented)
 
-### ✅ Resolved — kinarm-rt-app (v1.0, added 2026-07-18)
+### Resolved — kinarm-rt-app (v1.0, added 2026-07-18)
 
 The new [`kinarm-rt-app/`](../kinarm-rt-app/) addresses several roadmap items:
 

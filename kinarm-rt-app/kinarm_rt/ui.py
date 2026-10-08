@@ -56,7 +56,7 @@ html, body, [class*="css"], .stMarkdown, .stApp, input, button, textarea, select
 hr{ margin:0.6rem 0 !important; opacity:.6; }
 h4{ margin:0.2rem 0 0.4rem !important; font-weight:700; letter-spacing:-.01em; }
 
-/* keep the ☰ menu (theme switch) but remove deploy button, running indicator, top bar */
+/* keep the menu (theme switch) but remove deploy button, running indicator, top bar */
 [data-testid="stToolbar"] [data-testid="stToolbarActions"] a,
 [data-testid="stAppDeployButton"], .stAppDeployButton,
 .stDeployButton, [data-testid="stStatusWidget"], [data-testid="stDecoration"]{ display:none !important; }
@@ -426,7 +426,7 @@ def stepper(labels: list[str], current: int):
     cells = []
     for i, lab in enumerate(labels):
         state = "done" if i < current else ("active" if i == current else "")
-        mark = "✓" if i < current else str(i + 1)
+        mark = "OK" if i < current else str(i + 1)
         cells.append(f"<div class='kx-step {state}'><div class='dot'>{mark}</div>"
                      f"<div class='lbl'>{lab}</div></div>")
     st.markdown(f"<div class='kx-steps'>{''.join(cells)}</div>", unsafe_allow_html=True)

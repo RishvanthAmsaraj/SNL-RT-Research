@@ -83,7 +83,7 @@ The repo is organized around a simple principle: **one audited production pipeli
 
 | Path | Status | What it is |
 |---|---|---|
-| `Current Pipeline/` | ★ PRODUCTION | The live pipeline (v3.0, Phases 0–2): `Code/`, `Documents/`, `Figures/`, `ISSUES_AND_IMPROVEMENTS.md`. |
+| `Current Pipeline/` | PRODUCTION | The live pipeline (v3.0, Phases 0–2): `Code/`, `Documents/`, `Figures/`, `ISSUES_AND_IMPROVEMENTS.md`. |
 | `Deprecated Pipelines/Deprecated Ver 1` | Deprecated | First version. Frozen + issues log. |
 | `Deprecated Pipelines/Deprecated Ver 2` | Deprecated | Second version. |
 | `Deprecated Pipelines/Deprecated Ver 2.5` | Deprecated | Incremental revision between 2 and 3. |
@@ -378,22 +378,22 @@ This consolidates every quantitative verdict in one place. "Pass" = the model/re
 
 | Model / Analysis | Metric | Result | Verdict |
 |---|---|---|---|
-| Shifted Wald (Method A, MLE) | V1 parity gate | Clean 80/80 cells | ✅ Pass |
-| Shifted Wald (frequentist) | FDR survival SRT (q=0.05) | 22/48 | ✅ Pass (robust) |
-| Shifted Wald (frequentist) | FDR survival HRT | 0/48 | ⚠️ Resolution artifact (3 real rejections pinned p≤0.01) |
-| Shifted Wald (frequentist) | Bootstrap stability (B=2000) | 22/48 unchanged (2 flips net zero) | ✅ Pass (stable) |
-| Hierarchical Bayesian (Method B) | Dissociation p-value | 0.0016 / 0.003 | ✅ Pass (headline) |
-| Hierarchical Bayesian | App reproduction | r=0.999, MAE 0.4 ms | ✅ Pass (faithful) |
-| LATER (hand) | Reciprobit r² | 0.965 median | ✅ Pass (good fit) |
-| LATER (saccade) | Reciprobit r² | 0.904 median | ⚠️ Weaker fit |
-| LATER (saccade) | KS rejection | 39/48 | ❌ Poor fit for saccades |
-| LATER vs Wald (hand) | Vuong closeness | 45/48 indistinguishable | ⚠️ Tie (no winner) |
-| Shift-LRT (nested LATER) | Hand cells demand shift | 30/48 | ✅ Pass (the win) |
-| Shift-LRT | Saccade cells demand shift | 6/48 | ✅ Pass (replicates dissociation) |
-| Two-component mixture | Genuinely express cells (<130 ms) | 1/16 flagged | ⚠️ Most "express" aren't truly express |
-| Two-boundary DDM | Error rate | ~1% | ❌ Unidentified per cell (as professor suspected) |
-| App shell (all tests) | Test suite | 57/57 pass | ✅ Pass |
-| App shell | Parity vs scripts | 27/27 bit-for-bit | ✅ Pass |
+| Shifted Wald (Method A, MLE) | V1 parity gate | Clean 80/80 cells | Pass |
+| Shifted Wald (frequentist) | FDR survival SRT (q=0.05) | 22/48 | Pass (robust) |
+| Shifted Wald (frequentist) | FDR survival HRT | 0/48 | Warning: Resolution artifact (3 real rejections pinned p≤0.01) |
+| Shifted Wald (frequentist) | Bootstrap stability (B=2000) | 22/48 unchanged (2 flips net zero) | Pass (stable) |
+| Hierarchical Bayesian (Method B) | Dissociation p-value | 0.0016 / 0.003 | Pass (headline) |
+| Hierarchical Bayesian | App reproduction | r=0.999, MAE 0.4 ms | Pass (faithful) |
+| LATER (hand) | Reciprobit r² | 0.965 median | Pass (good fit) |
+| LATER (saccade) | Reciprobit r² | 0.904 median | Warning: Weaker fit |
+| LATER (saccade) | KS rejection | 39/48 | Fail: Poor fit for saccades |
+| LATER vs Wald (hand) | Vuong closeness | 45/48 indistinguishable | Warning: Tie (no winner) |
+| Shift-LRT (nested LATER) | Hand cells demand shift | 30/48 | Pass (the win) |
+| Shift-LRT | Saccade cells demand shift | 6/48 | Pass (replicates dissociation) |
+| Two-component mixture | Genuinely express cells (<130 ms) | 1/16 flagged | Warning: Most "express" aren't truly express |
+| Two-boundary DDM | Error rate | ~1% | Fail: Unidentified per cell (as professor suspected) |
+| App shell (all tests) | Test suite | 57/57 pass | Pass |
+| App shell | Parity vs scripts | 27/27 bit-for-bit | Pass |
 
 ---
 

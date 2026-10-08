@@ -20,7 +20,7 @@ Every Paradigm 2 result below is computed from the result tables in `Code/` by `
 
 ## 2. What was run
 
-The full Paradigm 1 run order, plus five supplementary scripts (marked ✚) and one validation script.
+The full Paradigm 1 run order, plus five supplementary scripts (marked +) and one validation script.
 
 | Step | Script | Output |
 |---|---|---|
@@ -29,11 +29,11 @@ The full Paradigm 1 run order, plus five supplementary scripts (marked ✚) and 
 | Method B | `Bayesian_HRT_fit.py`, `Bayesian_SRT_fit.py`, `Bayesian_SRT_ndt.py` | `Bayesian_hrt_fits.csv`, `Bayesian_hrt_ndt.csv`, `Bayesian_srt_fits.csv`, `Bayesian_srt_ndt.csv`, `Bayesian_srt_ndt_cells.csv` |
 | figures | `DDM_figures.py`, `DDM_conceptual.py`, `NDT_barchart.py`, `Bayesian_figures.py`, `Bayesian_conceptual.py`, `NDT_barchart_bayesian.py`, `vincentile_figures.py` | summaries, 16 schematics, NDT charts, 4 vincentile figures |
 | SRT diagnostics | `SRT_identifiability_check.py`, `SRT_fixed_t0_analysis.py`, `why_saccadic_t0_floors.py` | floor sweep, fixed-t₀ sensitivity, shape mechanism |
-| ✚ | `dissociation_tests.py` | the Paradigm 1 app's speed battery (Friedman, participant bootstrap, permutation) + a per-participant slope test for 4 ordered speeds |
-| ✚ | `HRT_floor_control.py` | hand negative control for the floor sweep (Paradigm 1's v3 control) |
-| ✚ | `SRT_QA_flag_sensitivity.py` | refits every cell touched by the extraction's eye QA flag under both rules |
-| ✚ | `direction_check.py` | Left vs Right: RT, Method A t₀/v/a, lead share, signed error |
-| ✚ | `parameter_recovery_P2.py` | simulate-and-refit at Paradigm 2's cell size |
+| + | `dissociation_tests.py` | the Paradigm 1 app's speed battery (Friedman, participant bootstrap, permutation) + a per-participant slope test for 4 ordered speeds |
+| + | `HRT_floor_control.py` | hand negative control for the floor sweep (Paradigm 1's v3 control) |
+| + | `SRT_QA_flag_sensitivity.py` | refits every cell touched by the extraction's eye QA flag under both rules |
+| + | `direction_check.py` | Left vs Right: RT, Method A t₀/v/a, lead share, signed error |
+| + | `parameter_recovery_P2.py` | simulate-and-refit at Paradigm 2's cell size |
 | validation | `P1_parity_check.py` | environment reproduces the published Paradigm 1 fits |
 
 `run_all_P2.py` runs everything in order (see `RUN_GUIDE_P2.md`).
