@@ -88,3 +88,14 @@ def test_deprecated_holds_only_older_figures():
         assert not any(st.endswith("__" + d["same_as"]) and st.startswith(("v3__",) if "Ver 3" in d["source"] else ("v2_5__",) if "Ver 2.5" in d["source"] else ("wi__",)) for st in shown), d
     for corrected in ("DDM_summary", "Bayesian_summary", "Bayesian_srt_ndt", "NDT_barchart_bayesian"):
         assert f"v3__{corrected}" in shown, corrected            # the pre-correction version is kept to show the mistake
+
+
+def test_insights_summary_is_shipped_and_aggregate():
+    """The numbers the explanations show come from a pre-computed summary, not from the
+    per-participant tables (which are not shipped); the summary must be aggregate only."""
+    p = os.path.join(APP, "pipelines", "insights_summary.json")
+    assert os.path.exists(p), "pipelines/insights_summary.json missing"
+    text = open(p).read()
+    assert not PARTICIPANT_ID.search(text), "participant identifiers in the insights summary"
+    s = json.load(open(p))
+    assert set(s) == {"E1", "E2"} and s["E1"]["headline"].get("hand_t0") and s["E2"]["headline"].get("hand_t0")

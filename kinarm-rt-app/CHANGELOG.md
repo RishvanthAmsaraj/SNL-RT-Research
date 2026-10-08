@@ -2,6 +2,20 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.3.2] — 2026-10-08
+
+### Fixed
+
+- **The specific numbers are back, without the participant data.** Figure explanations and
+  side-by-side comparison notes that were computed from the per-participant tables now read
+  from `pipelines/insights_summary.json`, an aggregate-only summary pre-computed offline by
+  `tools/precompute_insights.py` (group means, counts, p-values; no participant rows). "Your
+  run" results still compute live from the tables the scripts just wrote.
+- **The Windows build failed the integrity tests** because Windows checkouts convert LF line
+  endings to CRLF, which changes every text file's hash. A `.gitattributes` now pins LF on
+  every platform and the stored files were renormalized, so the manifest hashes match on
+  Windows too.
+
 ## [2.3.1] — 2026-10-08
 
 ### Changed

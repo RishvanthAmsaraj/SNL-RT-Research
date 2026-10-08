@@ -4,10 +4,46 @@ comparison shows" notes for side by side. Everything is read from the tables the
 here, and anything that cannot be computed is simply left out.
 """
 from __future__ import annotations
+import json, os
 import numpy as np
 import pandas as pd
 
 from .engine import results
+
+# Aggregate numbers pre-computed offline from the per-participant tables (which are participant
+# data and are not shipped). Every function below falls back to this summary when its table is
+# absent, so the reference figures keep their specific numbers without the tables. "Your run"
+# results still compute live from the tables the scripts just wrote.
+_SUMMARY = None
+
+
+def _summary() -> dict:
+    global _SUMMARY
+    if _SUMMARY is None:
+        try:
+            with open(os.path.join(results.APP, "pipelines", "insights_summary.json")) as f:
+                _SUMMARY = json.load(f)
+        except (OSError, ValueError):
+            _SUMMARY = {}
+    return _SUMMARY
+
+
+def _set_id(rs) -> str | None:
+    """The reference set this ResultSet is for (E1/E2); None for runs and anything unshipped."""
+    if getattr(rs, "source", "") != "reference" or not getattr(rs, "folders", None):
+        return None
+    return os.path.basename(rs.folders[0])
+
+
+def _cached(rs, key):
+    sid = _set_id(rs)
+    return {} if not sid else _summary().get(sid, {}).get(key, {})
+
+
+def headline(rs, speeds):
+    """results.headline, falling back to the pre-computed summary when the tables are not shipped."""
+    h = results.headline(rs, speeds)
+    return h or _cached(rs, "headline")
 
 
 def _fmt(vals, unit=" ms"):
@@ -19,20 +55,22 @@ def _speeds(exp):
 
 
 def hand_bayes(rs, speeds):
-    h = results.headline(rs, speeds)
+    h = headline(rs, speeds)
     return h if "hand_t0" in h else {}
 
 
 def method_a(rs, speeds):
     d = rs.table("DDM_hrt_fits.csv")
-    if d is None or not {"spd", "t0"} <= set(d.columns): return {}
+    if d is None or not {"spd", "t0"} <= set(d.columns):
+        return _cached(rs, "method_a")
     return {"t0": {s: float(d[d.spd == s].t0.mean()) for s in speeds if (d.spd == s).any()},
             "floored": int((d.t0 <= 130.5).sum()), "cells": len(d)}
 
 
 def saccade_models(rs):
     d = rs.table("DDM_srt_fits.csv")
-    if d is None or "model" not in d: return {}
+    if d is None or "model" not in d:
+        return _cached(rs, "saccade_models")
     out = {"cells": len(d), "mixture": int((d.model == "mixture").sum())}
     if "ks" in d: out["good"] = int((d.ks < 0.10).sum())
     return out
@@ -69,9 +107,14 @@ def _p(p) -> str:
     return "p < 0.001" if p < 0.001 else f"p = {p:.3f}"
 
 
+_SCHEMATIC_KEY = {"Bayesian_hrt_fits.csv": "bayes_hrt", "Bayesian_srt_fits.csv": "bayes_srt",
+                  "DDM_hrt_fits.csv": "ddm_hrt", "DDM_srt_fits.csv": "ddm_srt"}
+
+
 def schematic(rs, table, speed):
     d = rs.table(table)
-    if d is None or "spd" not in d: return {}
+    if d is None or "spd" not in d:
+        return _cached(rs, "schematic").get(f"{_SCHEMATIC_KEY.get(table, table)}_{speed}", {})
     if "model" in d: d = d[d.model == "single"]
     d = d[d.spd == speed]
     if not len(d) or not {"v", "a", "t0"} <= set(d.columns): return {}
@@ -80,7 +123,8 @@ def schematic(rs, table, speed):
 
 def later(rs):
     d = rs.table("LATER_fits.csv")
-    if d is None or "reciprobit_r2" not in d: return {}
+    if d is None or "reciprobit_r2" not in d:
+        return _cached(rs, "later")
     out = {"r2": float(d.reciprobit_r2.median()), "cells": len(d)}
     if "express_frac" in d: out["express_cells"] = int((d.express_frac > 0.1).sum())
     return out
@@ -88,7 +132,8 @@ def later(rs):
 
 def readiness(rs):
     d = rs.table("two_boundary_readiness_hand.csv")
-    if d is None or "minority_share" not in d: return {}
+    if d is None or "minority_share" not in d:
+        return _cached(rs, "readiness")
     return {"cells": len(d), "median_minority": float(d.minority_share.median())}
 
 
@@ -109,10 +154,10 @@ def facts(stem: str, exp, rs) -> list[str]:
                        f"{h['hand_cells']} cells on the 130 ms floor" + (f" (Friedman {_p(h['friedman_p'])})." if "friedman_p" in h else "."))
             if exp is not None and exp.id == "E1" and 0 in h["hand_t0"] and 75 in h["hand_t0"]:
                 out.append(f"The stationary target's t₀ is {h['hand_t0'][0] - h['hand_t0'][75]:.1f} ms longer than at 75 deg/s.")
-        s = results.headline(rs, sp).get("sacc")
+        s = headline(rs, sp).get("sacc")
         if s: out.append(f"Saccadic t₀: {s['floor']} of {s['n']} intervals reach the floor, {s['ceiling']} the ceiling, {s['free']} neither.")
     elif base == "Bayesian_srt_ndt":
-        s = results.headline(rs, sp).get("sacc")
+        s = headline(rs, sp).get("sacc")
         if s:
             out.append(f"{s['floor']} of {s['n']} participants' intervals reach the 70 ms floor and {s['ceiling']} their fastest-saccade "
                        f"ceiling; {s['free']} {'sits' if s['free'] == 1 else 'sit'} clear of both. Estimates range {s['range'][0]}–{s['range'][1]} ms.")
@@ -197,12 +242,12 @@ def compare(left: tuple, right: tuple) -> tuple[str, list[str]]:
                     f"{s} deg/s {hl['hand_t0'][s]:.0f} vs {hr['hand_t0'][s]:.0f} ms" for s in shared) + ".")
             notes.append("Different cohorts, so compare patterns rather than single values: Experiment 1's extra length is at the "
                          "stationary target, and between moving speeds both experiments are flat.")
-        sl_, sr_ = results.headline(rl, _speeds(el)).get("sacc"), results.headline(rr, _speeds(er)).get("sacc")
+        sl_, sr_ = headline(rl, _speeds(el)).get("sacc"), headline(rr, _speeds(er)).get("sacc")
         if sl_ and sr_:
             notes.append(f"Saccadic t₀: {names[0]} {sl_['floor']}/{sl_['n']} on the floor and {sl_['ceiling']} at the ceiling; "
                          f"{names[1]} {sr_['floor']}/{sr_['n']} on the floor and {sr_['ceiling']} at the ceiling — not identifiable in either.")
     elif bl == "Bayesian_srt_ndt":
-        a, b = results.headline(rl, _speeds(el)).get("sacc"), results.headline(rr, _speeds(er)).get("sacc")
+        a, b = headline(rl, _speeds(el)).get("sacc"), headline(rr, _speeds(er)).get("sacc")
         if a and b:
             notes.append(f"{names[0]}: {a['floor']} of {a['n']} on the floor, {a['ceiling']} at the ceiling, {a['free']} clear. "
                          f"{names[1]}: {b['floor']} of {b['n']} on the floor, {b['ceiling']} at the ceiling, {b['free']} clear.")

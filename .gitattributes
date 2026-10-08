@@ -1,0 +1,19 @@
+# The app's integrity tests compare SHA-256 hashes of shipped files against the manifest
+# written on macOS, and the sync tool hashes the repository files themselves. Line endings
+# must therefore be LF on every platform, or Windows checkouts (CRLF) fail those tests.
+*.py            text eol=lf
+*.csv           text eol=lf
+*.md            text eol=lf
+*.json          text eol=lf
+*.txt           text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.sh            text eol=lf
+*.plist         text eol=lf
+*.log           text eol=lf
+*.toml          text eol=lf
+*.cfg           text eol=lf
+*.ini           text eol=lf
+*.ipynb         text eol=lf
+*.gitignore     text eol=lf
+*.gitattributes text eol=lf

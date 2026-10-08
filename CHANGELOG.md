@@ -15,6 +15,14 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.5.5] — 2026-10-08 — Pre-computed insights and Windows-safe line endings
+
+- `kinarm-rt-app` 2.3.2: figure explanations and comparison notes read their specific numbers
+  from `pipelines/insights_summary.json`, pre-computed by `tools/precompute_insights.py` from
+  the per-participant tables offline (aggregate only, no participant rows). A `.gitattributes`
+  pins LF line endings and the repository was renormalized, so the Windows desktop build's
+  hash checks match the manifest.
+
 ## [2.5.4] — 2026-10-08 — Participant data removed from the repository
 
 - Removed all participant data (de-identified but unpublished human-subject data): raw trial tables, per-participant

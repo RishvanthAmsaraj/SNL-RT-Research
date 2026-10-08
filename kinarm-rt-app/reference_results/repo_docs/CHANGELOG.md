@@ -15,6 +15,23 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.5.5] — 2026-10-08 — Pre-computed insights and Windows-safe line endings
+
+- `kinarm-rt-app` 2.3.2: figure explanations and comparison notes read their specific numbers
+  from `pipelines/insights_summary.json`, pre-computed by `tools/precompute_insights.py` from
+  the per-participant tables offline (aggregate only, no participant rows). A `.gitattributes`
+  pins LF line endings and the repository was renormalized, so the Windows desktop build's
+  hash checks match the manifest.
+
+## [2.5.4] — 2026-10-08 — Participant data removed from the repository
+
+- Removed all participant data (de-identified but unpublished human-subject data): raw trial tables, per-participant
+  fit and NDT tables, and their notebooks and logs. Only aggregate results, figures, documentation and code remain.
+  `.gitignore` rules keep pooled data and per-participant tables out for good.
+- `kinarm-rt-app` 2.3.1: the app ships figures, documents and aggregate tables only. `sync_pipelines.py` skips any CSV
+  carrying participant identifiers, the MANIFEST reflects the shipped set, and the build's test suite passes on the
+  participant-data-free repository.
+
 ## [2.5.3] — 2026-10-08 — App 2.3: clearer figure groups, fuller explanations, comparison fixes
 
 - `kinarm-rt-app` 2.3.0: figure groups Main / Diagnostic / Method A / Deprecated; Deprecated holds only genuinely older figures (25 earlier copies identical to current figures recorded instead of shown); fuller per-figure explanations with the numbers behind each figure; comparison notes in side by side; side-by-side figure size fixed on Streamlit 1.50; two-ring Compare hero; button rows. See `kinarm-rt-app/CHANGELOG.md`.
