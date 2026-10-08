@@ -84,15 +84,19 @@ Apple Developer Program, and an Authenticode certificate for Windows). Without t
 
 - **Windows** — SmartScreen warns on first launch. *More info* → *Run anyway*. It
   stops asking afterwards.
-- **macOS** — Gatekeeper blocks the first launch. **Right-click the app → Open**,
-  then confirm; double-clicking will not offer the option. The workflow applies an
-  ad-hoc signature so macOS reports an unsigned app rather than a damaged one, which
-  is a far less alarming message.
+- **macOS** — Gatekeeper blocks the first launch. On **macOS 15 (Sequoia) and later**,
+  open the app once, then go to *System Settings → Privacy & Security* and choose
+  *Open Anyway*. On earlier versions, **right-click the app → Open**, then confirm;
+  double-clicking will not offer the option. The workflow applies an ad-hoc signature
+  so macOS reports an unsigned app rather than a damaged one, which is a far less
+  alarming message.
 
 If this is going to more than a handful of people, the certificates are worth the
 cost, and the workflow has an obvious place to add them.
 
-Apple Silicon and Intel Macs need separate builds; the workflow produces both.
+Apple Silicon and Intel Macs need separate builds; the workflow produces both — Apple Silicon on `macos-14`, Intel on
+`macos-15-intel` (GitHub retired the `macos-13` Intel image in December 2025, and says Intel macOS runners end in
+autumn 2027). Windows is built on `windows-latest` (x64; Windows on ARM runs it through x64 emulation).
 
 ## First run is slower
 

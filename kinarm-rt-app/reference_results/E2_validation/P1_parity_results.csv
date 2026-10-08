@@ -1,0 +1,4 @@
+table,cells_published,cells_rerun,cells_matched,model_choice_agree,max_abs_diff_v,max_abs_diff_a,max_abs_diff_t0,mean_abs_diff_t0,corr_t0,max_abs_diff_ks,max_abs_diff_pi,max_abs_diff_express_mode,max_abs_diff_reg_mode,max_abs_diff_t0_lo95,max_abs_diff_t0_hi95,group_t0_pub,group_t0_new
+DDM_hrt_fits.csv,48,48,48,48.0,0.0,0.0,0.0,0.0,1.0,0.0,,,,,,,
+DDM_srt_fits.csv,48,48,48,48.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,,,,
+Bayesian_hrt_fits.csv,48,48,48,,0.085,0.0105,1.0,0.271,0.9995,,,,,2.0,1.0,169.5/158.0/147.9,169.4/158.0/148.0

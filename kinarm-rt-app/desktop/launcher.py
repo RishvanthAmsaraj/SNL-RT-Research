@@ -150,7 +150,7 @@ def serve(port: int) -> int:
     st_config.set_option("server.fileWatcherType", "none")  # nothing to watch in a bundle
     st_config.set_option("server.maxUploadSize", 500)       # trial files can be large
     st_config.set_option("global.developmentMode", False)
-    st_config.set_option("theme.base", "light")
+    # theme follows the operating system (light or dark); the app styles both
 
     bootstrap.run(script, False, [], {})
     return 0

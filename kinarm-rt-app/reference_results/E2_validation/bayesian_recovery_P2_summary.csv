@@ -1,0 +1,20 @@
+quantity,value
+cell t0 bias (ms),6.0312
+cell t0 RMSE (ms),7.2207
+cell 95% interval coverage (%),70.3125
+cells at the 130 ms floor,0
+group t0 at 75: recovered / truth (ms),150.7 / 146.7
+group t0 at 100: recovered / truth (ms),147.6 / 143.4
+group t0 at 125: recovered / truth (ms),147.8 / 140.0
+group t0 at 150: recovered / truth (ms),144.8 / 136.7
+"delta t0 150-75, recovered (truth -10.0)",-5.9375
+delta t0 bootstrap 95% CI,"[-8.2, -3.4]"
+delta t0 participants negative,15
+delta t0 Wilcoxon p,0.0031
+Friedman p across 4 speeds,0.0
+"delta decision time a/v 150-75, recovered (truth 0)",-4.3144
+delta decision time Wilcoxon p,0.0131
+"corr(delta t0, delta decision time) with no true variation",-0.7536
+raw simulated data: delta 10th-percentile HRT 150-75 (ms),-9.8731
+raw simulated data: delta median HRT 150-75 (ms),-11.7188
+decision time: |ratio of posterior means - posterior mean of a/v| max (ms),0.1568

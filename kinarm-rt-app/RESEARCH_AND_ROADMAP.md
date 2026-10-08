@@ -1,3 +1,5 @@
+> Historical: written for app version 1.x, which re-implemented the pipeline. Version 2 runs the repository's scripts directly; see README.md and V2_PLAN.md.
+
 # Code review and improvement roadmap
 
 Now that I have the actual repository, this is a real review of the code rather

@@ -15,7 +15,8 @@ scikit-learn>=1.0
 # App
 pywebview>=4.4      # native desktop window; the app falls back to a browser without it
 pyyaml>=6.0
-streamlit>=1.30
+streamlit>=1.50
+pymupdf>=1.24      # PNG previews of the PDF-only figures (display only)
 
 # Tests (optional)
 pytest>=7.0

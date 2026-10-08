@@ -1,0 +1,86 @@
+"""
+NDT_barchart.py  --  NDT bar charts (DDM fits)
+
+Two panels (HRT, SRT): group mean +/- 1 SD bars per target speed with per-participant
+dots (floor-piling visible). HRT t0 is well-identified; SRT panel is a diagnostic
+(many cells track the 70 ms floor; not a measurement).
+
+Reads DDM_hrt_fits.csv, DDM_srt_fits.csv. Output: NDT_barchart.pdf/.png
+
+Run: python NDT_barchart.py  (needs DDM_fit.py outputs first)
+"""
+import os, sys, numpy as np, pandas as pd, matplotlib
+matplotlib.use("Agg"); import matplotlib.pyplot as plt
+from scipy.stats import friedmanchisquare
+import matplotlib.font_manager as fm
+import matplotlib.ticker
+_fam = "Arial" if "Arial" in {f.name for f in fm.fontManager.ttflist} else "DejaVu Sans"
+matplotlib.rcParams.update({"font.family": _fam, "font.size": 11, "pdf.fonttype": 42, "ps.fonttype": 42})
+HERE = os.path.dirname(os.path.abspath(__file__))
+def _need(f):
+    p = os.path.join(HERE, f)
+    if not os.path.exists(p): sys.exit(f"ERROR: {f} not found next to this script. Run DDM_fit.py first.")
+    return p
+SPEEDS = [75, 100, 125, 150]            # Paradigm 2
+SC = {75: (0.85, 0.55, 0.55), 100: (0.88, 0.68, 0.36), 125: (0.66, 0.55, 0.80), 150: (0.50, 0.62, 0.82)}   # 75/150 as Paradigm 1
+
+def srt_t0_table(ds):
+    """one saccadic t0 per participant per speed: t0 (single) or t0r (mixture regular comp)."""
+    rows = []
+    for _, r in ds.iterrows():
+        t0 = r["t0r"] if (r.get("model") == "mixture" and "t0r" in ds.columns and pd.notna(r.get("t0r"))) else r.get("t0")
+        if pd.notna(t0): rows.append(dict(pid=r["pid"], spd=int(r["spd"]), t0=float(t0)))
+    return pd.DataFrame(rows)
+
+def friedman_p(tbl):
+    piv = tbl.pivot_table(index="pid", columns="spd", values="t0").dropna(axis=0)
+    if piv.shape[0] < 3 or piv.shape[1] < 3: return None, piv.shape[0]
+    try:
+        p = friedmanchisquare(*[piv[s].values for s in SPEEDS])[1]
+        return (None if not np.isfinite(p) else p), piv.shape[0]
+    except Exception:
+        return None, piv.shape[0]
+
+def p_label(p):
+    if p is None: return "Friedman p = n.s."
+    star = "***" if p < .001 else "**" if p < .01 else "*" if p < .05 else "(n.s.)"
+    return f"Friedman p = {p:.3f} {star}"
+
+def panel(ax, tbl, title, floor, ylo, yhi, n):
+    rng = np.random.default_rng(0)
+    for i, s in enumerate(SPEEDS):
+        vals = tbl[tbl.spd == s]["t0"].values
+        m, sd = vals.mean(), vals.std(ddof=1)
+        # participant dots (jittered) so the spread -- and any floor-piling -- is visible
+        ax.scatter(i + rng.uniform(-0.16, 0.16, len(vals)), vals, s=24, color=SC[s],
+                   alpha=0.55, edgecolor="#555", linewidth=0.4, zorder=3)
+        # group mean as a marker + SD bar (NOT a bar from zero: under a zoomed axis a
+        # truncated bar would visually exaggerate the differences; a point+CI does not)
+        ax.errorbar(i, m, yerr=sd, fmt="o", ms=12, color=SC[s], mec="#222", mew=1.4,
+                    ecolor="#222", capsize=6, lw=2.0, zorder=5)
+        ax.text(i + 0.23, m, f"{m:.0f} ms", ha="left", va="center", fontsize=10, fontweight="bold")
+    ax.axhline(floor, color="#777", ls=":", lw=1.3, zorder=1)
+    ax.text(len(SPEEDS) - 0.54, floor + (yhi - ylo) * 0.015, f"Physiol. min ({floor:.0f} ms)", ha="right", va="bottom",
+            fontsize=8, style="italic", color="#999")
+    ax.set_xticks(range(len(SPEEDS))); ax.set_xticklabels([f"{s} deg/s" for s in SPEEDS]); ax.set_xlim(-0.5, len(SPEEDS) - 0.2)
+    ax.set_ylabel("$t_0$ (ms)"); ax.set_ylim(ylo, yhi); ax.set_title(title, fontsize=11.5, fontweight="bold")
+    ax.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+    ax.spines[["top", "right"]].set_visible(False); ax.grid(True, axis="y", ls="--", alpha=0.3)
+
+dh = pd.read_csv(_need("DDM_hrt_fits.csv")); ds = pd.read_csv(_need("DDM_srt_fits.csv"))
+hrt = dh[["pid", "spd", "t0"]].copy(); srt = srt_t0_table(ds)
+ph, nph = friedman_p(hrt); psr, npsr = friedman_p(srt)
+n = dh["pid"].nunique()
+
+# y-limits: Paradigm 1 values unless a Paradigm 2 dot would fall outside them
+def _yl(t, lo, hi): return (min(lo, 5 * np.floor((t.t0.min() - 6) / 5)), max(hi, 5 * np.ceil((t.t0.max() + 6) / 5)))
+fig, ax = plt.subplots(1, 2, figsize=(14.5, 6))
+panel(ax[0], hrt, f"HRT Non-Decision Time\n{p_label(ph)}", 130, *_yl(hrt, 118, 205), nph)
+panel(ax[1], srt, f"SRT Non-Decision Time\n{p_label(psr)}", 70, *_yl(srt, 55, 150), npsr)
+fig.suptitle(f"Non-Decision Time ($t_0$) by Target Speed  (Paradigm 2, Method A)\nGroup mean +/- 1 SD  (n = {n} participants)",
+             fontsize=13, fontweight="bold", y=1.02)
+fig.tight_layout()
+fig.savefig(os.path.join(HERE, "NDT_barchart.pdf"), bbox_inches="tight", facecolor="white")
+fig.savefig(os.path.join(HERE, "NDT_barchart.png"), dpi=140, bbox_inches="tight", facecolor="white")
+print(f"saved NDT_barchart.pdf/.png (n={n}); HRT Friedman p={ph}, SRT Friedman p={psr}")
+print("SRT t0 by speed:", {s: round(srt[srt.spd==s].t0.mean()) for s in SPEEDS})

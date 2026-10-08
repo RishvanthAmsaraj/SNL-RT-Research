@@ -30,7 +30,8 @@ dependencies:
   - conda-pack
   - pip
   - pip:
-      - streamlit>=1.30
+      - streamlit>=1.50
+      - pymupdf>=1.24
       - diptest>=0.7
       - pyyaml>=6.0
       - pywebview>=4.4

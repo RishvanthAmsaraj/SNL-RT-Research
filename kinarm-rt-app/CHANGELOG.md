@@ -2,6 +2,138 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.3.0] — 2026-10-08
+
+### Fixed
+
+- **Side-by-side figures drawn tiny** (16 px wide) on Streamlit 1.50: there, an image given `width="stretch"` or
+  `use_container_width` inside a column collapses. Images are now drawn without a width argument (every version then fits
+  them to their container), side-by-side panes also force full width, and the browser check fails if a pane's figure is
+  narrower than 250 px.
+- **Buttons spread across the panel** ("What the results say", figure pages, figure cards, finished runs): they now sit
+  together in horizontal rows with one consistent gap.
+
+### Changed
+
+- **Figure groups simplified**: Main (the former Main result and Supporting), Diagnostic, Method A, and Deprecated (the
+  deprecated models and the earlier pipeline versions together).
+- **Deprecated now holds only figures that really are older.** Every earlier-version figure was compared with its current
+  counterpart. Kept: the pre-correction versions of the eight figures fixed in October 2026 (they show the mistake) and
+  figures from older fits that differ from the current ones. Not repeated: 25 earlier copies that are the same figure as a
+  current one (title text aside); they are recorded in `pipelines/MANIFEST.json` under "duplicates", so they stay accounted
+  for. Experiment 1 now lists 72 figures: Main 13, Diagnostic 4, Method A 8, Deprecated 47.
+- **Compare hero**: both experiments at once — Experiment 1's targets on the inner ring (its stationary target on the
+  left), Experiment 2's on the outer ring, each moving at its real speed.
+
+### Added
+
+- **Fuller explanations on every figure page**: what it shows, why it is here, how to read it, the numbers behind it in the
+  results being shown ("In these results", computed from the tables), what it means for the project, and what to keep in
+  mind. The same text is collected in `FIGURE_EXPLANATIONS.md`, also readable under Documents.
+- **"What this comparison shows"** under side by side: for the same figure from both experiments, the numbers that differ and
+  what the difference means (hand t₀ at the shared speeds, saccadic-bound counts, floor-test shares, LATER fit, schematic
+  parameters, …); for two different figures, a note to read each on its own terms.
+
+## [2.2.0] — 2026-10-08
+
+### Added — everything in the repository is in the app
+
+- **Every figure file the repository holds**, checked by content: the current figures of both experiments, the
+  deprecated models, the earlier pipeline versions (2, 2.5 and 3) and the working iterations — 97 figures for
+  Experiment 1 (160 PNG and PDF files, 69 of the figures from earlier versions, under "Earlier versions"), 30 for
+  Experiment 2 (56 files) and 7 comparison figures (14 files). Each figure is one card with both of its files; the
+  gallery and the overview now show the file counts, so they can be compared with the folders.
+- **Every table**: Experiment 2's validation tables and the earlier versions' tables join the results, grouped by where
+  they come from (results, validation, comparison, deprecated models, earlier versions).
+- **Documents**: a new section renders the repository's reports, guides and records (Markdown) and previews its PDFs,
+  with downloads — Experiment 1 and 2 documents, the deprecated models' verdicts, the earlier versions' notes and the
+  repository's README, changelog and development history.
+- `tests/test_completeness.py` fails if any figure, table or document in the repository is missing from the app.
+
+### Changed
+
+- Galleries load small thumbnails (made once at sync time, 3 MB for all 134 figures) instead of the full-size images,
+  so the figure pages open quickly; the figure page, side by side and downloads keep the full images.
+- Experiment 1's stationary target sits on the left of the hero ring, where it is fully visible, with a slow pulse.
+- Calmer page changes (the outgoing page fades out of the way), hover feedback on cards and buttons, image fade-in,
+  and fallbacks for older macOS WebKit without `color-mix()`.
+- Runs can no longer hang in "running": a missing script, an interpreter that cannot start, or any unexpected error
+  ends the run with a clear status. New edge-case tests cover bad files, failing, refused and cancelled runs, and bad links.
+- Desktop build: the Intel Mac build moved from `macos-13` (retired by GitHub in December 2025, so it never ran) to
+  `macos-15-intel`; the Mac bundle's version now comes from the package instead of a stale "1.10.0"; the release notes
+  name the right download for Windows, Apple-silicon Macs and Intel Macs.
+
+## [2.1.0] — 2026-10-08
+
+### Fixed
+
+- **Navigation crash** ("st.session_state.view_w cannot be modified after the widget … is instantiated"): every button that
+  moves to another section now does so in a callback, before any widget is drawn. All navigation is covered by tests.
+- **The hero orbit drew behind the text** in Safari/WebKit (a viewBox-only SVG is sized to its container there, so it
+  filled the whole hero). The orbit now has explicit pixel size, sits at the right of the hero clear of the text, and
+  has no centre dot.
+- **Text spilling out of cards**: Streamlit's negative bottom margin on markdown is neutralised inside the app's panels,
+  and every panel has real padding. Checked in screenshots on Streamlit 1.50 and 1.65.
+- **Endless reruns** from writing the address bar on every run (now written only when it changes).
+- Wording: "1 step", "under a minute", "1 sits clear of both".
+
+### Added
+
+- **Every figure is in the gallery**: one card per figure (28 for Experiment 1, 30 for Experiment 2, 7 comparison
+  figures), all groups shown by default, a search box, a count, and a list of figures not yet in a run's results.
+  Anything the catalogue does not describe still appears, under "Other", so no figure is ever hidden.
+- **Figure pages** with Previous / Next to step through the current selection, PNG and PDF downloads.
+- **Side by side**: any two figures next to each other, from either experiment, your runs, or the comparison set,
+  with one-click pairs (NDT chart, saccadic t₀, floor test, why saccadic t₀ floors, Bayesian summary, eye-to-hand
+  lag, LATER). Compare on a figure opens both experiments' versions together.
+- **Key figures** on each experiment's overview; links from each model's description to its figures.
+- **Deep links**: `?exp=E2&view=Figures&fig=Bayesian_srt_ndt` opens that figure directly.
+- **Error boundaries**: a section that fails says so in place, with details, instead of stopping the app.
+- **Experiment 1 tables** that the scripts write but were never committed: `SRT_identifiability.csv`,
+  `SRT_fixedt0_sensitivity.csv` and `HRT_floor_control.csv` (made by the vendored scripts; the fixed-t₀ fits they
+  also write are byte-identical to the committed ones).
+- `desktop/ui_check.py`: drives the running app in a real browser through every section and a sample run, in light
+  and dark mode, fails on any error, and saves screenshots.
+
+### Compatibility
+
+- Tested on Python 3.9 + Streamlit 1.50 and Python 3.12 + Streamlit 1.65. Dark mode needs a Streamlit version with
+  `[theme.light]` / `[theme.dark]` support (the desktop build installs the latest); older versions show the light theme.
+
+## [2.0.0] — 2026-10-07
+
+### Changed — the app now runs the repository's scripts instead of re-implementing them
+
+- The analysis package (`kinarm_rt/models`, `analysis.py`, `figures.py`, `frequentist.py`, …) is gone. The app vendors
+  the repository's scripts unchanged in `pipelines/`, runs each with the app's own Python in an isolated run folder, and
+  shows what they write. `tools/sync_pipelines.py --check` and the tests guarantee byte-identity with the repository;
+  the engine tests reproduce the committed tables byte for byte.
+- Figures are the publication figures. The simplified `figures.py` copies are retired.
+- Terminology: Experiment 1 and Experiment 2 (formerly paradigms).
+
+### Added
+
+- Experiment switch (Experiment 1, Experiment 2, Compare), each experiment with its own pipeline.
+- Analysis catalogue with status labels — recommended, supporting, diagnostic, deprecated — automatic dependency
+  resolution, background runs with live progress, cancel, resume and reuse of finished steps.
+- Deprecated models stay selectable and explain themselves: LATER (runnable for both experiments) and the two-boundary
+  DDM (committed Experiment 1 results), each with the evidence for setting it aside.
+- Figure gallery with group filters and a detail view (what it shows, how to read it, what it means, caveats, PNG/PDF).
+- The lab's committed results ship with the app and are browsable instantly.
+- Experiment 2 data can be loaded as the raw per-participant files; the repository's builder makes the pooled file.
+- New interface: liquid-glass surfaces over an aurora background, iOS-style segmented controls, light and dark, and a
+  hero that draws the experiment's targets orbiting at their real angular speeds.
+
+### Removed
+
+- App-only analyses without a reference script: PSIS-LOO comparison, per-speed hierarchical model, LKJ correlated
+  effects, mixture-threshold sensitivity, the app's own recovery study. They remain in the git history.
+
+### Fixed
+
+- The desktop launcher no longer forces the light theme; the app follows the OS.
+- The desktop build now packages `pipelines/`, `reference_results/` and `tools/`.
+
 ## [1.10.0] — 2026-07-24
 
 ### Added — desktop applications for Windows and macOS, with nothing left out

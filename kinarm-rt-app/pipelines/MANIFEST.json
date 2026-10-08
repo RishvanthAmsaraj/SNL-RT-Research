@@ -1,0 +1,1958 @@
+{
+ "generated": "2026-10-08T05:21:13",
+ "pipelines": {
+  "experiment1": [
+   {
+    "file": "DDM_conceptual.py",
+    "source": "Current Pipeline/Code/DDM/DDM_conceptual.py",
+    "sha256": "107723662e7f5f738234e9050665c8288a23a39e1e8334448129707c68f8d746"
+   },
+   {
+    "file": "DDM_figures.py",
+    "source": "Current Pipeline/Code/DDM/DDM_figures.py",
+    "sha256": "1d31f6811a8579f6fffde72659dd41862f90ac0104e10a8dcc14f9ba174679b1"
+   },
+   {
+    "file": "DDM_fit.py",
+    "source": "Current Pipeline/Code/DDM/DDM_fit.py",
+    "sha256": "ea707835a9ca1827bca3d4b3869cd97ee74ee5811bb11b7c1b31a044c52d6621"
+   },
+   {
+    "file": "Bayesian_HRT_fit.py",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_HRT_fit.py",
+    "sha256": "785f52bea436c742beaf092d5d96947456f998c6176934839db9701d6cccada6"
+   },
+   {
+    "file": "Bayesian_SRT_fit.py",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_SRT_fit.py",
+    "sha256": "2cd48b68731844c485c4be25c8970f67a4e4387939643bdb464892a7dd8af54f"
+   },
+   {
+    "file": "Bayesian_SRT_ndt.py",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_SRT_ndt.py",
+    "sha256": "a026b7e662ab4e7c49d5aea3b97011bdd678b24688c65a769a255cd970a478c6"
+   },
+   {
+    "file": "Bayesian_conceptual.py",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_conceptual.py",
+    "sha256": "d00d4f5a9f8e74ac2b11f0f88ead261d192abc387d8674ca0b83d5c5f8e8fcd0"
+   },
+   {
+    "file": "Bayesian_figures.py",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_figures.py",
+    "sha256": "16cd44a5bac0d7fa8b00af54b79a5fa1836e14326c2537dae588e6aedcbecdc7"
+   },
+   {
+    "file": "NDT_barchart.py",
+    "source": "Current Pipeline/Code/NDT/NDT_barchart.py",
+    "sha256": "e4445e957410086e41904643ea5095cd2a383f1aaa24b449db5284ca44958690"
+   },
+   {
+    "file": "NDT_barchart_bayesian.py",
+    "source": "Current Pipeline/Code/NDT/NDT_barchart_bayesian.py",
+    "sha256": "19efb2352c775a7844eea348091cc3750c0b7fe0b7e3c607d9a6638c7ca92b56"
+   },
+   {
+    "file": "SRT_fixed_t0_analysis.py",
+    "source": "Current Pipeline/Code/SRT Analysis/SRT_fixed_t0_analysis.py",
+    "sha256": "03efc4f8ecfeef3ad0be916d1edb2fe35b462f51137b80a6eac8a2674bb9c7bf"
+   },
+   {
+    "file": "SRT_identifiability_check.py",
+    "source": "Current Pipeline/Code/SRT Analysis/SRT_identifiability_check.py",
+    "sha256": "1ea438f7ad5f6c24e1749d501e6a0df9c9cfcc5915ad21d7df712439e5f80839"
+   },
+   {
+    "file": "why_saccadic_t0_floors.py",
+    "source": "Current Pipeline/Code/SRT Analysis/why_saccadic_t0_floors.py",
+    "sha256": "1d98d32a1a968218ad76cad432451292a1a465f07d4fe0243110d107bf9efab8"
+   },
+   {
+    "file": "vincentile_figures.py",
+    "source": "Current Pipeline/Code/Vincentile/vincentile_figures.py",
+    "sha256": "d224f1eb972d9af3751fc1a3281ed3eee4bce25e569b004fc2a1c13f4c0ba7bd"
+   },
+   {
+    "file": "HRT_floor_control.py",
+    "source": "Current Pipeline/Code/Supplementary/HRT_floor_control.py",
+    "sha256": "07f963db6a298556b2bd514ab06d6b5a48160e54115b1a52f96b10e46e5e39c4"
+   }
+  ],
+  "experiment2": [
+   {
+    "file": "DDM_conceptual.py",
+    "source": "Paradigm 2 Pipeline/Code/DDM/DDM_conceptual.py",
+    "sha256": "3970134b5a2ffa036da159b836edd7818a72a52d652828c6f44b1aa3bae311ee"
+   },
+   {
+    "file": "DDM_figures.py",
+    "source": "Paradigm 2 Pipeline/Code/DDM/DDM_figures.py",
+    "sha256": "b2d1f63bdc86b4c17b2ace09175baf1bd495c439940544a2d956d4c6a11eaf5e"
+   },
+   {
+    "file": "DDM_fit.py",
+    "source": "Paradigm 2 Pipeline/Code/DDM/DDM_fit.py",
+    "sha256": "c60252f94d1fa8b0d4fc3cf310fd72773dbcd67bffaa398d572ddbef73b7685b"
+   },
+   {
+    "file": "Bayesian_HRT_fit.py",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_HRT_fit.py",
+    "sha256": "a63c6fa93149430dff15c4b7e0a07363c38cca6044ae63adfbdb0bf57f4bc2cf"
+   },
+   {
+    "file": "Bayesian_SRT_fit.py",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_SRT_fit.py",
+    "sha256": "35c7e5395bfe09c031caf868a6bbcd085f62e6adcd3adecc9f2656661b0d062a"
+   },
+   {
+    "file": "Bayesian_SRT_ndt.py",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_SRT_ndt.py",
+    "sha256": "42b40a4a8def2b1af6cf3fbc749144758ca141b9aa862a6625b8ff0841bfff5f"
+   },
+   {
+    "file": "Bayesian_conceptual.py",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_conceptual.py",
+    "sha256": "8887df07a96821584b9cdeb360b783b5832f792f0a17937e446234c8adb443cd"
+   },
+   {
+    "file": "Bayesian_figures.py",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_figures.py",
+    "sha256": "b4f3dd178330bf1b7c80d4a6316d69755c2ff6ae0a9d5e2438a3f11ab9965616"
+   },
+   {
+    "file": "NDT_barchart.py",
+    "source": "Paradigm 2 Pipeline/Code/NDT/NDT_barchart.py",
+    "sha256": "d3f3212988469d79a80b3b2e2b247270ea1940c4f9473f30f2877aaba701e6b2"
+   },
+   {
+    "file": "NDT_barchart_bayesian.py",
+    "source": "Paradigm 2 Pipeline/Code/NDT/NDT_barchart_bayesian.py",
+    "sha256": "9eb0071d0eb74a99615ff60832f825c31c93376344f1462939839edc989e9bcb"
+   },
+   {
+    "file": "SRT_fixed_t0_analysis.py",
+    "source": "Paradigm 2 Pipeline/Code/SRT Analysis/SRT_fixed_t0_analysis.py",
+    "sha256": "f4d4314339524828be5d96f00ab3f5a57560782b3ea84ae081a160c11636d427"
+   },
+   {
+    "file": "SRT_identifiability_check.py",
+    "source": "Paradigm 2 Pipeline/Code/SRT Analysis/SRT_identifiability_check.py",
+    "sha256": "55c62a944a98c964dc36ced75c871e5ad0d3c38a49fe7398ce48d1ed08b2688f"
+   },
+   {
+    "file": "why_saccadic_t0_floors.py",
+    "source": "Paradigm 2 Pipeline/Code/SRT Analysis/why_saccadic_t0_floors.py",
+    "sha256": "0daeaa9a43f9f5848b1b45872bec3194157dd80e6d749565ac9e2939d3021211"
+   },
+   {
+    "file": "vincentile_figures.py",
+    "source": "Paradigm 2 Pipeline/Code/Vincentile/vincentile_figures.py",
+    "sha256": "ed6bbaf843d76db3470e2a85fd685c16c08859c8c36a584b964501c5c8194b7c"
+   },
+   {
+    "file": "HRT_floor_control.py",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/HRT_floor_control.py",
+    "sha256": "da31ba0d3c5557d3e39ecd5246db1f042b94a42cd524cc31cf7f1805b5f60a68"
+   },
+   {
+    "file": "SRT_QA_flag_sensitivity.py",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/SRT_QA_flag_sensitivity.py",
+    "sha256": "3e7f9698f737917b21dda9454d279c9b1f64ea96e0c9328f716e51294e586cff"
+   },
+   {
+    "file": "direction_check.py",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/direction_check.py",
+    "sha256": "515c9a9c0f3997bf2d528bb0ccf1620d8a5c8304c615412395f21a6f9d5477ea"
+   },
+   {
+    "file": "dissociation_tests.py",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/dissociation_tests.py",
+    "sha256": "f0bec6d152b29a663f7e2e15042a34bc2824f48fe47ad97576042f14e188c337"
+   },
+   {
+    "file": "parameter_recovery_P2.py",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/parameter_recovery_P2.py",
+    "sha256": "8bc38e8b2e612514e1e3fd768ef73bb0283ae36ee7dc3c39f0d8aa17fe01dd3f"
+   },
+   {
+    "file": "build_pooled_data_P2.py",
+    "source": "Paradigm 2 Pipeline/Code/build_pooled_data_P2.py",
+    "sha256": "6069638374091a5c3a929d3fe68186ce0d036424d04749ed14aa9b5c0cae8248"
+   }
+  ],
+  "later_e1": [
+   {
+    "file": "LATER_analysis.py",
+    "source": "Deprecated Pipelines/LATER/Experiment 1/LATER_analysis.py",
+    "sha256": "5af4d97b82247408b15fa1890842e87d2d39dc657d385261d18c0182ea3f78b4"
+   }
+  ],
+  "later_e2": [
+   {
+    "file": "LATER_analysis.py",
+    "source": "Deprecated Pipelines/LATER/Experiment 2/LATER_analysis.py",
+    "sha256": "2436b77f650c92f7adb0d280ef09753706ec2ee6cfaa9e58605c069bbde2e371"
+   }
+  ]
+ },
+ "reference": {
+  "E1": [
+   {
+    "file": "DDM_hrt_fits.csv",
+    "source": "Current Pipeline/Code/DDM/DDM_hrt_fits.csv",
+    "sha256": "70be181a28c1ed6a0fb4a2318b9cf2524890d59b2d7ee063844acccb2db36f00"
+   },
+   {
+    "file": "DDM_srt_fits.csv",
+    "source": "Current Pipeline/Code/DDM/DDM_srt_fits.csv",
+    "sha256": "00a5d5e709c6d1441ef5b28877f799c5f50d37b42ff3551ac9dd2179380bf8da"
+   },
+   {
+    "file": "Bayesian_hrt_fits.csv",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_hrt_fits.csv",
+    "sha256": "01eec308b30b9890f25e7cb315b1588be2558ee728c3152b4444f22ce11a5e0d"
+   },
+   {
+    "file": "Bayesian_hrt_ndt.csv",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_hrt_ndt.csv",
+    "sha256": "f05cf97caaaf1a4f0c9a1556beafebc57b57bf00acea956837c5eede8dc44086"
+   },
+   {
+    "file": "Bayesian_srt_fits.csv",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_srt_fits.csv",
+    "sha256": "089f1b4c522bd8d2d26ccbebf8a46e9f5d8051eedddb30ebe15728e59f14bef5"
+   },
+   {
+    "file": "Bayesian_srt_ndt.csv",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_srt_ndt.csv",
+    "sha256": "1b9bcc8bc7f5cfe7e9aef18f2263479760d2bfc4748d5617a69d7980f56a1ac9"
+   },
+   {
+    "file": "Bayesian_srt_ndt_cells.csv",
+    "source": "Current Pipeline/Code/Bayesian/Bayesian_srt_ndt_cells.csv",
+    "sha256": "bb403d377a7532e146c8421bc8eca99488d354dc4c6388e204795f1a1c581f86"
+   },
+   {
+    "file": "SRT_fixedt0_fits.csv",
+    "source": "Current Pipeline/Code/SRT Analysis/SRT_fixedt0_fits.csv",
+    "sha256": "fa316e2367cd7e8b07ea4285d31c632d3bf5f5d752ce233966af03b131e82561"
+   },
+   {
+    "file": "SRT_fixedt0_sensitivity.csv",
+    "source": "Current Pipeline/Code/SRT Analysis/SRT_fixedt0_sensitivity.csv",
+    "sha256": "74fce5d0f240522d78841492fdb5c14b1b6f0572120822760b17eb147d2dac3f"
+   },
+   {
+    "file": "SRT_identifiability.csv",
+    "source": "Current Pipeline/Code/SRT Analysis/SRT_identifiability.csv",
+    "sha256": "434160db482cde7f95d10f840a9b07c3db6001a4c1e18ffe428ea1e629f2fd29"
+   },
+   {
+    "file": "HRT_floor_control.csv",
+    "source": "Current Pipeline/Code/Supplementary/HRT_floor_control.csv",
+    "sha256": "845c2708a5776b32d3849b8eabe6bb524c6e7c7554a0bb3a6ae3c4d092504cf6"
+   },
+   {
+    "file": "DDM_summary.png",
+    "source": "Current Pipeline/Figures/DDM/DDM_summary.png",
+    "sha256": "c1cb126e4da654f596767d007ae370d1c7b28b89640de6b66ed9ed9ee897f49a"
+   },
+   {
+    "file": "ddm_hrt_0_degs.png",
+    "source": "Current Pipeline/Figures/DDM/ddm_hrt_0_degs.png",
+    "sha256": "03c64c6195d7580bf6b2036502a31d2143e3bc93a90f0cdd965317402ab7b1fd"
+   },
+   {
+    "file": "ddm_hrt_150_degs.png",
+    "source": "Current Pipeline/Figures/DDM/ddm_hrt_150_degs.png",
+    "sha256": "43ea1b43e5839c884b0610a8a112c06457b4eebc4d313f1df3117e5e47f0f4dc"
+   },
+   {
+    "file": "ddm_hrt_75_degs.png",
+    "source": "Current Pipeline/Figures/DDM/ddm_hrt_75_degs.png",
+    "sha256": "f3670edfad213fdbd9cb7c56e110438571b45189390d55fd9c74f09fd65c7fae"
+   },
+   {
+    "file": "ddm_srt_0_degs.png",
+    "source": "Current Pipeline/Figures/DDM/ddm_srt_0_degs.png",
+    "sha256": "024083a61c1e9c9b22f926e143f2e02ddbd0e9351d6e43f62b7c4d2398c4e526"
+   },
+   {
+    "file": "ddm_srt_150_degs.png",
+    "source": "Current Pipeline/Figures/DDM/ddm_srt_150_degs.png",
+    "sha256": "ebe092c051b500b27bd77cbb217bba0a93f746ea9e9bbeb7d12562eb757390e9"
+   },
+   {
+    "file": "ddm_srt_75_degs.png",
+    "source": "Current Pipeline/Figures/DDM/ddm_srt_75_degs.png",
+    "sha256": "d5352b76fca305865f202cf9b5315cca60fcb96dd79bc01c3f0b909625495263"
+   },
+   {
+    "file": "DDM_summary.pdf",
+    "source": "Current Pipeline/Figures/DDM/DDM_summary.pdf",
+    "sha256": "30e5effc7d1cf10eb27ebc4922bf347b3edd471bf668e48a9ab971777cdf14e4"
+   },
+   {
+    "file": "ddm_hrt_0_degs.pdf",
+    "source": "Current Pipeline/Figures/DDM/ddm_hrt_0_degs.pdf",
+    "sha256": "e5215c4c7ea65b9688647406cc8473546109a535d8e0b7d5e2562d0b2f520eda"
+   },
+   {
+    "file": "ddm_hrt_150_degs.pdf",
+    "source": "Current Pipeline/Figures/DDM/ddm_hrt_150_degs.pdf",
+    "sha256": "6adb0686192e477a13662bfe6745601fac7103e4301eef60bd2e3e5f6fd942e5"
+   },
+   {
+    "file": "ddm_hrt_75_degs.pdf",
+    "source": "Current Pipeline/Figures/DDM/ddm_hrt_75_degs.pdf",
+    "sha256": "78a6a3af1a918cd28662012a139d38af538c05174a851d93926a76a46157c557"
+   },
+   {
+    "file": "ddm_srt_0_degs.pdf",
+    "source": "Current Pipeline/Figures/DDM/ddm_srt_0_degs.pdf",
+    "sha256": "c3d5e4952b8769bf0a54276dd5ad928ff76ffdaabcbe24c5dc3733ecba6b73a1"
+   },
+   {
+    "file": "ddm_srt_150_degs.pdf",
+    "source": "Current Pipeline/Figures/DDM/ddm_srt_150_degs.pdf",
+    "sha256": "9ec0749e7bd7408e580cc1dd8557526982ae21635fbc94285d5be2f011e5dd0e"
+   },
+   {
+    "file": "ddm_srt_75_degs.pdf",
+    "source": "Current Pipeline/Figures/DDM/ddm_srt_75_degs.pdf",
+    "sha256": "457e001d5282e4e187a7b08f41024c6df5bbe0d022488b25b591eaa840ae7d33"
+   },
+   {
+    "file": "Bayesian_srt_ndt.png",
+    "source": "Current Pipeline/Figures/Bayesian/Bayesian_srt_ndt.png",
+    "sha256": "4b80e9d6a5bd4bd6a5281f0d3acc0293bee3db1db2f0a57634800e1b0e9deff8"
+   },
+   {
+    "file": "Bayesian_summary.png",
+    "source": "Current Pipeline/Figures/Bayesian/Bayesian_summary.png",
+    "sha256": "0218b47b1a40721aca5a8cbaccc62a00dffb577dc4750a122d05a1f86c6b8b47"
+   },
+   {
+    "file": "bayes_hrt_0_degs.png",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_hrt_0_degs.png",
+    "sha256": "a0cfe0c8723859b7fbf9e687d27ca514cdc08ff29fa382cd8badd3a7166c86d5"
+   },
+   {
+    "file": "bayes_hrt_150_degs.png",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_hrt_150_degs.png",
+    "sha256": "478614320233ae484daa4edf531319da8498fa452dd3e0b393f338759fc4be0c"
+   },
+   {
+    "file": "bayes_hrt_75_degs.png",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_hrt_75_degs.png",
+    "sha256": "cbf01d9979ffc9adac4475694cafc0e20fc5d4bc415b5d576384163106cf7df3"
+   },
+   {
+    "file": "bayes_srt_0_degs.png",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_srt_0_degs.png",
+    "sha256": "e885c1e159fc0bc2740d557116dce108986df53ab66c6dcb81cd2e64c2c5caaf"
+   },
+   {
+    "file": "bayes_srt_150_degs.png",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_srt_150_degs.png",
+    "sha256": "7fcfaf2b8e8df24eb34464c7ebc348651a9f097af32b49a849055809289430c6"
+   },
+   {
+    "file": "bayes_srt_75_degs.png",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_srt_75_degs.png",
+    "sha256": "6549530dfc8c398d88b29705c4dfbf1db8b368c8ba91648b40775c0227b780e4"
+   },
+   {
+    "file": "Bayesian_srt_ndt.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/Bayesian_srt_ndt.pdf",
+    "sha256": "e480e2249df22921e7a55d9ffefe9f7e35b522b5c9ba8c489dcc5738753b98ab"
+   },
+   {
+    "file": "Bayesian_summary.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/Bayesian_summary.pdf",
+    "sha256": "97bf4deff68d8f5f88b954b759185065455d9e6b7ae0588ef71aec8bbe6fb9a3"
+   },
+   {
+    "file": "bayes_hrt_0_degs.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_hrt_0_degs.pdf",
+    "sha256": "356c520a2257ba342ea7c024b015ffb8f7bc5d05341a06f09bf8efdeffa28df8"
+   },
+   {
+    "file": "bayes_hrt_150_degs.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_hrt_150_degs.pdf",
+    "sha256": "db2cf88628aebaf64e44d2b207a8099c869512cbb341209eb3d8e3979eed7147"
+   },
+   {
+    "file": "bayes_hrt_75_degs.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_hrt_75_degs.pdf",
+    "sha256": "4c885409baae2d4a2da721dda8774b9e922df31ed4b6466d9020eb6f9c2cfef5"
+   },
+   {
+    "file": "bayes_srt_0_degs.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_srt_0_degs.pdf",
+    "sha256": "00fbd2cb98e8c05e6f91f61b5878d402f8c6fd11ac91147ea34515b48f1c24e6"
+   },
+   {
+    "file": "bayes_srt_150_degs.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_srt_150_degs.pdf",
+    "sha256": "a9dded9a957d4090577ceb28f3f0820be0f573363de7454690a950a3714f32d8"
+   },
+   {
+    "file": "bayes_srt_75_degs.pdf",
+    "source": "Current Pipeline/Figures/Bayesian/bayes_srt_75_degs.pdf",
+    "sha256": "3c386b9181e072b604dbd3ddb113c2200b94012ebb122e4e4722c875d36e2e49"
+   },
+   {
+    "file": "NDT_barchart.png",
+    "source": "Current Pipeline/Figures/NDT/NDT_barchart.png",
+    "sha256": "1c5822f90f049c5183a202d1adc10613c25fa7f3b8d50d44897856c8f53eea37"
+   },
+   {
+    "file": "NDT_barchart_bayesian.png",
+    "source": "Current Pipeline/Figures/NDT/NDT_barchart_bayesian.png",
+    "sha256": "683d03360537300ef3e6e042631f723cca672c76f412871d41d2b397cd243929"
+   },
+   {
+    "file": "NDT_barchart.pdf",
+    "source": "Current Pipeline/Figures/NDT/NDT_barchart.pdf",
+    "sha256": "fb075cd2898ac088c1abb17c5c6640929d2c1adc38c32965228a83a5739e98b6"
+   },
+   {
+    "file": "NDT_barchart_bayesian.pdf",
+    "source": "Current Pipeline/Figures/NDT/NDT_barchart_bayesian.pdf",
+    "sha256": "7c854486c599166f159c990859c895c1e576740c28706c548ed0b98d607f6680"
+   },
+   {
+    "file": "SRT_fixedt0_sensitivity.png",
+    "source": "Current Pipeline/Figures/SRT Analysis/SRT_fixedt0_sensitivity.png",
+    "sha256": "1f5640cfad5490a24c69490b39a1addacfb49026e7348a625f4c699d81d6e83f"
+   },
+   {
+    "file": "SRT_identifiability.png",
+    "source": "Current Pipeline/Figures/SRT Analysis/SRT_identifiability.png",
+    "sha256": "4b511f47be2b2e0fffb4fb3befc1e56ffe3ae10d6259fc55c0487602a6356e61"
+   },
+   {
+    "file": "why_saccadic_t0_floors.png",
+    "source": "Current Pipeline/Figures/SRT Analysis/why_saccadic_t0_floors.png",
+    "sha256": "c1bf1216f5f8fcff6d1bf2d627857599a787ce6e876c3937466ea14d0cb617fd"
+   },
+   {
+    "file": "SRT_fixedt0_sensitivity.pdf",
+    "source": "Current Pipeline/Figures/SRT Analysis/SRT_fixedt0_sensitivity.pdf",
+    "sha256": "bed8ff77a282e371664c519e9e451dc3bd614a2686d3f9f21a9ada70b0c56797"
+   },
+   {
+    "file": "SRT_identifiability.pdf",
+    "source": "Current Pipeline/Figures/SRT Analysis/SRT_identifiability.pdf",
+    "sha256": "9c6f4eee623c4c91e44f1af6cd1798426537506f5fc2b4485abe775fb0193f96"
+   },
+   {
+    "file": "why_saccadic_t0_floors.pdf",
+    "source": "Current Pipeline/Figures/SRT Analysis/why_saccadic_t0_floors.pdf",
+    "sha256": "6ea9d23dfde4198767e42dec3b6c26d6e6331b619040f981851115ad36aadb83"
+   },
+   {
+    "file": "vincentile_results_fig1_kde_overlay.pdf",
+    "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
+    "sha256": "17aaf76e350042c087ef65cd34714b5a8f3f42fa888164d5c4f4479e977eb473"
+   },
+   {
+    "file": "vincentile_results_fig2_histograms.pdf",
+    "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig2_histograms.pdf",
+    "sha256": "9a3853ee8348e986d496c07fbd9409f47faba9c8648cb4defec78b66d5d221c0"
+   },
+   {
+    "file": "vincentile_results_fig3_vincentile_by_speed.pdf",
+    "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
+    "sha256": "80fc2647d52b2664d70f11f8a99493e69b18fd8b2b773d10fbcae20af835479c"
+   },
+   {
+    "file": "vincentile_results_fig4_combined_vincentile.pdf",
+    "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
+    "sha256": "9b579f158ce1b7409d18548420fe3a7e615797148e46d602f74de445efbb5b0d"
+   },
+   {
+    "file": "HRT_floor_control.png",
+    "source": "Current Pipeline/Figures/Supplementary/HRT_floor_control.png",
+    "sha256": "45ff1f27e374ed749e5dc84d397c86655a85acaf970434bd86e97453c45a4fc4"
+   },
+   {
+    "file": "HRT_floor_control.pdf",
+    "source": "Current Pipeline/Figures/Supplementary/HRT_floor_control.pdf",
+    "sha256": "412b585dd9d734abc02427bc32d959e8d9b532091f480ebfbb17f8039cb38f6e"
+   }
+  ],
+  "E2": [
+   {
+    "file": "DDM_hrt_fits.csv",
+    "source": "Paradigm 2 Pipeline/Code/DDM/DDM_hrt_fits.csv",
+    "sha256": "0edaa46e9cf97ac399059799ed6485f287bdaa61f03cde04ebb8b2066d181dd0"
+   },
+   {
+    "file": "DDM_srt_fits.csv",
+    "source": "Paradigm 2 Pipeline/Code/DDM/DDM_srt_fits.csv",
+    "sha256": "c14272767a5d77c5fbb5a20e91d69397c4ae9224aa5f45f595edd0070f2e6ec0"
+   },
+   {
+    "file": "Bayesian_hrt_fits.csv",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_hrt_fits.csv",
+    "sha256": "39f2c1a17aff7331449342fbd6dcecbb268e2b5ab92e1b8422e67e6abddc6ba1"
+   },
+   {
+    "file": "Bayesian_hrt_ndt.csv",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_hrt_ndt.csv",
+    "sha256": "16dfb168a5f32049cbe2abbc65b893498307bd6b274bdbd4fc9fcfa531a7cd38"
+   },
+   {
+    "file": "Bayesian_srt_fits.csv",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_srt_fits.csv",
+    "sha256": "84a38ab369a02bf52582374802c6270c3206fe9f1dde3ad59f5b86f388a66df9"
+   },
+   {
+    "file": "Bayesian_srt_ndt.csv",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_srt_ndt.csv",
+    "sha256": "77d3718e38354b8cc624a9ffa579c3a883c90319ab661ac8b3568a5a1cde6f0d"
+   },
+   {
+    "file": "Bayesian_srt_ndt_cells.csv",
+    "source": "Paradigm 2 Pipeline/Code/Bayesian/Bayesian_srt_ndt_cells.csv",
+    "sha256": "27c4f9a4f9af6e5582a164ee93f2a8280ea7dce63da2f76c1be63b8805c4907f"
+   },
+   {
+    "file": "SRT_fixedt0_fits.csv",
+    "source": "Paradigm 2 Pipeline/Code/SRT Analysis/SRT_fixedt0_fits.csv",
+    "sha256": "205107a4c63e9de0c24c8bbb232ccbbc41f164e2e9f0540e524c6d214a40aafd"
+   },
+   {
+    "file": "SRT_fixedt0_sensitivity.csv",
+    "source": "Paradigm 2 Pipeline/Code/SRT Analysis/SRT_fixedt0_sensitivity.csv",
+    "sha256": "eb4a690c136bfa29507cc8eb1cc11deefe28d1e932ebc70c9a0295e530f910c5"
+   },
+   {
+    "file": "SRT_identifiability.csv",
+    "source": "Paradigm 2 Pipeline/Code/SRT Analysis/SRT_identifiability.csv",
+    "sha256": "73884395a0c28241a079c8c07eadd6dc8f297506b9e0eacadd23cbcf73474e62"
+   },
+   {
+    "file": "HRT_floor_control.csv",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/HRT_floor_control.csv",
+    "sha256": "03373b0e0c913244549dc719151fed33b9bd36127f508b790ceee4ee27cb051c"
+   },
+   {
+    "file": "SRT_QA_flag_sensitivity.csv",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/SRT_QA_flag_sensitivity.csv",
+    "sha256": "c960cc6b4c0d8bd407fc1e8048f606eaa51d6cbe0f153f970a6e81a563884aa1"
+   },
+   {
+    "file": "direction_check_cells.csv",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/direction_check_cells.csv",
+    "sha256": "ded67fe90d2ba58280ecc2d884f2a46d7a0fc01d7c6407523510f84549484dbe"
+   },
+   {
+    "file": "direction_check_summary.csv",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/direction_check_summary.csv",
+    "sha256": "4b238d7ade76c4f95a69455535a31666eb6622a1727e4fa34fba473ef7fccfa0"
+   },
+   {
+    "file": "dissociation_tests_P2.csv",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/dissociation_tests_P2.csv",
+    "sha256": "8fee7bc2750cba45060aa7d1bf002ed163d6d4d468557a00117ff5a72a157295"
+   },
+   {
+    "file": "parameter_recovery_P2.csv",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/parameter_recovery_P2.csv",
+    "sha256": "e78278caea561ee250ba6b9c0119c69b84e3f3237427a48f0ca97bf95443b2e0"
+   },
+   {
+    "file": "parameter_recovery_P2_summary.csv",
+    "source": "Paradigm 2 Pipeline/Code/Supplementary/parameter_recovery_P2_summary.csv",
+    "sha256": "48e9adfda373ca0f5f7372be44224434a184d46381062efe3f9faa2107f755c9"
+   },
+   {
+    "file": "DDM_summary.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/DDM_summary.png",
+    "sha256": "e375ac9efbbf042071a5523b6e152fea19989ea16ba57642c59915ac03a87820"
+   },
+   {
+    "file": "ddm_hrt_100_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_100_degs.png",
+    "sha256": "a9f36c0190f8a46614ef3d9c6ffc9ad04de5ce5d2f70977e8d7a8ca31eac3851"
+   },
+   {
+    "file": "ddm_hrt_125_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_125_degs.png",
+    "sha256": "2a5d46dfd2e61fe24e4822bd462bb48b709fa02f879753c618e7ce48e258e086"
+   },
+   {
+    "file": "ddm_hrt_150_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_150_degs.png",
+    "sha256": "3fbe7aff6f25d8d94e4552e5b9668d2800469e1feb05329f1ab71ad426869d23"
+   },
+   {
+    "file": "ddm_hrt_75_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_75_degs.png",
+    "sha256": "c72b060c0ef9a5221f6a5c743a59a4a225122db0cee690c5f5ee4f9a371d0615"
+   },
+   {
+    "file": "ddm_srt_100_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_100_degs.png",
+    "sha256": "139d89ce4b3fdc4b652ad09e7f7fbf5639af320f35b934ecd098cad2effd8ecb"
+   },
+   {
+    "file": "ddm_srt_125_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_125_degs.png",
+    "sha256": "491a370967b88047b1af8afda273b03a9087e0108e35d112580eee812270caa7"
+   },
+   {
+    "file": "ddm_srt_150_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_150_degs.png",
+    "sha256": "fdd020c53d59d04a991db0a1678572f6427470a39a88bee8a9494fdd6a4b310f"
+   },
+   {
+    "file": "ddm_srt_75_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_75_degs.png",
+    "sha256": "322796af36756362e2efb6076cf5cdbbf984790b4f3795737eab34bb624828bb"
+   },
+   {
+    "file": "DDM_summary.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/DDM_summary.pdf",
+    "sha256": "594fc16c123df031f3e31437dc2ba55f4353d1264153c2bfd10d92ddcf45a28a"
+   },
+   {
+    "file": "ddm_hrt_100_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_100_degs.pdf",
+    "sha256": "f8fa846cfa31a5b82f6c125ca6fb402ab41b067bf606158dd856ca996f29dd82"
+   },
+   {
+    "file": "ddm_hrt_125_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_125_degs.pdf",
+    "sha256": "b3840fd7be24762568cd4806730cefa3cbc785430e8485c53eb89eee6b019c9c"
+   },
+   {
+    "file": "ddm_hrt_150_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_150_degs.pdf",
+    "sha256": "216cb1fad523592246681b3223d2bf41b67ef2fd05bd75ed16e4d0fe52b3a042"
+   },
+   {
+    "file": "ddm_hrt_75_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_hrt_75_degs.pdf",
+    "sha256": "2ae1b9d7838cc760207c13da6cc609c097f2df2b77827b43969dd93a34e6da56"
+   },
+   {
+    "file": "ddm_srt_100_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_100_degs.pdf",
+    "sha256": "152e04cf25cbc7652325fee3c47c2b979b266f2145c0288f1e690c7c85cc9e02"
+   },
+   {
+    "file": "ddm_srt_125_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_125_degs.pdf",
+    "sha256": "b44277938954ee5f5171bf731fb003aa3d0a9995b4620108d1f27072fe24131a"
+   },
+   {
+    "file": "ddm_srt_150_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_150_degs.pdf",
+    "sha256": "6013667b484487191796a1590751ae694e59522c39b2dc418b918c5bcbac5193"
+   },
+   {
+    "file": "ddm_srt_75_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/DDM/ddm_srt_75_degs.pdf",
+    "sha256": "7c7e8a7b3afbb0863b4b2a93e8f9ae89083235653cf0625c45b5915fdc8a0b3c"
+   },
+   {
+    "file": "Bayesian_srt_ndt.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/Bayesian_srt_ndt.png",
+    "sha256": "20477d53a1b1ee0adf3e4b8756dcd92637915025538342e2609370798a792408"
+   },
+   {
+    "file": "Bayesian_summary.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/Bayesian_summary.png",
+    "sha256": "e1a3a73baef1ccbe6015ec50a74bd5cc6547aaf72c37d0fa93830a1c7056275d"
+   },
+   {
+    "file": "bayes_hrt_100_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_100_degs.png",
+    "sha256": "e50fa4168bdfb03bfe2d969669c779d9a13c2d54b2399171c9ea3299da22463f"
+   },
+   {
+    "file": "bayes_hrt_125_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_125_degs.png",
+    "sha256": "9baa8d0e4b03df5fef56f5d4299b198d4fd9f1fa59d4cd7bd547925235bc4a51"
+   },
+   {
+    "file": "bayes_hrt_150_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_150_degs.png",
+    "sha256": "f127eb1fa6bfa9037ec99a73bcbf52cd1f29e5ca4ebbfc1fc072f573539745e9"
+   },
+   {
+    "file": "bayes_hrt_75_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_75_degs.png",
+    "sha256": "f9e18cca5a8a6e4d06e0bbce33756d74b4aa4d72b59b79e790e0da0a6609396f"
+   },
+   {
+    "file": "bayes_srt_100_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_100_degs.png",
+    "sha256": "29acfc24f5a370ba143bffe588a10121b5522efb8858179dd4b1ce9ad909830f"
+   },
+   {
+    "file": "bayes_srt_125_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_125_degs.png",
+    "sha256": "018f7e0711f83376d669de4bb77f14af440c9cd111bef0773cca41365cb4d6b2"
+   },
+   {
+    "file": "bayes_srt_150_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_150_degs.png",
+    "sha256": "bd28f6cfd950f096bbd983e61f6822424b97bfd0e7d6e2cb7f6ad5a7ea185692"
+   },
+   {
+    "file": "bayes_srt_75_degs.png",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_75_degs.png",
+    "sha256": "7cb923019c67589f97212220cdd8c47aa18b299264d083f6d2bf51c54bd716df"
+   },
+   {
+    "file": "Bayesian_srt_ndt.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/Bayesian_srt_ndt.pdf",
+    "sha256": "57c284ceebcd37fc4484fbc7e5b276dd907d7c7d1fb3424b7d434bd7b86af582"
+   },
+   {
+    "file": "Bayesian_summary.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/Bayesian_summary.pdf",
+    "sha256": "c93375dc0fa5958f75501d6c6031bb9d97c365d95bf83769193fef2a80ddda2e"
+   },
+   {
+    "file": "bayes_hrt_100_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_100_degs.pdf",
+    "sha256": "57326c337411c56a180ca3f02e3dcfa17326f35c4f258844a237fd5a7a0f408b"
+   },
+   {
+    "file": "bayes_hrt_125_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_125_degs.pdf",
+    "sha256": "c3150cccdee776ca163c27ef7d5e90f04b49b16546185d543278c8e32cd01eaf"
+   },
+   {
+    "file": "bayes_hrt_150_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_150_degs.pdf",
+    "sha256": "a90d7807d4a74b351708c325d552dc9d80df1ad1f1527639e7a66140f8577dfa"
+   },
+   {
+    "file": "bayes_hrt_75_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_hrt_75_degs.pdf",
+    "sha256": "197444665cd56c2586ebc8628dd12074e73908b577a93b19e652a745864e6600"
+   },
+   {
+    "file": "bayes_srt_100_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_100_degs.pdf",
+    "sha256": "14ff6c50557f0fc3fced47cbca914d4f0590c04da18930ff386e731f45e733f5"
+   },
+   {
+    "file": "bayes_srt_125_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_125_degs.pdf",
+    "sha256": "a013d57222a4e70a0e8afe5bc8d7f9d4c7e2b3b970a63e26fa50bbfd5902b7bc"
+   },
+   {
+    "file": "bayes_srt_150_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_150_degs.pdf",
+    "sha256": "6266739413370472a4cc695f56bce25e6672d4be45f72c029165ca6b383c2071"
+   },
+   {
+    "file": "bayes_srt_75_degs.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Bayesian/bayes_srt_75_degs.pdf",
+    "sha256": "aea24de2bbe2600cf36e4e1ae2c85e030add83f2991eca713b1769dffa72b658"
+   },
+   {
+    "file": "NDT_barchart.png",
+    "source": "Paradigm 2 Pipeline/Figures/NDT/NDT_barchart.png",
+    "sha256": "89fb5c73be2d2748e1bd5ad5bec5c5492a1617652464ef7314924456f5b5c810"
+   },
+   {
+    "file": "NDT_barchart_bayesian.png",
+    "source": "Paradigm 2 Pipeline/Figures/NDT/NDT_barchart_bayesian.png",
+    "sha256": "98b23481753f3736c6130c90761f30186fa32bdfe2f027244490bddba1eca54e"
+   },
+   {
+    "file": "NDT_barchart.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/NDT/NDT_barchart.pdf",
+    "sha256": "d204e192b8073c6a11e2eb5ae684ac1bf76eaaec0a4ac157f93245ab6db15d4e"
+   },
+   {
+    "file": "NDT_barchart_bayesian.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/NDT/NDT_barchart_bayesian.pdf",
+    "sha256": "c0009410d51e577f75f44c7e03a731aca6064e2346888cf86c722bf2b19704e0"
+   },
+   {
+    "file": "SRT_fixedt0_sensitivity.png",
+    "source": "Paradigm 2 Pipeline/Figures/SRT Analysis/SRT_fixedt0_sensitivity.png",
+    "sha256": "ddf3194073bb6fd32a23d335620a05ba04581aa28ba76a4099476478d4d49a6c"
+   },
+   {
+    "file": "SRT_identifiability.png",
+    "source": "Paradigm 2 Pipeline/Figures/SRT Analysis/SRT_identifiability.png",
+    "sha256": "15bcd60da49128bff83cfe509998b46061edd517728b68bcaa36b94980c40590"
+   },
+   {
+    "file": "why_saccadic_t0_floors.png",
+    "source": "Paradigm 2 Pipeline/Figures/SRT Analysis/why_saccadic_t0_floors.png",
+    "sha256": "287a6295fc8c9e817f81456e6ea8cdef3d678feef7986f96844a976ace7a313f"
+   },
+   {
+    "file": "SRT_fixedt0_sensitivity.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/SRT Analysis/SRT_fixedt0_sensitivity.pdf",
+    "sha256": "ddb1594ed24d8ce409b3b18c729926158e1ff1aeda13d5f683d327f6191d6214"
+   },
+   {
+    "file": "SRT_identifiability.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/SRT Analysis/SRT_identifiability.pdf",
+    "sha256": "5f101db4d050f3c323502a84edc8e1581f58fbb36c9f5e71a862a5d374853c0e"
+   },
+   {
+    "file": "why_saccadic_t0_floors.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/SRT Analysis/why_saccadic_t0_floors.pdf",
+    "sha256": "301d111ed5d789f2f8ab8b910aeaabb8abd0e34b9cfc2ca422dbfd1e24aa65d1"
+   },
+   {
+    "file": "vincentile_results_fig1_kde_overlay.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
+    "sha256": "4dc93d89bf905e12a5b65fa6adad0c74db69b22f9d0f0fea0978f02acbdc9b4e"
+   },
+   {
+    "file": "vincentile_results_fig2_histograms.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig2_histograms.pdf",
+    "sha256": "4d85962dc5051d2483d615827f6ad2d1b29d9b57a297547247774ca15e040ae6"
+   },
+   {
+    "file": "vincentile_results_fig3_vincentile_by_speed.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
+    "sha256": "47854e93664346e55ebac9821d52e6417439ac8da1f6536e1a4efd206aa076a2"
+   },
+   {
+    "file": "vincentile_results_fig4_combined_vincentile.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
+    "sha256": "7f95361b3c96a00a2a1436e1e8458b27cee810fdac4d2c280a8bf0db0c7da404"
+   },
+   {
+    "file": "HRT_floor_control.png",
+    "source": "Paradigm 2 Pipeline/Figures/Supplementary/HRT_floor_control.png",
+    "sha256": "959cfff030094faa310a3199adb8bbab07144dd4addc7c68bcc81ac4cd29f23b"
+   },
+   {
+    "file": "HRT_floor_control.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Supplementary/HRT_floor_control.pdf",
+    "sha256": "cbaaa81e3d8a774cf14acd2fdf51b5651802396f30cb5103dbfc421e71144169"
+   }
+  ],
+  "E2_validation": [
+   {
+    "file": "P1_parity_results.csv",
+    "source": "Paradigm 2 Pipeline/Code/Validation/P1_parity_results.csv",
+    "sha256": "f02a8a50d285c74e440da7f14a8984969b32ae79fd472f10477c127e774da206"
+   },
+   {
+    "file": "bayesian_recovery_P2_cells.csv",
+    "source": "Paradigm 2 Pipeline/Code/Validation/bayesian_recovery_P2_cells.csv",
+    "sha256": "fa6ab144df8ac0abd1652931f32c1a0e8edc6e79890055650d75d3984a28ab69"
+   },
+   {
+    "file": "bayesian_recovery_P2_summary.csv",
+    "source": "Paradigm 2 Pipeline/Code/Validation/bayesian_recovery_P2_summary.csv",
+    "sha256": "cda3c6bc1d21fd2b882e0328b77d2fb466edff2c6d369209b5b5b290b180f800"
+   },
+   {
+    "file": "verify_claims_report.csv",
+    "source": "Paradigm 2 Pipeline/Code/Validation/verify_claims_report.csv",
+    "sha256": "f5aae050ba3b5b139aaeb43ff008084d2f123d9f6c33acd4b6c241f067ae0b25"
+   }
+  ],
+  "E1_later": [
+   {
+    "file": "LATER_fits.csv",
+    "source": "Deprecated Pipelines/LATER/Experiment 1/LATER_fits.csv",
+    "sha256": "f204732b2055c389943848f4d12cb3b3791916f50adb7842146cfb6357d31031"
+   },
+   {
+    "file": "LATER_reciprobit.png",
+    "source": "Deprecated Pipelines/LATER/Experiment 1/LATER_reciprobit.png",
+    "sha256": "475caad36faafbc0718070148c17770897e7b0b3810db49b193f32cf23b29a26"
+   },
+   {
+    "file": "LATER_reciprobit.pdf",
+    "source": "Deprecated Pipelines/LATER/Experiment 1/LATER_reciprobit.pdf",
+    "sha256": "58a280dc2096c2729ff5750be24168e5149b0614a5f864bcc17c1cab5c625cd9"
+   }
+  ],
+  "E2_later": [
+   {
+    "file": "LATER_fits.csv",
+    "source": "Deprecated Pipelines/LATER/Experiment 2/LATER_fits.csv",
+    "sha256": "9e3e21ba5bc90cf32d047372766ef7eccfbb938594135d7f8d7ce6788f99bcdc"
+   },
+   {
+    "file": "LATER_reciprobit.png",
+    "source": "Deprecated Pipelines/LATER/Experiment 2/LATER_reciprobit.png",
+    "sha256": "10c4f629001604f4b1cfe7d69078c507e3f37620783af8bbde696ce09a04bf06"
+   },
+   {
+    "file": "LATER_reciprobit.pdf",
+    "source": "Deprecated Pipelines/LATER/Experiment 2/LATER_reciprobit.pdf",
+    "sha256": "fe038a81036491b45c61be7b9630a2d599c2c381e6b58fffffe283605e20309f"
+   }
+  ],
+  "E1_two_boundary": [
+   {
+    "file": "Bayesian2B_hand_cells.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/Bayesian2B_hand_cells.csv",
+    "sha256": "263af77416833b61b100bd972f5e85f0f6a5a9399d618a82624f74efcc5c6f68"
+   },
+   {
+    "file": "Bayesian2B_hand_compare.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/Bayesian2B_hand_compare.csv",
+    "sha256": "08facdf76f92bb82abb37f5102908bf4a9fc00c8085e5d379d3366a5709a2bfe"
+   },
+   {
+    "file": "Bayesian2B_hand_gof.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/Bayesian2B_hand_gof.csv",
+    "sha256": "148e887237c54c462fdfb36b2c203ff5b3f7f1e27cd907f47615cfc9974955bb"
+   },
+   {
+    "file": "Bayesian2B_hand_group.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/Bayesian2B_hand_group.csv",
+    "sha256": "3d3ddfdb169cc680389cc16fac98bb7dda2ff6403bf019bd1a0fde5fe53d5f07"
+   },
+   {
+    "file": "fit_sv_all.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/fit_sv_all.csv",
+    "sha256": "93296066da7327cbd0d60cb7b00b376826ed0478049fcf61a8e3fae4c4ec3e8c"
+   },
+   {
+    "file": "leadlag_prediction.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/leadlag_prediction.csv",
+    "sha256": "ed9d783e0d41dcf51810d8b9b18b5adf634cabb1071e32b8cc20adedbf24b227"
+   },
+   {
+    "file": "loglik_decomposition.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/loglik_decomposition.csv",
+    "sha256": "6cf2bbb5e6362d1a3504dd15a3842a1e02139107fc41d2b1e703095dc21fa387"
+   },
+   {
+    "file": "model_headtohead.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/model_headtohead.csv",
+    "sha256": "f18e1f38c0e1936316bf33f50372ee93d01b0f6451c9fe1f16baade30d8f0e65"
+   },
+   {
+    "file": "real_2b_mle.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/real_2b_mle.csv",
+    "sha256": "ad44666918a844b62ac70433ca85d04e47c64814569af4094b59f4790d0bec30"
+   },
+   {
+    "file": "t0_decomposition.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/t0_decomposition.csv",
+    "sha256": "aa1a054f5505878866e57ec285087dfbed8f811762eb6f06c31078b876b26f63"
+   },
+   {
+    "file": "t0_recovery.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/t0_recovery.csv",
+    "sha256": "5ef037db54db0f36a9c6689ca5809a4daacd6cfb795e21d33b2e73e2dda45570"
+   },
+   {
+    "file": "two_boundary_readiness_hand.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/two_boundary_readiness_hand.csv",
+    "sha256": "7c82714b0786216adc934ac2d8ce7e205eb8acbff5350027ab7c0832e03889e7"
+   },
+   {
+    "file": "validity_check.csv",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/validity_check.csv",
+    "sha256": "b3fd9ba52eeaca44850d5b44ba9aedc9de1525ca60d434b33cd02b13bc04aaa7"
+   },
+   {
+    "file": "two_boundary_readiness_hand.png",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/two_boundary_readiness_hand.png",
+    "sha256": "0fbcf400946010578344b3b596b2fc9b85d835bab850e2ffde771c51e711d38f"
+   },
+   {
+    "file": "two_boundary_verdict.png",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/two_boundary_verdict.png",
+    "sha256": "1cd6687c2965bbc3aeb71f74660fcb61de6527a87d5e8adb56bcc3b0b3306182"
+   },
+   {
+    "file": "two_boundary_readiness_hand.pdf",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/two_boundary_readiness_hand.pdf",
+    "sha256": "ade3501e012490b6cd44f17b05f3264b1fdb3f7939e47f7376efbf8974366151"
+   },
+   {
+    "file": "two_boundary_verdict.pdf",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/two_boundary_verdict.pdf",
+    "sha256": "6be7fd69fdb02604dd57d03921f67dab8987028b9373e176673e2be534bb48b2"
+   }
+  ],
+  "compare": [
+   {
+    "file": "P1_vs_P2_NDT_bayesian.png",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_NDT_bayesian.png",
+    "sha256": "b7968874fb063fe3aad01d387e12587a0f4907de7cdc74bc80f7f23f52fa9b7b"
+   },
+   {
+    "file": "P1_vs_P2_NDT_bayesian_overlay.png",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_NDT_bayesian_overlay.png",
+    "sha256": "2bbfc6947b9029923ffd3148e97465d3e795564daf435cf492aa0e0914ce8f2d"
+   },
+   {
+    "file": "P1_vs_P2_NDT_methodA.png",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_NDT_methodA.png",
+    "sha256": "b36411cad95b89e46a99c13ff49663d96e9d25f463eb690510131e6107f5eeab"
+   },
+   {
+    "file": "P1_vs_P2_distributions.png",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_distributions.png",
+    "sha256": "536f5f21aed2ef012e008938613a634f1d69e02758ac09b2e3ebce1415c50a9f"
+   },
+   {
+    "file": "P1_vs_P2_eye_hand_lag.png",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_eye_hand_lag.png",
+    "sha256": "4d81745cbeac21271f2a88ee75e3db79a640ac8c1f4f25509e7dfd3be778b4a7"
+   },
+   {
+    "file": "P1_vs_P2_hand.png",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_hand.png",
+    "sha256": "0c9064f752cf7b387e8d07e0eb56607a99864afe376d4170f793dfebadd34d4b"
+   },
+   {
+    "file": "P1_vs_P2_saccade.png",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_saccade.png",
+    "sha256": "0cc8ae6b151ec6b53c21f6be5cccf3fb3d1d1495dc298684e04678392a5a214c"
+   },
+   {
+    "file": "P1_vs_P2_NDT_bayesian.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_NDT_bayesian.pdf",
+    "sha256": "9c0ae78545def3bce1410f3f0494bf8b0c3992bc46611e5bb4373b0e0311ac52"
+   },
+   {
+    "file": "P1_vs_P2_NDT_bayesian_overlay.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_NDT_bayesian_overlay.pdf",
+    "sha256": "a5928f315924a74aa1256fd3835350a04f48e4d0f6e3d64c7d1be9ce3065b841"
+   },
+   {
+    "file": "P1_vs_P2_NDT_methodA.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_NDT_methodA.pdf",
+    "sha256": "45ee9f4a24d4155ebf26915840cd353a2571c66b5ef28a17d699cd44866134fe"
+   },
+   {
+    "file": "P1_vs_P2_distributions.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_distributions.pdf",
+    "sha256": "bab03b95e222dd603ed1379a2c8771f53216879847fe7af2e7d4b215c5508360"
+   },
+   {
+    "file": "P1_vs_P2_eye_hand_lag.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_eye_hand_lag.pdf",
+    "sha256": "965c0bb5cd5f9979fdaadfe1eee9a809188a38f6412cf5dd8a8f970991856b34"
+   },
+   {
+    "file": "P1_vs_P2_hand.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_hand.pdf",
+    "sha256": "5b9459568a0c2d6081a3530c2d5cd0e278cba67a309f16d3769acd5375dddf3f"
+   },
+   {
+    "file": "P1_vs_P2_saccade.pdf",
+    "source": "Paradigm 2 Pipeline/Figures/Comparison/P1_vs_P2_saccade.pdf",
+    "sha256": "383545139ae26daf96646dae520cf36daaa020fbb9dff2301be508f2fbed1b6e"
+   },
+   {
+    "file": "Experiment1_hand_NDT_Bayesian.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/Experiment1_hand_NDT_Bayesian.csv",
+    "sha256": "98edd77fe5fde26d2e55f3bce21d61e228ec15932e26ace5009ef365764d6db4"
+   },
+   {
+    "file": "Experiment2_hand_NDT_Bayesian.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/Experiment2_hand_NDT_Bayesian.csv",
+    "sha256": "5bdf5bb153517bc033ae8ad0a79114cc2c947d6791c15b837628ef56e174e87a"
+   },
+   {
+    "file": "Hand_NDT_Exp1_vs_Exp2_side_by_side.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/Hand_NDT_Exp1_vs_Exp2_side_by_side.csv",
+    "sha256": "86e6411362841a4ac8bfcc98877ad2a17155e9c1406197446e6dfb755c185069"
+   },
+   {
+    "file": "P1_SRT_identifiability_rerun.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/P1_SRT_identifiability_rerun.csv",
+    "sha256": "434160db482cde7f95d10f840a9b07c3db6001a4c1e18ffe428ea1e629f2fd29"
+   },
+   {
+    "file": "P1_floor_sweep_rerun.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/P1_floor_sweep_rerun.csv",
+    "sha256": "845c2708a5776b32d3849b8eabe6bb524c6e7c7554a0bb3a6ae3c4d092504cf6"
+   },
+   {
+    "file": "P1_vs_P2_summary.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/P1_vs_P2_summary.csv",
+    "sha256": "d22ebfba5b2444eb7a21294b5f7d406756c2e7418891323d6745760305730e98"
+   },
+   {
+    "file": "Saccade_NDT_Exp1_vs_Exp2_side_by_side.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/Saccade_NDT_Exp1_vs_Exp2_side_by_side.csv",
+    "sha256": "5a25813aed824b3f7fea589ae6ad6c68d031633c82a23bbd0b3e7550ffe2248f"
+   },
+   {
+    "file": "Saccade_NDT_participant_level_Exp1_vs_Exp2.csv",
+    "source": "Paradigm 2 Pipeline/Code/Comparison/Saccade_NDT_participant_level_Exp1_vs_Exp2.csv",
+    "sha256": "c92f91766fd444639c49ae2d5d31f278b2e1f3dc996d9dc2666abfe72b242ce4"
+   }
+  ],
+  "E1_docs": [
+   {
+    "file": "Figure_Corrections.md",
+    "source": "Current Pipeline/Documents/Figure_Corrections.md",
+    "sha256": "73daa234c2939743e4329ee384f8de2265fc33f6a18cd071fc7bbdf74a55ee24"
+   },
+   {
+    "file": "RUN_GUIDE.md",
+    "source": "Current Pipeline/Documents/RUN_GUIDE.md",
+    "sha256": "21d9ce6430adec4c07c6251d5ff282c5a70b1d2fd028d70330ce3cb141958a2a"
+   },
+   {
+    "file": "SNL_RT_Research_Technical_Breakdown.md",
+    "source": "Current Pipeline/Documents/SNL_RT_Research_Technical_Breakdown.md",
+    "sha256": "9ebf1621f78d8dde4ebe3c02c34b0dce1a86d96abb748a98f78f31f56b347e73"
+   },
+   {
+    "file": "Kinarm_DDM_parameter_justification.pdf",
+    "source": "Current Pipeline/Documents/Kinarm_DDM_parameter_justification.pdf",
+    "sha256": "6ea916ed8c212ad365a572f9de5c6a0340b7346fe7d41867ea10001eeb98452c"
+   },
+   {
+    "file": "Kinarm_DDM_parameter_support_matrix.pdf",
+    "source": "Current Pipeline/Documents/Kinarm_DDM_parameter_support_matrix.pdf",
+    "sha256": "d1ce3b38944e141ebe4e86620867b19822ef6b2967500f5ac5c39740cea6721f"
+   },
+   {
+    "file": "Kinarm_DDM_report.pdf",
+    "source": "Current Pipeline/Documents/Kinarm_DDM_report.pdf",
+    "sha256": "5b51e96ceaa6b7356a3247f169f03cb8d1bb5d907402c8951f52a0ac23b947ee"
+   },
+   {
+    "file": "SNL_RT_Research_Technical_Breakdown.pdf",
+    "source": "Current Pipeline/Documents/SNL_RT_Research_Technical_Breakdown.pdf",
+    "sha256": "95ff44abb247cd0731d104626397cb713423ef046a1ea9d2048b5824e4556131"
+   }
+  ],
+  "E2_docs": [
+   {
+    "file": "FIGURE_GUIDE.md",
+    "source": "Paradigm 2 Pipeline/Documents/FIGURE_GUIDE.md",
+    "sha256": "823851990e4681caf6e6fda10e2b584b1f91710be70ce89c28d7c29d9f8a7597"
+   },
+   {
+    "file": "P2_Results_and_P1_Comparison.md",
+    "source": "Paradigm 2 Pipeline/Documents/P2_Results_and_P1_Comparison.md",
+    "sha256": "55dcc15e41e62a9e1daee3bb32fc53caa6ae8a52c0598f2f9eb2ed0fb17f5780"
+   },
+   {
+    "file": "P2_Technical_Breakdown.md",
+    "source": "Paradigm 2 Pipeline/Documents/P2_Technical_Breakdown.md",
+    "sha256": "09ffc7f9a35c493a56b9fb8c5623211347b4407a25e4459305aee7919d9c559c"
+   },
+   {
+    "file": "RUN_GUIDE_P2.md",
+    "source": "Paradigm 2 Pipeline/Documents/RUN_GUIDE_P2.md",
+    "sha256": "d76745b5632e2099d65402790ea89abef663dacea1ca8614dd4e5b74b2109cda"
+   },
+   {
+    "file": "VERIFICATION_REPORT_P2.md",
+    "source": "Paradigm 2 Pipeline/Documents/VERIFICATION_REPORT_P2.md",
+    "sha256": "d87db868f4b15f9e935e984830db162ae1998da9385bf7466c15943acda19027"
+   }
+  ],
+  "repo_docs": [
+   {
+    "file": "README.md",
+    "source": "README.md",
+    "sha256": "69d7525c1dfdea5c96f7dc843aafb0a22a8a3316b70bd0614549583284e60e97"
+   },
+   {
+    "file": "CHANGELOG.md",
+    "source": "CHANGELOG.md",
+    "sha256": "6ad768d1f0e08d5b93bd485c6b52153e5b86478acd484f54f3d6e95180166a71"
+   },
+   {
+    "file": "DEVELOPMENT_HISTORY.md",
+    "source": "DEVELOPMENT_HISTORY.md",
+    "sha256": "aa1cb38d72f8f0deaa597feb9d1ef878cbb40a8aaa058f6c1d541623892f5a03"
+   },
+   {
+    "file": "FIGURE_EXPLANATIONS.md",
+    "source": "kinarm-rt-app/FIGURE_EXPLANATIONS.md",
+    "sha256": "5e200b7bcd44189563cb41402bc693e0600b5caac8231f455baa5b71c1550da2"
+   }
+  ],
+  "deprecated_docs": [
+   {
+    "file": "LATER_README.md",
+    "source": "Deprecated Pipelines/LATER/README.md",
+    "sha256": "851fc7d29f325e870f1d0f6082a0acc12a7b4822d095c16f235e32f2397b1450"
+   },
+   {
+    "file": "Two-boundary_README.md",
+    "source": "Deprecated Pipelines/Two-boundary DDM/README.md",
+    "sha256": "270e26f2c731aa5a523ed6d3d7e1a0cd90a8841f3071c0c6f93d63a827a95d3a"
+   },
+   {
+    "file": "VERDICT_two_boundary_vs_single.md",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/results/VERDICT_two_boundary_vs_single.md",
+    "sha256": "167b450b3250e4fa6acee3d7430aa9f80892956f2211bfb30fe88481ced7b09b"
+   },
+   {
+    "file": "README_TWO_BOUNDARY.md",
+    "source": "Deprecated Pipelines/Two-boundary DDM/Experiment 1/code/README_TWO_BOUNDARY.md",
+    "sha256": "465cff31809e406d003ced1885a4201f275f3acf721ea9717f3104276218c65f"
+   }
+  ],
+  "E1_archive": [
+   {
+    "file": "v1__dual_choice_ddm_extended.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 1/dual_choice_ddm_extended.csv",
+    "sha256": "4402059eaf353a62e8acbd26992b19d78347abba8f4c9a0bd490d41c91562b51"
+   },
+   {
+    "file": "v1__single_choice_ddm_extended.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 1/single_choice_ddm_extended.csv",
+    "sha256": "4e196b6c2fbacb7e38d5f2fe0a313f7440f8ce259899151ce7bfeaac05e66527"
+   },
+   {
+    "file": "v2__ddm_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/HRT/ddm_0_degs.pdf",
+    "sha256": "86c709340b788a69c638709f1178367b52bb820e9884bb9189dcc3deffaad260"
+   },
+   {
+    "file": "v2__ddm_150_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/HRT/ddm_150_degs.pdf",
+    "sha256": "ecf5f3bb66a3342a1f11a5a3cdf524f7690e60f3cc359d72530cd4d44a5da9b8"
+   },
+   {
+    "file": "v2__ddm_75_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/HRT/ddm_75_degs.pdf",
+    "sha256": "1f6cf6010aae116ae10d7cdfcf2dd0a853cb9377a57ef9fc18af76b1f291e406"
+   },
+   {
+    "file": "v2__after_a.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/PyDDM/after_a.png",
+    "sha256": "6f1154e0fce6a4d6a21158e4be276d5d704a06f6783c8339d905f67155b26510"
+   },
+   {
+    "file": "v2__after_b.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/PyDDM/after_b.png",
+    "sha256": "685197347a58613499c40a200ce1003a2e98ee4cbfeeb19405143220c2797d56"
+   },
+   {
+    "file": "v2__after_c.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/PyDDM/after_c.png",
+    "sha256": "df06bb48bd3abe1675aaab8661b9318171d6654df0740839d76539931b4c6fc4"
+   },
+   {
+    "file": "v2__before.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/PyDDM/before.png",
+    "sha256": "babf07d7ef41850b7753bb4f93210e4756d9aede7b20c13f66ab2adb65911701"
+   },
+   {
+    "file": "v2__DDM-Model-Deprecated-SRT__ddm_srt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/SRT/ddm_srt_0_degs.pdf",
+    "sha256": "137573a8739af4b8dba6347aa0545d0e4ef721d318a77582b0060783686378ad"
+   },
+   {
+    "file": "v2__DDM-Model-Deprecated-SRT__ddm_srt_150_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/SRT/ddm_srt_150_degs.pdf",
+    "sha256": "653404e1ab1bdcec29b0a0ffb33ca20442557dd79aab835ba5a0948efca7afbf"
+   },
+   {
+    "file": "v2__DDM-Model-Deprecated-SRT__ddm_srt_75_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/SRT/ddm_srt_75_degs.pdf",
+    "sha256": "061b227ff14610cfc535dc16debe1be4b9a5195fa92590c0d8119d0ca4bb424b"
+   },
+   {
+    "file": "v2__ddm_hrt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/ddm_hrt_0_degs.pdf",
+    "sha256": "61d56ee300a99381640d1520cf36c4fcc4e60dd656ba1be78ae1fb994f904f9b"
+   },
+   {
+    "file": "v2__ddm_hrt_150_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/ddm_hrt_150_degs.pdf",
+    "sha256": "fb38565f083a759042fe760e0428b985dac953f896ac484504f0839be2660b5d"
+   },
+   {
+    "file": "v2__ddm_hrt_75_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/ddm_hrt_75_degs.pdf",
+    "sha256": "76a021da451e3aa90fe6a4b402871aaa68e310d4dd539e3777da2502be99e68b"
+   },
+   {
+    "file": "v2__DDM-Model-Deprecated__ddm_srt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/ddm_srt_0_degs.pdf",
+    "sha256": "000d08d61448c866ccd446bcf8f28629c280d1dfc5e90b75031868b97c1503a9"
+   },
+   {
+    "file": "v2__DDM-Model-Deprecated__ddm_srt_150_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/ddm_srt_150_degs.pdf",
+    "sha256": "8be812070bdc9fb65efa86af870263c3a03e8152302d37e0ff97285d64fcdb8f"
+   },
+   {
+    "file": "v2__DDM-Model-Deprecated__ddm_srt_75_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/ddm_srt_75_degs.pdf",
+    "sha256": "757a8fec04e55b233d02d85347564e98878230124a8a7b3fd3bacc40d2163d5e"
+   },
+   {
+    "file": "v2__DDM_hrt_fits.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/DDM_hrt_fits.csv",
+    "sha256": "c6a6f7a5ddacd7dbb95506bd0da69b5bf74c8d12e70f9a855e9a994867eab46f"
+   },
+   {
+    "file": "v2__DDM_srt_fits.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/DDM_srt_fits.csv",
+    "sha256": "22e67cfe3749c2d9bdc08cec0b0771664bbf58256de6bdccd18b48afe9a7fb7e"
+   },
+   {
+    "file": "v2__DDM_summary.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/DDM_summary.pdf",
+    "sha256": "51cc82dec8e5dac3914f47fa8b13b49afb0d5819b9766e30df46a060b8479c4f"
+   },
+   {
+    "file": "v2__DDM_summary.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/DDM_summary.png",
+    "sha256": "9573b3cbd94157b5c32ce76e9944873ab1b610fcbac2c17c206dcb76c894535a"
+   },
+   {
+    "file": "v2__ndt_barchart.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/ndt_barchart.pdf",
+    "sha256": "55a5bc982a07d70f38f70949410bd8b2bd0566065eb614e9bf9fe842c3c02434"
+   },
+   {
+    "file": "v2__vincentile_results_fig1_kde_overlay.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/vincentile_results_fig1_kde_overlay.pdf",
+    "sha256": "058de651875a87db2f8512c32005027e08e991a37df167cea47af0c06aa64724"
+   },
+   {
+    "file": "v2__vincentile_results_fig2_histograms.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/vincentile_results_fig2_histograms.pdf",
+    "sha256": "b6b66d8d3c8b25b03a9c0252bec0cff8faff51a40f13b8535958fe5f524c5423"
+   },
+   {
+    "file": "v2__vincentile_results_fig3_vincentile_by_speed.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/vincentile_results_fig3_vincentile_by_speed.pdf",
+    "sha256": "95c678bf944aa9bfef1b79128faa57d9c16ad82769b2f6c681b67fcf5b5fd3d1"
+   },
+   {
+    "file": "v2__vincentile_results_fig4_combined_vincentile.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/Deprecated Figures/vincentile_results_fig4_combined_vincentile.pdf",
+    "sha256": "4243e703e1b33cb828d90d1a4ba436d14bfbf3089210cc7e67b7f019abc2f7ce"
+   },
+   {
+    "file": "v2_5__Bayesian_hrt_fits.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/Bayesian/Bayesian_hrt_fits.csv",
+    "sha256": "b1016c10680275b07dffde1779939a8bde4bcd1a1a79247c07b350c8d5d3a434"
+   },
+   {
+    "file": "v2_5__Bayesian_hrt_ndt.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/Bayesian/Bayesian_hrt_ndt.csv",
+    "sha256": "599194071c6fbe1dd18088ac50654677d225a04027a5add7e7d672624d74dbd9"
+   },
+   {
+    "file": "v2_5__Bayesian_srt_fits.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/Bayesian/Bayesian_srt_fits.csv",
+    "sha256": "2e2545bc96dc67d7e8bbf1a5bb611903bea73c684f6ff3e2277c5c3a99369f71"
+   },
+   {
+    "file": "v2_5__Bayesian_srt_ndt.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/Bayesian/Bayesian_srt_ndt.csv",
+    "sha256": "6c4c0848d78f9802f3c0bd276ef91a73680f411c9e8e9076513cbb2e9511faef"
+   },
+   {
+    "file": "v2_5__Bayesian_srt_ndt_cells.csv",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/Bayesian/Bayesian_srt_ndt_cells.csv",
+    "sha256": "21c369470f8a69777bad96abc7c90f1400c9c47186a5bfc0e4f1195883286e62"
+   },
+   {
+    "file": "v2_5__Bayesian_srt_ndt.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/Bayesian_srt_ndt.pdf",
+    "sha256": "38118a41b674143624b7dfde12697176c94fb2915c133f3ff7fa350f14d5146f"
+   },
+   {
+    "file": "v2_5__Bayesian_srt_ndt.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/Bayesian_srt_ndt.png",
+    "sha256": "4aecfebc867cc29e6707e05c88eb492a76682cd8672cdff4b4073b399c143cd5"
+   },
+   {
+    "file": "v2_5__Bayesian_summary.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/Bayesian_summary.pdf",
+    "sha256": "085938c0ab7326da0c502963ee6ee760dc8bd7349d50d5c6a760fd7eeeca607e"
+   },
+   {
+    "file": "v2_5__Bayesian_summary.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/Bayesian_summary.png",
+    "sha256": "0f9f32c81b6760382bd8db9534eb0b3312d39bc3af478d7bf703eae3d6232c79"
+   },
+   {
+    "file": "v2_5__bayes_hrt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_hrt_0_degs.pdf",
+    "sha256": "3be787eaaa411a2e2e73bc1b0f551b6195351fa720ad4039901eda08789b457b"
+   },
+   {
+    "file": "v2_5__bayes_hrt_0_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_hrt_0_degs.png",
+    "sha256": "e5e201054ccd22d882c81efb8675d765eaf483cbfdabe72c24f2d94d04a84387"
+   },
+   {
+    "file": "v2_5__bayes_hrt_150_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_hrt_150_degs.pdf",
+    "sha256": "1f79c39429869f939702a06974d17572e503a785d10f73f1ba79151187336676"
+   },
+   {
+    "file": "v2_5__bayes_hrt_150_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_hrt_150_degs.png",
+    "sha256": "2a7b3f68b197e55097be45cb43cffcbbc37c26f84a6e178ceffff87ccf2c51ae"
+   },
+   {
+    "file": "v2_5__bayes_hrt_75_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_hrt_75_degs.pdf",
+    "sha256": "037ca8d5767d39c509e74544582422c676128d5bb416d9d50a52d668fd67b7ba"
+   },
+   {
+    "file": "v2_5__bayes_hrt_75_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_hrt_75_degs.png",
+    "sha256": "bf7121d4a939af068a817c2df8d8503744fc98c3666202b840c82e001ef69007"
+   },
+   {
+    "file": "v2_5__bayes_srt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_srt_0_degs.pdf",
+    "sha256": "1e1624fd6d17cc2d436d2a12b7d3f0b5ce6fac4405888f40cd50e62bd82f7ac9"
+   },
+   {
+    "file": "v2_5__bayes_srt_0_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_srt_0_degs.png",
+    "sha256": "a17af0bddbe93fdd8de409f7ccefd7c4881e4dd84c90a60a0870c3679aa5afc0"
+   },
+   {
+    "file": "v2_5__DDM_summary.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/DDM_summary.pdf",
+    "sha256": "ceced24d71e3817b97bb59e6576df86688247e86584549628dbbec824cff97a0"
+   },
+   {
+    "file": "v2_5__DDM_summary.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/DDM_summary.png",
+    "sha256": "90ac6599e6e5c8d52248417b25d83ef5b4fd03f678c30a3061910bc847fb5901"
+   },
+   {
+    "file": "v2_5__ddm_hrt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_hrt_0_degs.pdf",
+    "sha256": "9c2ae985696c73a93c23ced2c7facc4220cadffc8ba18ca35b7d8af7ccf01682"
+   },
+   {
+    "file": "v2_5__ddm_hrt_0_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_hrt_0_degs.png",
+    "sha256": "08f6a1b8996aab747b86475cb7731991e2b895cc2ac70e6cae1246a700d8ad7e"
+   },
+   {
+    "file": "v2_5__ddm_hrt_150_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_hrt_150_degs.pdf",
+    "sha256": "9c541640caa065e4fc31b1731390232391e0472e438632039984919ce77733a9"
+   },
+   {
+    "file": "v2_5__ddm_hrt_150_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_hrt_150_degs.png",
+    "sha256": "0d565f1c76adf66c77b89b163893cb4e2a1bba2c7aca8b731c32823b985111f8"
+   },
+   {
+    "file": "v2_5__ddm_hrt_75_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_hrt_75_degs.pdf",
+    "sha256": "65f482676a21f06b35dc1183b71809aadfa6a74cbe763cd6c34ecc7e005bc8f1"
+   },
+   {
+    "file": "v2_5__ddm_hrt_75_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_hrt_75_degs.png",
+    "sha256": "e9aa8d38c95a53fa11390e0f2c2a3570d5538c79880252fb7547145bcbbf63f9"
+   },
+   {
+    "file": "v2_5__ddm_srt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_srt_0_degs.pdf",
+    "sha256": "42545732fc92abe6fc1beb94869cb5f796d5edebbaa796e9ca895fae1be0a49e"
+   },
+   {
+    "file": "v2_5__ddm_srt_0_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_srt_0_degs.png",
+    "sha256": "21f95b4333a9114a9766d645779075596a1d8f1ed45b932e60b1b134b7e236b1"
+   },
+   {
+    "file": "v2_5__NDT_barchart.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/NDT/NDT_barchart.pdf",
+    "sha256": "5bcc64f01e31626d5d5010c54843a9d934226e9fc1252d93df8575c760990e92"
+   },
+   {
+    "file": "v2_5__NDT_barchart.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/NDT/NDT_barchart.png",
+    "sha256": "953b5d466ba857574f99676cdd5d2fb4281cd4153088cfd2f74114be21d8335d"
+   },
+   {
+    "file": "v2_5__NDT_barchart_bayesian.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/NDT/NDT_barchart_bayesian.pdf",
+    "sha256": "9c50f37ec71ebe6b10ddadac0b54acc3203fc6a0863aacc5420dfc5497b49348"
+   },
+   {
+    "file": "v2_5__NDT_barchart_bayesian.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/NDT/NDT_barchart_bayesian.png",
+    "sha256": "5ae1afabf90f8c5654c929e21063892932eea584f6ac21c291e6b827c22b185f"
+   },
+   {
+    "file": "v3__Bayesian_srt_ndt.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/Bayesian_srt_ndt.pdf",
+    "sha256": "4685e12d88edaaf2259b49ccc651831e11b4683ee35dfa88d6de40c91eb4d977"
+   },
+   {
+    "file": "v3__Bayesian_srt_ndt.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/Bayesian_srt_ndt.png",
+    "sha256": "4e72a54c5010b4bc2da1d13dc3e68b50f043860cdca7554f926e5b50a867d6a7"
+   },
+   {
+    "file": "v3__Bayesian_summary.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/Bayesian_summary.pdf",
+    "sha256": "aef0356c4c579a1261302c4bf8f28b7ee661a484fe784f709fc321581c98052c"
+   },
+   {
+    "file": "v3__Bayesian_summary.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/Bayesian_summary.png",
+    "sha256": "1bc8507fce6b3b6a6d41394a126494750957ae64dc78731660a4508de9828f70"
+   },
+   {
+    "file": "v3__DDM_summary.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/DDM_summary.pdf",
+    "sha256": "6278c51036fb2a5ef4c54375c1f897d6a8ef8bcbcedd71347305f9722816e3d0"
+   },
+   {
+    "file": "v3__DDM_summary.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/DDM_summary.png",
+    "sha256": "31f53505c1bc76d6b6b4fdc0c7df1c31f399f57a7004f1917b821881e9da4a95"
+   },
+   {
+    "file": "v3__ddm_srt_0_degs.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_srt_0_degs.pdf",
+    "sha256": "657803020b3a96a00c79dfad0597d32f0d51eba2cedb4eb8ca8a832c9308c075"
+   },
+   {
+    "file": "v3__ddm_srt_0_degs.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_srt_0_degs.png",
+    "sha256": "333a360be229c21d4988c233ef9e90fe804f6e035b9206ca570da2d49a146f7b"
+   },
+   {
+    "file": "v3__NDT_barchart_bayesian.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/NDT/NDT_barchart_bayesian.pdf",
+    "sha256": "e7ebf70bedbd0842a6faa8a73d9c8afd5b115c3f21b95affc197b034b45d3985"
+   },
+   {
+    "file": "v3__NDT_barchart_bayesian.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/NDT/NDT_barchart_bayesian.png",
+    "sha256": "cc66c280c893b2d68e6d44d542f25b7bc198e068d32252f317f8b0a4cbfe199a"
+   },
+   {
+    "file": "v3__SRT_fixedt0_sensitivity.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/SRT Analysis/SRT_fixedt0_sensitivity.pdf",
+    "sha256": "3947039796dfa1c1ec1955098d368ee8962232a8bf5cc08c5ef11185c48c2155"
+   },
+   {
+    "file": "v3__SRT_fixedt0_sensitivity.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/SRT Analysis/SRT_fixedt0_sensitivity.png",
+    "sha256": "39b9c0a68bea63cdfdadfab5ff612ed8322484558230d98773607e92b4d58bca"
+   },
+   {
+    "file": "v3__SRT_identifiability.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/SRT Analysis/SRT_identifiability.pdf",
+    "sha256": "6d54ff9bfcf570cf4d2950811727aecb76cbb38211124a57d040cab8f4f2b6f8"
+   },
+   {
+    "file": "v3__SRT_identifiability.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/SRT Analysis/SRT_identifiability.png",
+    "sha256": "39adc1d74141b1b20a71a4b8cc34f888452e27e02389080aebf0bb145a3fe479"
+   },
+   {
+    "file": "v3__why_saccadic_t0_floors.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/SRT Analysis/why_saccadic_t0_floors.pdf",
+    "sha256": "9993af39f6e5fd996fb9effafccd5603cedc10cd12c0822d50ca455f1f9cc218"
+   },
+   {
+    "file": "v3__why_saccadic_t0_floors.png",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/SRT Analysis/why_saccadic_t0_floors.png",
+    "sha256": "cb3f9e4f46eaa8265171a17ecc22a22f97feb1d752e62da1e2b3e5cb0ef29de3"
+   },
+   {
+    "file": "wi__SNL-RT-Research-2__v1_parity_results.csv",
+    "source": "Working Iterations/SNL RT Research 2/v1_parity_results.csv",
+    "sha256": "9bc1d6c9c2dab2d0e602d5cac1010fa951ff54240fa2b57bda91485d434ee67f"
+   },
+   {
+    "file": "wi__SNL-RT-Research-2__v2_ks_calibration.csv",
+    "source": "Working Iterations/SNL RT Research 2/v2_ks_calibration.csv",
+    "sha256": "5452afaacc41f6328ceea0c12bfbc2024e0587d062a340bb38ab8b802ef2b8a7"
+   },
+   {
+    "file": "wi__SNL-RT-Research-2__v3_floor_control.csv",
+    "source": "Working Iterations/SNL RT Research 2/v3_floor_control.csv",
+    "sha256": "80a985e6e84ae2d51152b9a6dd266f86844a1c7c67c8e352766bbaf7d8952777"
+   },
+   {
+    "file": "wi__SNL-RT-Research-2__v3_mode_vs_mean.csv",
+    "source": "Working Iterations/SNL RT Research 2/v3_mode_vs_mean.csv",
+    "sha256": "c9d426c8e43c0d629a55c029cfff1c213e9facf5ec009dd5cb8fef4db8721292"
+   },
+   {
+    "file": "wi__SNL-RT-Research-2__v4_profile_intervals.csv",
+    "source": "Working Iterations/SNL RT Research 2/v4_profile_intervals.csv",
+    "sha256": "7e9a52452b92b97f18f3c08c1de3d612183694a6aea8b0daca83716f60dbb5a7"
+   },
+   {
+    "file": "wi__SNL-RT-Research__v1_parity_results.csv",
+    "source": "Working Iterations/SNL RT Research/v1_parity_results.csv",
+    "sha256": "158f30549e5f7da85ff2a41a0d54603bf561971eee2985c8cdd28661383a52fc"
+   },
+   {
+    "file": "wi__SNL-RT-Research__v2_ks_calibration.csv",
+    "source": "Working Iterations/SNL RT Research/v2_ks_calibration.csv",
+    "sha256": "90645f610c515c4f1443f1f2da8c050ec898f35140efc83583f0eea06f1dd959"
+   },
+   {
+    "file": "wi__SNL-RT-Research__v3_floor_control.csv",
+    "source": "Working Iterations/SNL RT Research/v3_floor_control.csv",
+    "sha256": "611ae4d42235f4ff6fd1f99f880eb95f7b045a9bb26f7cb0a21cf04bb338f375"
+   },
+   {
+    "file": "wi__SNL-RT-Research__v4_profile_intervals.csv",
+    "source": "Working Iterations/SNL RT Research/v4_profile_intervals.csv",
+    "sha256": "7e50aa87b9f7075c107a17c109c60a4f997f42ee92e91064fec4b49799d99f53"
+   },
+   {
+    "file": "wi__Two-Boundary-Model-two-boundary-extracted-two-boundary-demo__two_boundary_readiness_hand.csv",
+    "source": "Working Iterations/Two Boundary Model/two_boundary_extracted/two_boundary/demo/two_boundary_readiness_hand.csv",
+    "sha256": "bd0763579e7bfdc0db808aa6864f7036264cd7409c76a19b5b0682eaf7c640b3"
+   },
+   {
+    "file": "wi__Two-Boundary-Model-two-boundary-extracted-two-boundary-demo__two_boundary_readiness_hand.pdf",
+    "source": "Working Iterations/Two Boundary Model/two_boundary_extracted/two_boundary/demo/two_boundary_readiness_hand.pdf",
+    "sha256": "d3775a85a984d9ce204c9a2c17253e149db2c04c3ab4056a93a7a0f32fa36e2e"
+   },
+   {
+    "file": "wi__Two-Boundary-Model-two-boundary-extracted-two-boundary-demo__two_boundary_readiness_hand.png",
+    "source": "Working Iterations/Two Boundary Model/two_boundary_extracted/two_boundary/demo/two_boundary_readiness_hand.png",
+    "sha256": "0c68ddc15d866698628903f2d7d74f6b56c9961efd075d7ccfafa3cc59887f50"
+   },
+   {
+    "file": "wi__Two-Boundary-Model-two-boundary-extracted-two-boundary__identifiability_2b_partial.csv",
+    "source": "Working Iterations/Two Boundary Model/two_boundary_extracted/two_boundary/identifiability_2b_partial.csv",
+    "sha256": "bde920802b87986dbf4feed4142ed87e3ef3dade29052e678aee6fabd81b656d"
+   }
+  ],
+  "archive_docs": [
+   {
+    "file": "v1__ISSUES_AND_IMPROVEMENTS.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 1/ISSUES_AND_IMPROVEMENTS.md",
+    "sha256": "fa6ebc3e1a885a6bb8c2a705662d21e86741f7fa433bccc8b7f8dfbffe467665"
+   },
+   {
+    "file": "v1__MIGRATION_NOTES.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 1/MIGRATION_NOTES.md",
+    "sha256": "f39f1f2990fda535d41f4c611197da15c9dcfb23aba8bf751d9ff23aba4f8dcd"
+   },
+   {
+    "file": "v1__README.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 1/README.md",
+    "sha256": "20ae3aca302f6bd3fed91cce734336a30502985213d88a481682afb7baa346a3"
+   },
+   {
+    "file": "v2__QUICK_REFERENCE.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/Extra/QUICK_REFERENCE.md",
+    "sha256": "33e76cb6e79c49cb7513a1da0d4b00bae10b6eb23fd0b1da345da5b9be65bde0"
+   },
+   {
+    "file": "v2__README.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/DDM Model/Deprecated/Extra/README.md",
+    "sha256": "4ce2951c6ddf1aeb93acf2f33c63fde6f09b671d86cdcc12b8bb41a0d0010754"
+   },
+   {
+    "file": "v2__ISSUES_AND_IMPROVEMENTS.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/ISSUES_AND_IMPROVEMENTS.md",
+    "sha256": "3fb90e61473ac97fc2cc2172d5aca29416541af39c64b2986b27806a90b81f6d"
+   },
+   {
+    "file": "v2__MIGRATION_NOTES.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 2/MIGRATION_NOTES.md",
+    "sha256": "aa4506522493027b38e692340609028991020d08369d143896c2389f8fa80ea1"
+   },
+   {
+    "file": "v2_5__ISSUES_AND_IMPROVEMENTS.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/ISSUES_AND_IMPROVEMENTS.md",
+    "sha256": "07925a2f91e8f22e7db9db770ffbe08d146369a5e4d16abb79b708efa853bca4"
+   },
+   {
+    "file": "v2_5__METHODOLOGICAL_JUSTIFICATION.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/METHODOLOGICAL_JUSTIFICATION.md",
+    "sha256": "0026ac055090be9b100f25ef2a23277b683db760811f28c819569496fd2b5f1d"
+   },
+   {
+    "file": "v2_5__RUN_GUIDE.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/RUN_GUIDE.md",
+    "sha256": "b153aa77d5426d17b92c4ee532831a38872a7cc72bdafb14f3cb0296e310aa37"
+   },
+   {
+    "file": "v3__RUN_GUIDE.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/Documents/RUN_GUIDE.md",
+    "sha256": "0b4f4510d9e192811029378021fca8fb24bb91d8a9140be707fce6d277e4344d"
+   },
+   {
+    "file": "v3__ISSUES_AND_IMPROVEMENTS.md",
+    "source": "Deprecated Pipelines/Deprecated Ver 3/ISSUES_AND_IMPROVEMENTS.md",
+    "sha256": "3c561f3278b81b4916ae5332ee8a344b5a4e11d4c10f4e4cd436cfca02ac549a"
+   },
+   {
+    "file": "wi__LATER-Model__ARCHIVED.md",
+    "source": "Working Iterations/LATER Model/ARCHIVED.md",
+    "sha256": "bf143a777b65f937c17cdb7f653a1358ee00a2c17e80115bdb4a7b4597e42f0d"
+   },
+   {
+    "file": "wi__SNL-RT-Research-2__VALIDATION_RESULTS_ADDENDUM.md",
+    "source": "Working Iterations/SNL RT Research 2/VALIDATION_RESULTS_ADDENDUM.md",
+    "sha256": "7c0dba1f5d6977acc01aebb0f7afb91c87cd0b5cebccd70a0c80a29bd2f793f8"
+   },
+   {
+    "file": "wi__SNL-RT-Research-3__POST_B200_ADDENDUM.md",
+    "source": "Working Iterations/SNL RT Research 3/POST_B200_ADDENDUM.md",
+    "sha256": "91e02e4f76a5351976629d3c54cef754b696d38a8247952d79fa84cfa5d030a3"
+   },
+   {
+    "file": "wi__SNL-RT-Research-4__PROFESSOR_MEMO.md",
+    "source": "Working Iterations/SNL RT Research 4/PROFESSOR_MEMO.md",
+    "sha256": "93edc38d71f37261ed8a0fe2362c1c90e5606ba739e2765427d8fe2f0f18a338"
+   },
+   {
+    "file": "wi__SNL-RT-Research-4__README.md",
+    "source": "Working Iterations/SNL RT Research 4/README.md",
+    "sha256": "9018d4a7e0091fae1c7b88860ce4c4127711e2d55d29d484a956cc49c9a07056"
+   },
+   {
+    "file": "wi__SNL-RT-Research__CODEBASE_AUDIT.md",
+    "source": "Working Iterations/SNL RT Research/CODEBASE_AUDIT.md",
+    "sha256": "43bbf70a7ce915f7324eab059693cd97c1d24d5f5a430d0f726d8788db11d191"
+   },
+   {
+    "file": "wi__SNL-RT-Research__VALIDATION_CHECKLIST.md",
+    "source": "Working Iterations/SNL RT Research/VALIDATION_CHECKLIST.md",
+    "sha256": "9e90050f9ec43bfd165ea588c9b4f4818764b1fa8bfa0ea1a0beab10742d374a"
+   },
+   {
+    "file": "wi__Two-Boundary-Model__ANSWERS_AND_CORRECTION.md",
+    "source": "Working Iterations/Two Boundary Model/ANSWERS_AND_CORRECTION.md",
+    "sha256": "979199cba0da868bbff9ff85198e9d71562698cb988418171f8019c997833e0d"
+   },
+   {
+    "file": "wi__Two-Boundary-Model__FINDINGS_REAL_DATA.md",
+    "source": "Working Iterations/Two Boundary Model/FINDINGS_REAL_DATA.md",
+    "sha256": "610332c957ce4e45e628aae1351896773499392bad3cb8730f2aa8ea6cfe4a02"
+   }
+  ]
+ },
+ "duplicates": [
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_srt_150_degs.pdf",
+   "sha256": "7333989c91ba78cad81c9188e0e0b0cd3cccb937fa7cfd9542f798c9b3be6f98",
+   "same_as": "bayes_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_srt_150_degs.png",
+   "sha256": "4db29681ffb7ba220eaad53de87ec5dbc5ba1569e5f5cd086cc3d9bcd9b66bcc",
+   "same_as": "bayes_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_srt_75_degs.pdf",
+   "sha256": "c392f6c339169e64c4fc06a308c3fe43001be14a60473c7f8b6991f0c4423991",
+   "same_as": "bayes_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Bayesian/bayes_srt_75_degs.png",
+   "sha256": "f209919dd1a06de7519688171ab2dad4cb63c9b06a518f39b07fa3e6fad83037",
+   "same_as": "bayes_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_srt_150_degs.pdf",
+   "sha256": "b99075fa1549c12e5494838b69cae855fbebd63ad5aea23f921b02f49a11a98c",
+   "same_as": "ddm_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_srt_150_degs.png",
+   "sha256": "974f9c59695e4340e6f63551dc4508d09fc617252173d788fba643885ab891e8",
+   "same_as": "ddm_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_srt_75_degs.pdf",
+   "sha256": "761cc03649236abff1f06b0219d749df8834f3a71bed1ede8c2ad4ae326fd40d",
+   "same_as": "ddm_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_srt_75_degs.png",
+   "sha256": "7ac17cdca204ab9f103859c767db8e4082e451cc1e27bbe1be52d18ef42645ff",
+   "same_as": "ddm_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
+   "sha256": "56cd636c2c162c74ed699a5a9629fd3015a9b0c2ad5ac3bd418d3c107c93811b",
+   "same_as": "vincentile_results_fig1_kde_overlay"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig2_histograms.pdf",
+   "sha256": "ea02c4cb880e2b5b2c6ed2c5fc73f09449ca2768ef43dcd41a2de75fdb3a007d",
+   "same_as": "vincentile_results_fig2_histograms"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
+   "sha256": "2ad896a76315e177c5f4a8fed9e5746df8c7eb9e58d2878f1bc4cbe53e462c13",
+   "same_as": "vincentile_results_fig3_vincentile_by_speed"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
+   "sha256": "50132314515b1905e4cfcc2654f9d0d32ea37a86fd1b755ab5b145c73fe60bf0",
+   "same_as": "vincentile_results_fig4_combined_vincentile"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_hrt_0_degs.pdf",
+   "sha256": "4ba519f35b25b32e0131f20a32ae9a50d816b43255a83444978857acdd4ba897",
+   "same_as": "bayes_hrt_0_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_hrt_0_degs.png",
+   "sha256": "b1e9ea68b391911d06b18a43b546f625163b4a0f49361d0ecdb4976a577bf367",
+   "same_as": "bayes_hrt_0_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_hrt_150_degs.pdf",
+   "sha256": "46c4c57d6a26f8eaf3d8369ad1640ee13049f267ceebd07aa533ec3623efa405",
+   "same_as": "bayes_hrt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_hrt_150_degs.png",
+   "sha256": "4f790d7f0c8d5209312dddb3fc408f397e2566589938f5303c3f52d3656b710f",
+   "same_as": "bayes_hrt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_hrt_75_degs.pdf",
+   "sha256": "3467940b3778b946e8e08ae8bc76804993faf8a513926ff2d89b3caefbf69def",
+   "same_as": "bayes_hrt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_hrt_75_degs.png",
+   "sha256": "4cd9fd3a9bc225a721275dcaf4c53cadc9ea72e5819d191d9ce694f04a1fd86d",
+   "same_as": "bayes_hrt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_srt_0_degs.pdf",
+   "sha256": "9348368e04e292ab75ed3a8fc2e966c2bad67e8ea589370f2032460b3b800336",
+   "same_as": "bayes_srt_0_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_srt_0_degs.png",
+   "sha256": "5cdac49f52dd719f61ed4d33c102e8a998a191ce2433aa68f369707a74e63d30",
+   "same_as": "bayes_srt_0_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_srt_150_degs.pdf",
+   "sha256": "9632747b7a3ada614582291d3f95c9e4e1253a2da09848bdb29bbd5bf76680c7",
+   "same_as": "bayes_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_srt_150_degs.png",
+   "sha256": "f281301cea85ab737ffb444dc7d924db2790521ad18de5e1143846639fe1fce0",
+   "same_as": "bayes_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_srt_75_degs.pdf",
+   "sha256": "e11b71dbbfb6c46d7bd10feeceac645ff1f71bbc8574bb5b0144b6cc49ea07f7",
+   "same_as": "bayes_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_srt_75_degs.png",
+   "sha256": "d91ee7b676f33dfbb981f3409e39f3a3f29c5897f4c01992d268c7d3a765a20c",
+   "same_as": "bayes_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_hrt_0_degs.pdf",
+   "sha256": "b9f5e6da390f1d4ba9dcdd7605cbf7e861475f61be403dbdcf9d16634149c2c3",
+   "same_as": "ddm_hrt_0_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_hrt_0_degs.png",
+   "sha256": "bad06bdfd8129cba3e4659c1874547bb538f6c014eb1eb0e262764f4df2d6ea4",
+   "same_as": "ddm_hrt_0_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_hrt_150_degs.pdf",
+   "sha256": "eaa4be58d239b58cc51d0a49ad82c480d7c34ad3e62492c2896b48d14155dbf6",
+   "same_as": "ddm_hrt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_hrt_150_degs.png",
+   "sha256": "1243301999a5e13d246bc843827ca84fd86b0db76d49f60362181b476af7f16e",
+   "same_as": "ddm_hrt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_hrt_75_degs.pdf",
+   "sha256": "833b4ae5c136e336bbe0d5f4f35b6f65196697fee0dbeec2b9792ac63f73d359",
+   "same_as": "ddm_hrt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_hrt_75_degs.png",
+   "sha256": "c4b54eab90d51177b6519ea763c7a4c412fb643b9aceb1d09089b8e10a09a5f2",
+   "same_as": "ddm_hrt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_srt_150_degs.pdf",
+   "sha256": "b3432308decb150ecda801a7a9defb22f46e30ee0d84c88c61454484267c5c23",
+   "same_as": "ddm_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_srt_150_degs.png",
+   "sha256": "826562a03f38adfb983e5f569e496f7bb7b2d366a3c89ea748ae9fae06dca1fb",
+   "same_as": "ddm_srt_150_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_srt_75_degs.pdf",
+   "sha256": "b5f6ba50667c7b4c2f3780f4345882d136707418e07440c913ef4ad49e244b50",
+   "same_as": "ddm_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/DDM/ddm_srt_75_degs.png",
+   "sha256": "03e95bbbd93ca517162a1d16bb5d0e2dcb6c4193413b90b589474a75dec2645c",
+   "same_as": "ddm_srt_75_degs"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/NDT/NDT_barchart.pdf",
+   "sha256": "82554d29eeb440e7276dcd25a57cadaef6a520058024661a3e374a8562facfd6",
+   "same_as": "NDT_barchart"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/NDT/NDT_barchart.png",
+   "sha256": "79e9613a63115970fcaebf87043499a9bcc3ced9544763497d7830163a71f5ce",
+   "same_as": "NDT_barchart"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
+   "sha256": "093a8ff2f9580fd9b750624de8efd042812a8c99fcffbac9db530ad95fd1041d",
+   "same_as": "vincentile_results_fig1_kde_overlay"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Vincentile/vincentile_results_fig2_histograms.pdf",
+   "sha256": "0308b8ce99fa9f51a8c3f788f113c89ec7d8531ff9f5dfba788bb1360849c125",
+   "same_as": "vincentile_results_fig2_histograms"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
+   "sha256": "12b9e84f3e93b89c113d64c7274b90d7910a05e19cba5f7d20951ed5e1184a44",
+   "same_as": "vincentile_results_fig3_vincentile_by_speed"
+  },
+  {
+   "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
+   "sha256": "dbcceb2d058d6e29667767706330e991feb5ed7d7ddd4bb960aad169a6181907",
+   "same_as": "vincentile_results_fig4_combined_vincentile"
+  },
+  {
+   "source": "Working Iterations/Two Boundary Model/two_boundary_verdict.png",
+   "sha256": "232d2eefa15cf38799b64f1df16458962c7a5e9581ce971a3c36196785d9f674",
+   "same_as": "two_boundary_verdict"
+  }
+ ]
+}

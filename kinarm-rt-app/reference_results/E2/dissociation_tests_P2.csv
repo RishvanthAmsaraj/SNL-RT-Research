@@ -1,0 +1,4 @@
+set,n,mean_t0_75,mean_t0_100,mean_t0_125,mean_t0_150,friedman_chi2,friedman_p,perm_p,boot_150_minus_75_ms,boot_ci_lo,boot_ci_hi,boot_excludes_zero,slope_ms_per_25,slope_ci_lo,slope_ci_hi,slope_n_negative,slope_wilcoxon_p
+hand_MethodB_Bayesian,16,146.7,147.0,151.7,150.6,9.269,0.0259,0.0217,3.9,0.8,6.9,True,1.63,0.4,2.79,4,0.0739
+hand_MethodA_MLE,16,148.1,146.4,156.5,146.5,2.959,0.398,0.4069,-1.6,-15.1,10.9,False,0.52,-3.11,3.96,5,0.4637
+saccade_MethodA_MLE,16,86.1,89.7,83.9,91.2,3.594,0.3088,0.3089,5.1,-6.3,17.0,False,0.96,-2.58,4.61,10,0.9586

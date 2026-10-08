@@ -39,7 +39,7 @@ jobs:
           - os: windows-latest
             label: Windows (x64)
             artifact: KINARM-RT-windows-x64
-          - os: macos-13
+          - os: macos-15-intel      # Intel Macs; macos-13 was retired in December 2025 (jobs on it never start)
             label: macOS (Intel)
             artifact: KINARM-RT-macos-intel
           - os: macos-14
@@ -114,7 +114,7 @@ jobs:
           else
             ./staging/env/bin/conda-unpack
           fi
-          for item in app.py kinarm_rt sample_data desktop .streamlit \
+          for item in app.py kinarm_rt pipelines reference_results tools sample_data desktop .streamlit \
                       README.md CHANGELOG.md requirements.txt environment.yml; do
             if [ -e "$item" ]; then cp -R "$item" staging/app/; fi
           done
@@ -145,8 +145,9 @@ jobs:
           chmod +x "$APP/Contents/MacOS/KINARM RT"
           if [ -f desktop/icon.icns ]; then cp desktop/icon.icns "$APP/Contents/Resources/icon.icns"; fi
           python - "$APP/Contents/Info.plist" <<'PY'
-          import sys
-          open(sys.argv[1], "w").write("""<?xml version="1.0" encoding="UTF-8"?>
+          import re, sys
+          VERSION = re.search(r'__version__ = "(.+?)"', open("kinarm_rt/__init__.py").read()).group(1)   # one source of truth
+          open(sys.argv[1], "w").write(f"""<?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
@@ -155,8 +156,8 @@ jobs:
             <key>CFBundleExecutable</key><string>KINARM RT</string>
             <key>CFBundleIdentifier</key><string>org.snl.kinarm-rt</string>
             <key>CFBundlePackageType</key><string>APPL</string>
-            <key>CFBundleShortVersionString</key><string>1.10.0</string>
-            <key>CFBundleVersion</key><string>1.10.0</string>
+            <key>CFBundleShortVersionString</key><string>{VERSION}</string>
+            <key>CFBundleVersion</key><string>{VERSION}</string>
             <key>CFBundleIconFile</key><string>icon</string>
             <key>NSHighResolutionCapable</key><true/>
             <key>LSMinimumSystemVersion</key><string>11.0</string>
@@ -221,23 +222,25 @@ jobs:
           draft: true
           files: artifacts/**/*.zip
           body: |
-            Desktop builds of the KINARM RT app.
+            Desktop builds of the KINARM RT app. Pick the file for your computer:
 
-            Every analysis is included, with no performance or accuracy compromise:
-            Method A, the hierarchical Bayesian fit with NUTS, the LATER model, all
-            figures and diagnostics, and the full report. The app carries its own
-            Python and C++ toolchain, so PyMC compiles at native speed rather than
-            dropping to a slower path that does not reproduce the same numbers.
+            - **Windows** (64-bit): `KINARM-RT-windows-x64.zip`
+            - **Mac with Apple silicon** (M1 and later): `KINARM-RT-macos-apple-silicon.zip`
+            - **Mac with an Intel processor**: `KINARM-RT-macos-intel.zip`
+              (Apple menu > About This Mac shows which one you have.)
 
-            These are large -- roughly a gigabyte -- because that toolchain is what
-            makes the Bayesian fit both correct and fast.
+            The app runs the repository's own analysis scripts, unchanged, for Experiment 1 and Experiment 2,
+            and shows every figure, table and document the repository holds -- the lab's results are browsable
+            straight away, with nothing to run. Deprecated models (LATER, two-boundary) stay available, labelled,
+            with the reason they were set aside. It carries its own Python and C++ toolchain, so the Bayesian fits
+            compile at native speed and reproduce the lab's numbers. That toolchain is why the download is about
+            a gigabyte.
 
-            **Windows** -- unzip and run `KINARM RT.exe`. SmartScreen warns on first
-            launch because the app is not code-signed: More info -> Run anyway.
+            **Windows** -- unzip and run `KINARM RT.exe`. SmartScreen warns on first launch because the app is
+            not code-signed: More info > Run anyway.
 
-            **macOS** -- unzip, drag to Applications, then **right-click -> Open**
-            the first time. Double-clicking will not offer the option for an
-            unsigned app.
+            **macOS** -- unzip and drag the app to Applications. The app is not signed, so the first launch is
+            blocked: on macOS 15 or later, open it once, then go to System Settings > Privacy & Security and
+            choose Open Anyway; on earlier versions, right-click the app and choose Open.
 
-            The first hierarchical fit is slower than later ones while PyTensor
-            compiles and caches the model.
+            The first Bayesian fit is slower than later ones while PyTensor compiles and caches the model.
