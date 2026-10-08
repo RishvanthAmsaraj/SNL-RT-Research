@@ -2,6 +2,20 @@
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.3.1] — 2026-10-08
+
+### Changed
+
+- **Per-participant tables are no longer shipped.** The repository no longer holds participant data, so the app ships
+  figures, documents and aggregate tables only. `sync_pipelines.py` now skips any CSV that carries participant
+  identifiers, and the MANIFEST reflects the shipped set. Figure explanations and side-by-side comparison notes that
+  were computed from those tables read generic text instead of the specific numbers.
+
+### Fixed
+
+- **The shipped manifest was stale** after the documentation was emoji-cleaned, which failed the build's
+  `test_shipped_files_match_the_manifest`. The manifest is regenerated from the current files.
+
 ## [2.3.0] — 2026-10-08
 
 ### Fixed

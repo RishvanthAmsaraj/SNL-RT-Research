@@ -53,6 +53,22 @@ ARCHIVE = [("v1", "Deprecated Pipelines/Deprecated Ver 1"), ("v2", "Deprecated P
            ("v2_5", "Deprecated Pipelines/Deprecated Ver 2.5"), ("v3", "Deprecated Pipelines/Deprecated Ver 3"),
            ("wi", "Working Iterations")]
 SKIP = re.compile(r"(^pooled_data|^example_ddm_data)", re.I)
+# De-identified participant codes (CMT001..., CIR001...). A table that carries these is
+# per-participant data and must never be shipped in the app, even if it lives in a
+# gitignored folder in the repository.
+PARTICIPANT_ID = re.compile(r"\b(CMT[0-9]{3,4}|CIR[0-9]{3})\b")
+
+
+def _is_participant_data(path: str) -> bool:
+    """True when a CSV table holds per-participant rows (de-identified codes)."""
+    if not path.lower().endswith(".csv"):
+        return False
+    try:
+        with open(path, "r", errors="ignore") as f:
+            head = f.read(65536)
+    except OSError:
+        return False
+    return bool(PARTICIPANT_ID.search(head))
 # Figures the Experiment 1 correction (October 2026) fixed: their earlier copies show the mistake, so they are kept as
 # deprecated. Every other version-3 figure differs from the current one only by its title, so it is the same figure.
 CORRECTED = {"DDM_summary", "Bayesian_summary", "Bayesian_srt_ndt", "SRT_fixedt0_sensitivity", "NDT_barchart_bayesian",
@@ -89,6 +105,8 @@ def collect(spec):
     out = {}
     for folder, pattern in spec:
         for src in sorted(glob.glob(os.path.join(REPO, folder, pattern))):
+            if _is_participant_data(src):
+                continue
             name = os.path.basename(src)
             if name in out and sha(out[name]) != sha(src):
                 sys.exit(f"name clash: {name} comes from two different files ({out[name]} and {src})")
@@ -114,6 +132,8 @@ def collect_archive(seen_hashes: set):
         counts = {}
         for p in found: counts[os.path.basename(p)] = counts.get(os.path.basename(p), 0) + 1
         for p in sorted(found):
+            if _is_participant_data(p):
+                continue
             name = os.path.basename(p); rel_dir = os.path.relpath(os.path.dirname(p), base)
             is_doc = name.lower().endswith(".md") or (name.lower().endswith(".pdf") and "Documents" in rel_dir.split(os.sep))
             h = sha(p)

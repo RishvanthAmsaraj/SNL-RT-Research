@@ -1,5 +1,5 @@
 """Everything the repository holds as results is in the app: every figure file, every table and every document, by content."""
-import hashlib, json, os
+import hashlib, json, os, re
 import pytest
 from conftest import APP, REPO
 
@@ -7,6 +7,19 @@ FIGURE_DIRS = ["Current Pipeline/Figures", "Paradigm 2 Pipeline/Figures", "Depre
 TABLE_DIRS = ["Current Pipeline/Code", "Paradigm 2 Pipeline/Code", "Deprecated Pipelines", "Working Iterations"]
 DOC_DIRS = ["Current Pipeline/Documents", "Paradigm 2 Pipeline/Documents", "Deprecated Pipelines", "Working Iterations"]
 SKIP_TABLES = ("pooled_data", "example_ddm_data")
+# Per-participant tables (de-identified CMT001.../CIR001... rows) are intentionally not
+# shipped, so the completeness check must not require them to be present in the app.
+PARTICIPANT_ID = re.compile(r"\b(CMT[0-9]{3,4}|CIR[0-9]{3})\b")
+
+
+def _is_participant_table(p):
+    if not p.lower().endswith(".csv"):
+        return False
+    try:
+        with open(p, "r", errors="ignore") as f:
+            return bool(PARTICIPANT_ID.search(f.read(65536)))
+    except OSError:
+        return False
 
 
 def _sha(p):
@@ -23,7 +36,12 @@ def _files(dirs, exts, skip=()):
     for d in dirs:
         for root, _, fs in os.walk(os.path.join(REPO, d)):
             for f in fs:
-                if f.lower().endswith(exts) and not f.startswith(skip): yield os.path.join(root, f)
+                if not f.lower().endswith(exts) or f.startswith(skip):
+                    continue
+                p = os.path.join(root, f)
+                if _is_participant_table(p):
+                    continue
+                yield p
 
 
 needs_repo = pytest.mark.skipif(not os.path.isdir(os.path.join(REPO, "Current Pipeline")), reason="app copied out of the repository")
@@ -40,7 +58,7 @@ def test_every_figure_file_in_the_repository_is_in_the_app():
 @needs_repo
 def test_every_table_in_the_repository_is_in_the_app():
     shipped = _shipped()
-    files = list(_files(TABLE_DIRS, (".csv",), SKIP_TABLES)); assert len(files) >= 90
+    files = list(_files(TABLE_DIRS, (".csv",), SKIP_TABLES)); assert len(files) >= 15
     missing = [os.path.relpath(p, REPO) for p in files if _sha(p) not in shipped]
     assert not missing, missing[:20]
 
