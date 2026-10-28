@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-08T03:08:57",
+ "generated": "2026-10-28T17:47:22",
  "pipelines": {
   "experiment1": [
    {
@@ -70,7 +70,7 @@
    {
     "file": "vincentile_figures.py",
     "source": "Current Pipeline/Code/Vincentile/vincentile_figures.py",
-    "sha256": "d224f1eb972d9af3751fc1a3281ed3eee4bce25e569b004fc2a1c13f4c0ba7bd"
+    "sha256": "78029ad04f05bf03e5f9285420fcf4cd09b3b3785e66fff2fc513ac054242764"
    },
    {
     "file": "HRT_floor_control.py",
@@ -147,7 +147,7 @@
    {
     "file": "vincentile_figures.py",
     "source": "Paradigm 2 Pipeline/Code/Vincentile/vincentile_figures.py",
-    "sha256": "ed6bbaf843d76db3470e2a85fd685c16c08859c8c36a584b964501c5c8194b7c"
+    "sha256": "5968c76c976e346b4be9970c4f91013208b6d57f0ed47e6ee7b1260ba9489181"
    },
    {
     "file": "HRT_floor_control.py",
@@ -405,22 +405,22 @@
    {
     "file": "vincentile_results_fig1_kde_overlay.pdf",
     "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
-    "sha256": "17aaf76e350042c087ef65cd34714b5a8f3f42fa888164d5c4f4479e977eb473"
+    "sha256": "3cc29368c1b349f15bb2dec231bcf9c2a922ebf7bf29d53581dac05ad186eb0e"
    },
    {
     "file": "vincentile_results_fig2_histograms.pdf",
     "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig2_histograms.pdf",
-    "sha256": "9a3853ee8348e986d496c07fbd9409f47faba9c8648cb4defec78b66d5d221c0"
+    "sha256": "e0ae34dbb00847e610a6064e1bf3b686ed0ad5eb0688e8fc30aa1b735860868e"
    },
    {
     "file": "vincentile_results_fig3_vincentile_by_speed.pdf",
     "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
-    "sha256": "80fc2647d52b2664d70f11f8a99493e69b18fd8b2b773d10fbcae20af835479c"
+    "sha256": "b66c8f2e8eda5b1737038cb1bde0514fc4b83d8374b9c890e29c5f80279c2fc8"
    },
    {
     "file": "vincentile_results_fig4_combined_vincentile.pdf",
     "source": "Current Pipeline/Figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
-    "sha256": "9b579f158ce1b7409d18548420fe3a7e615797148e46d602f74de445efbb5b0d"
+    "sha256": "1db3e10ef3f0a153aa20053d356bdfe08372a6ee666cd574c8280cd8a9d15355"
    },
    {
     "file": "HRT_floor_control.png",
@@ -702,22 +702,22 @@
    {
     "file": "vincentile_results_fig1_kde_overlay.pdf",
     "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
-    "sha256": "4dc93d89bf905e12a5b65fa6adad0c74db69b22f9d0f0fea0978f02acbdc9b4e"
+    "sha256": "ab33bdcc345bdcb593132247d16262febe957e2b08366fca0a5debad343513cf"
    },
    {
     "file": "vincentile_results_fig2_histograms.pdf",
     "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig2_histograms.pdf",
-    "sha256": "4d85962dc5051d2483d615827f6ad2d1b29d9b57a297547247774ca15e040ae6"
+    "sha256": "03351b0d9313312df5614724e4d294d5ff543874504658a97f338dc6cccfe1f1"
    },
    {
     "file": "vincentile_results_fig3_vincentile_by_speed.pdf",
     "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
-    "sha256": "47854e93664346e55ebac9821d52e6417439ac8da1f6536e1a4efd206aa076a2"
+    "sha256": "a2d4462fda57e45bb175206bf3c73a4f82594492a39b003fa3c2012900e20d7c"
    },
    {
     "file": "vincentile_results_fig4_combined_vincentile.pdf",
     "source": "Paradigm 2 Pipeline/Figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
-    "sha256": "7f95361b3c96a00a2a1436e1e8458b27cee810fdac4d2c280a8bf0db0c7da404"
+    "sha256": "7be75800d657cf9c1e8099260baa421c085b39297a1f73ab46254b3eaf994723"
    },
    {
     "file": "HRT_floor_control.png",
@@ -953,7 +953,7 @@
    {
     "file": "CHANGELOG.md",
     "source": "CHANGELOG.md",
-    "sha256": "ae7cf80cde9bafe23df91c712265ab79e2ea5405b8fb46ad96854bd0b09b585f"
+    "sha256": "af2aa568ece53c477751144a4a8b2a6c19515c7c112464919c2bf7d8e4bd3b06"
    },
    {
     "file": "DEVELOPMENT_HISTORY.md",
@@ -1245,6 +1245,26 @@
     "sha256": "5ae1afabf90f8c5654c929e21063892932eea584f6ac21c291e6b827c22b185f"
    },
    {
+    "file": "v2_5__vincentile_results_fig1_kde_overlay.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
+    "sha256": "56cd636c2c162c74ed699a5a9629fd3015a9b0c2ad5ac3bd418d3c107c93811b"
+   },
+   {
+    "file": "v2_5__vincentile_results_fig2_histograms.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig2_histograms.pdf",
+    "sha256": "ea02c4cb880e2b5b2c6ed2c5fc73f09449ca2768ef43dcd41a2de75fdb3a007d"
+   },
+   {
+    "file": "v2_5__vincentile_results_fig3_vincentile_by_speed.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
+    "sha256": "2ad896a76315e177c5f4a8fed9e5746df8c7eb9e58d2878f1bc4cbe53e462c13"
+   },
+   {
+    "file": "v2_5__vincentile_results_fig4_combined_vincentile.pdf",
+    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
+    "sha256": "50132314515b1905e4cfcc2654f9d0d32ea37a86fd1b755ab5b145c73fe60bf0"
+   },
+   {
     "file": "v3__Bayesian_srt_ndt.pdf",
     "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/Bayesian_srt_ndt.pdf",
     "sha256": "4685e12d88edaaf2259b49ccc651831e11b4683ee35dfa88d6de40c91eb4d977"
@@ -1488,26 +1508,6 @@
    "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/DDM/ddm_srt_75_degs.png",
    "sha256": "7ac17cdca204ab9f103859c767db8e4082e451cc1e27bbe1be52d18ef42645ff",
    "same_as": "ddm_srt_75_degs"
-  },
-  {
-   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig1_kde_overlay.pdf",
-   "sha256": "56cd636c2c162c74ed699a5a9629fd3015a9b0c2ad5ac3bd418d3c107c93811b",
-   "same_as": "vincentile_results_fig1_kde_overlay"
-  },
-  {
-   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig2_histograms.pdf",
-   "sha256": "ea02c4cb880e2b5b2c6ed2c5fc73f09449ca2768ef43dcd41a2de75fdb3a007d",
-   "same_as": "vincentile_results_fig2_histograms"
-  },
-  {
-   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig3_vincentile_by_speed.pdf",
-   "sha256": "2ad896a76315e177c5f4a8fed9e5746df8c7eb9e58d2878f1bc4cbe53e462c13",
-   "same_as": "vincentile_results_fig3_vincentile_by_speed"
-  },
-  {
-   "source": "Deprecated Pipelines/Deprecated Ver 2.5/figures/Vincentile/vincentile_results_fig4_combined_vincentile.pdf",
-   "sha256": "50132314515b1905e4cfcc2654f9d0d32ea37a86fd1b755ab5b145c73fe60bf0",
-   "same_as": "vincentile_results_fig4_combined_vincentile"
   },
   {
    "source": "Deprecated Pipelines/Deprecated Ver 3/figures/Bayesian/bayes_hrt_0_degs.pdf",

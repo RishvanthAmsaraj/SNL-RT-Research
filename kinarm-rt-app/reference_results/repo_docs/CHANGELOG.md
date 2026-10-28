@@ -15,6 +15,13 @@ the entire project, see [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md).
 
 ---
 
+## [2.5.6] — 2026-10-28 — Recolored vincentile figures per the lab's speed palette
+
+- `Current Pipeline` and `Paradigm 2 Pipeline` vincentile figures now use the lab's per-speed
+  palette: amber, orange, red, blue and purple lines (0 / 75 / 100 / 125 / 150 deg/s) with pale
+  matching clouds for the shaded areas and panel backgrounds. The scripts in `Code/Vincentile/`
+  hold the palette, so both paradigms and the app stay in step.
+
 ## [2.5.5] — 2026-10-08 — Pre-computed insights and Windows-safe line endings
 
 - `kinarm-rt-app` 2.3.2: figure explanations and comparison notes read their specific numbers

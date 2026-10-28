@@ -22,8 +22,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "pooled_data_P2.csv")
 if not os.path.exists(DATA): sys.exit("ERROR: pooled_data_P2.csv must sit next to this script.")
 SPEEDS = [75, 100, 125, 150]          # Paradigm 2
-SPEED_FILL = {75: "#f3d4d4", 100: "#f6e3c4", 125: "#e3daf0", 150: "#d3ddef"}     # light per-speed backgrounds (75/150 as P1)
-SPEED_LINE = {75: "#9e4a4a", 100: "#b07a2a", 125: "#7a5a9e", 150: "#496aa3"}     # saturated per-speed lines (75/150 as P1)
+SPEED_FILL = {75: "#FAE7D9", 100: "#F9E1D5", 125: "#E1E3F2", 150: "#E8DEED"}     # light per-speed clouds (overseer RGB set)
+SPEED_LINE = {75: "#DA5527", 100: "#D91F26", 125: "#3961AD", 150: "#7D308E"}     # per-speed lines (overseer RGB set)
 SRT_C, HRT_C = "#2c7fb8", "#d9772b"                            # SRT cool, HRT warm
 NBINS = 20
 
@@ -130,7 +130,7 @@ fig, ax = plt.subplots(figsize=(8.5, 6))
 for s in SPEEDS:
     m = diffs[s].mean(0)
     ax.plot(x, m, "-o", color=SPEED_LINE[s], lw=2, ms=4, label=f"{s} deg/s")
-    ax.fill_between(x, 0, m, color=SPEED_LINE[s], alpha=0.12)
+    ax.fill_between(x, 0, m, color=SPEED_FILL[s])
 ax.axhline(0, color="#555", ls="--", lw=0.9)
 ax.set_xlabel("Vincentile bin"); ax.set_ylabel("HRT − SRT (ms)")
 ax.set_xticks([1, 5, 10, 15, 20]); ax.legend(fontsize=10, loc="upper left")
